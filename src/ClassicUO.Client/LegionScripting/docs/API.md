@@ -21,7 +21,7 @@ You can now type `-updateapi` in game to download the latest API.py file.
 
 [Additional notes](../notes/)  
 
-*This was generated on `9/5/25`.*
+*This was generated on `9/6/25`.*
 
 ## Properties
 ### `JournalEntries`
@@ -892,6 +892,28 @@ You can now type `-updateapi` in game to download the latest API.py file.
 | `serial` | `uint` | ✅ Yes | Optional, if not set it will check yourself, otherwise it will check the mobile requested |
 
 **Return Type:** `PyItem`
+
+---
+
+### GetItemsOnGround
+`(distance, graphic)`
+ Get all items on the ground within specified range.
+ Example:
+ ```py
+ items = API.GetItemsOnGround(10)  # All items within 10 tiles
+ if items:
+   API.SysMsg("Found " + str(len(items)) + " items on ground!")
+ ```
+
+
+**Parameters:**
+
+| Name | Type | Optional | Description |
+| --- | --- | --- | --- |
+| `distance` | `int` | ✅ Yes | Optional max distance to search (default: no limit) |
+| `graphic` | `uint` | ✅ Yes | Optional graphic/type filter (default: no filter) |
+
+**Return Type:** `PythonList`
 
 ---
 

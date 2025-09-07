@@ -105,6 +105,7 @@ namespace ClassicUO.Game.GameObjects
                 mobile.CalculateRandomIdleTime();
                 mobile.IsPlayer = false;
                 mobile.Mount = null;
+                mobile.InParty = false;
             }
         );
 

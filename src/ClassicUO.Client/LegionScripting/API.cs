@@ -951,6 +951,52 @@ namespace ClassicUO.LegionScripting
         );
 
         /// <summary>
+        /// Get all items on the ground within specified range.
+        /// Example:
+        /// ```py
+        /// items = API.GetItemsOnGround(10)  # All items within 10 tiles
+        /// if items:
+        ///   API.SysMsg("Found " + str(len(items)) + " items on ground!")
+        /// ```
+        /// </summary>
+        /// <param name="distance">Optional max distance to search (default: no limit)</param>
+        /// <param name="graphic">Optional graphic/type filter (default: no filter)</param>
+        /// <param name="IsOSI">If true, looks for items in container with uint.MaxValue serial (OSI standard)</param>
+        /// <returns>PythonList of items on ground, or null if none found</returns>
+        public PythonList GetItemsOnGround(int distance = int.MaxValue, uint graphic = uint.MaxValue) =>
+            MainThreadQueue.InvokeOnMainThread(() =>
+            {
+                var resultList = new List<PyItem>();
+
+                foreach (Item item in World.Items.Values)
+                {
+                    if (item.IsDestroyed || !item.OnGround || OnIgnoreList(item))
+                        continue;
+
+                    // Check distance if specified
+                    if (distance != int.MaxValue && item.Distance > distance)
+                        continue;
+
+                    // Check graphic if specified
+                    if (graphic != uint.MaxValue && item.Graphic != graphic)
+                        continue;
+
+                    resultList.Add(new PyItem(item));
+                }
+
+                if (resultList.Count == 0)
+                    return null;
+
+                var pythonList = new PythonList();
+                foreach (var item in resultList)
+                {
+                    pythonList.Add(item);
+                }
+
+                return pythonList;
+            });
+
+        /// <summary>
         /// Get all items in a container.
         /// Example:
         /// ```py

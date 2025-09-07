@@ -668,6 +668,19 @@ def FindLayer(layer: str, serial: int = 1337) -> PyItem:
     """
     pass
 
+def GetItemsOnGround(distance: int = int.MaxValue, graphic: int = 1337) -> Any:
+    """
+     Get all items on the ground within specified range.
+     Example:
+     ```py
+     items = API.GetItemsOnGround(10)  # All items within 10 tiles
+     if items:
+       API.SysMsg("Found " + str(len(items)) + " items on ground!")
+     ```
+    
+    """
+    pass
+
 def ItemsInContainer(container: int, recursive: bool = False) -> list[PyItem]:
     """
      Get all items in a container.

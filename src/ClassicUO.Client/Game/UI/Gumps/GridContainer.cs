@@ -72,7 +72,7 @@ namespace ClassicUO.Game.UI.Gumps
         private readonly GumpPic openRegularGump, sortContents;
         private readonly ResizableStaticPic quickDropBackpack;
         private readonly GumpPicTiled backgroundTexture;
-        private readonly NiceButton setLootBag;
+        private readonly NiceButton setLootBag, searchClearButton;
         private readonly bool isCorpse = false;
         #endregion
 
@@ -218,6 +218,17 @@ namespace ClassicUO.Game.UI.Gumps
             };
             searchBox.TextChanged += (sender, e) => { UpdateItems(); };
 
+            searchClearButton = new NiceButton(searchBox.X + searchBox.Width + 2, searchBox.Y, 16, searchBox.Height, ButtonAction.Default, "X");
+            searchClearButton.MouseUp += (sender, e) =>
+            {
+                if (e.Button == MouseButtonType.Left)
+                {
+                    searchBox.ClearText();
+                    UIManager.SystemChat?.SetFocus();
+                }
+            };
+            searchClearButton.SetTooltip("Clear search");
+
             var regularGumpIcon = Client.Game.Gumps.GetGump(5839).Texture;
             openRegularGump = new GumpPic(background.Width - 25 - borderWidth, borderWidth, regularGumpIcon == null ? (ushort)1209 : (ushort)5839, 0);
             openRegularGump.ContextMenu = GenContextMenu();
@@ -322,6 +333,7 @@ namespace ClassicUO.Game.UI.Gumps
                 Height = searchBox.Height
             });
             Add(searchBox);
+            Add(searchClearButton);
             Add(openRegularGump);
             Add(quickDropBackpack);
             Add(sortContents);
@@ -637,7 +649,8 @@ namespace ClassicUO.Game.UI.Gumps
                 sortContents.X = quickDropBackpack.X - sortContents.Width;
                 lastHeight = Height;
                 lastWidth = Width;
-                searchBox.Width = Math.Min(Width - (borderWidth * 2) - openRegularGump.Width - quickDropBackpack.Width - sortContents.Width, 150);
+                searchBox.Width = Math.Min(Width - (borderWidth * 2) - openRegularGump.Width - quickDropBackpack.Width - sortContents.Width - 20, 150);
+                searchClearButton.X = searchBox.X + searchBox.Width + 2;
                 backgroundTexture.Width = background.Width;
                 backgroundTexture.Height = background.Height;
                 backgroundTexture.Alpha = background.Alpha;
@@ -784,6 +797,8 @@ namespace ClassicUO.Game.UI.Gumps
             scrollArea.X = background.X;
             scrollArea.Y = TOP_BAR_HEIGHT + background.Y;
             searchBox.X = searchBox.Y = borderWidth;
+            searchClearButton.X = searchBox.X + searchBox.Width + 2;
+            searchClearButton.Y = borderWidth;
             quickDropBackpack.Y = sortContents.Y = openRegularGump.Y = borderWidth;
             backgroundTexture.X = background.X;
             backgroundTexture.Y = background.Y;

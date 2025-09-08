@@ -1162,7 +1162,7 @@ namespace ClassicUO.Game.GameObjects
 
                                 goto done;
 
-                            case 0x4076: // Shortblade
+                            case 0x4076 or 0x907: // Shortblade
                                 Abilities[0] = Ability.ArmorIgnore;
                                 Abilities[1] = Ability.MortalStrike;
 

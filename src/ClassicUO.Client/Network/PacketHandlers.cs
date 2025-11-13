@@ -4882,6 +4882,8 @@ namespace ClassicUO.Network
                         val = 0;
                     }
 
+                    if (World.Player == null) break;
+
                     World.Player.SpeedMode = (CharacterSpeedType)val;
 
                     break;

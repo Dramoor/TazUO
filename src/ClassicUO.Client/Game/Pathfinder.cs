@@ -423,6 +423,8 @@ namespace ClassicUO.Game
 
             foreach (PathObject obj in _reusableList)
             {
+                if(obj == null) continue;
+                
                 GameObject o = obj.Object;
                 int averageZ = obj.AverageZ;
 

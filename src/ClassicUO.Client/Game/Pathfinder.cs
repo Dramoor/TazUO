@@ -560,6 +560,7 @@ namespace ClassicUO.Game
             for (int i = 0; i < _reusableList.Count; i++)
             {
                 PathObject obj = _reusableList[i];
+                if(obj == null) continue;
 
                 if ((obj.Flags & (uint)PATH_OBJECT_FLAGS.POF_NO_DIAGONAL) != 0 && stepState == (int)PATH_STEP_STATE.PSS_FLYING)
                 {

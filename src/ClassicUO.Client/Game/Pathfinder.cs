@@ -421,10 +421,11 @@ namespace ClassicUO.Game
                 return 0;
             }
 
-            foreach (PathObject obj in _reusableList)
+            for (int i = 0; i < _reusableList.Count; i++)
             {
+                PathObject obj = _reusableList[i];
                 if(obj == null) continue;
-                
+
                 GameObject o = obj.Object;
                 int averageZ = obj.AverageZ;
 
@@ -511,9 +512,9 @@ namespace ClassicUO.Game
                 stepState
             );
 
-            foreach (PathObject o in _reusableList)
+            for (int i = 0; i < _reusableList.Count; i++)
             {
-                o.Return();
+                _reusableList[i]?.Return();
             }
             _reusableList.Clear();
 

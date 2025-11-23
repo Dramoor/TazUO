@@ -27,6 +27,9 @@ public class ObjectPool<T> where T : class
 
     public void Return(T obj)
     {
+        if (obj == null)
+            return;
+
         _onReturn?.Invoke(obj);
         if (_pool.Count < MaxCapacity)
             _pool.Push(obj);

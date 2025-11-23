@@ -1133,6 +1133,10 @@ namespace ClassicUO.Game
             public static PathObject Get(uint flags, int z, int avgZ, int h, GameObject obj)
             {
                 var po = _pool.Get();
+                if (po == null)
+                {
+                    po = new PathObject(0, 0, 0, 0, null);
+                }
                 po.Flags = flags;
                 po.Z = z;
                 po.AverageZ = avgZ;
@@ -1158,6 +1162,11 @@ namespace ClassicUO.Game
 
             public int CompareTo(PathObject other)
             {
+                if (other == null)
+                {
+                    return 1;
+                }
+
                 int comparision = Z - other.Z;
 
                 if (comparision == 0)

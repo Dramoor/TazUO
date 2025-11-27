@@ -584,6 +584,7 @@ namespace ClassicUO.Game
                         for (int j = i - 1; j >= 0; j--)
                         {
                             PathObject tempObj = _reusableList[j];
+                            if(tempObj == null) continue;
 
                             if ((tempObj.Flags & (uint)(PATH_OBJECT_FLAGS.POF_SURFACE | PATH_OBJECT_FLAGS.POF_BRIDGE)) != 0)
                             {

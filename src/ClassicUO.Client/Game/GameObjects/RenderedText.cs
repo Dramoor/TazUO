@@ -670,13 +670,18 @@ namespace ClassicUO.Game
                     Log.Error("Invalid texture size: " + fi.Width + "x" + fi.Height);
                 } else
                 {
-                    Texture = new Texture2D(
-                        Client.Game.GraphicsDevice,
-                        fi.Width,
-                        fi.Height,
-                        false,
-                        SurfaceFormat.Color
-                    );
+                    try {
+                        Texture = new Texture2D(
+                            Client.Game.GraphicsDevice,
+                            fi.Width,
+                            fi.Height,
+                            false,
+                            SurfaceFormat.Color
+                        );
+                    }
+                    catch(Exception e){
+                        Log.Error(e.ToString())
+                    }
                 }
             }
 

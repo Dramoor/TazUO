@@ -680,7 +680,7 @@ namespace ClassicUO.Game
                         );
                     }
                     catch(Exception e){
-                        Log.Error(e.ToString())
+                        Log.Error(e.ToString());
                     }
                 }
             }

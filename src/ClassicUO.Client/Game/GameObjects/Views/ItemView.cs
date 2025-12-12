@@ -650,9 +650,18 @@ namespace ClassicUO.Game.GameObjects
                         animIndex = 0;
                     }
 
-                    if (animIndex >= 0)
+                    // Defensive check: ensure frames still has content before modulo and access
+                    if (frames.Length == 0)
                     {
-                        animIndex = (byte)(animIndex % frames.Length);
+                        continue;
+                    }
+
+                    animIndex = (byte)(animIndex % frames.Length);
+
+                    // Double-check bounds before array access to prevent race conditions
+                    if (animIndex >= frames.Length)
+                    {
+                        continue;
                     }
 
                     ref var spriteInfo = ref frames[animIndex];

@@ -357,122 +357,131 @@ namespace ClassicUO.Game.GameObjects
 
             int fc = frames.Length;
 
-            if (fc > 0 && animIndex >= fc)
+            if (fc == 0)
+            {
+                return;
+            }
+
+            if (animIndex >= fc)
             {
                 animIndex = (byte)(fc - 1);
             }
 
-            if (animIndex < frames.Length)
+            // Additional safety check before array access
+            if (animIndex >= frames.Length)
             {
-                ref var spriteInfo = ref frames[animIndex];
+                return;
+            }
 
-                if (spriteInfo.Texture == null)
+            ref var spriteInfo = ref frames[animIndex];
+
+            if (spriteInfo.Texture == null)
+            {
+                return;
+            }
+
+            if (flipped)
+            {
+                posX -= spriteInfo.UV.Width - spriteInfo.Center.X;
+            }
+            else
+            {
+                posX -= spriteInfo.Center.X;
+            }
+
+            posY -= spriteInfo.UV.Height + spriteInfo.Center.Y;
+
+            if (color == 0)
+            {
+                if ((color & 0x8000) != 0)
                 {
-                    return;
+                    ispartialhue = true;
+                    color &= 0x7FFF;
                 }
 
-                if (flipped)
+                if (color == 0 && _equipConvData.HasValue)
                 {
-                    posX -= spriteInfo.UV.Width - spriteInfo.Center.X;
-                }
-                else
-                {
-                    posX -= spriteInfo.Center.X;
-                }
-
-                posY -= spriteInfo.UV.Height + spriteInfo.Center.Y;
-
-                if (color == 0)
-                {
-                    if ((color & 0x8000) != 0)
-                    {
-                        ispartialhue = true;
-                        color &= 0x7FFF;
-                    }
-
-                    if (color == 0 && _equipConvData.HasValue)
-                    {
-                        color = _equipConvData.Value.Color;
-                        ispartialhue = false;
-                    }
-                }
-
-                if (
-                    ProfileManager.CurrentProfile.NoColorObjectsOutOfRange
-                    && owner.Distance > World.ClientViewRange
-                )
-                {
-                    hueVec = ShaderHueTranslator.GetHueVector(
-                        Constants.OUT_RANGE_COLOR + 1,
-                        false,
-                        1
-                    );
-                }
-                else if (
-                    World.Player.IsDead && ProfileManager.CurrentProfile.EnableBlackWhiteEffect
-                )
-                {
-                    hueVec = ShaderHueTranslator.GetHueVector(
-                        Constants.DEAD_RANGE_COLOR + 1,
-                        false,
-                        1
-                    );
-                }
-                else
-                {
-                    if ((ProfileManager.CurrentProfile.GridLootType > 0 || ProfileManager.CurrentProfile.UseGridLayoutContainerGumps) && SelectedObject.CorpseObject == owner)
-                    {
-                        color = 0x0034;
-                    }
-                    else if (
-                        ProfileManager.CurrentProfile.HighlightGameObjects
-                        && ReferenceEquals(SelectedObject.Object, owner)
-                    )
-                    {
-                        color = Constants.HIGHLIGHT_CURRENT_OBJECT_HUE;
-                    }
-
-                    hueVec = ShaderHueTranslator.GetHueVector(color, ispartialhue, alpha);
-                }
-
-                Vector2 pos = new Vector2(posX, posY);
-                Rectangle rect = spriteInfo.UV;
-
-                int diffY = (spriteInfo.UV.Height + spriteInfo.Center.Y);
-                int value = /*!isMounted && diffX <= 44 ? spriteInfo.UV.Height * 2 :*/
-                Math.Max(1, diffY);
-                int count = Math.Max((spriteInfo.UV.Height / value) + 1, 2);
-
-                rect.Height = Math.Min(value, rect.Height);
-                int remains = spriteInfo.UV.Height - rect.Height;
-
-                int tiles = (byte)owner.Direction % 2 == 0 ? 2 : 2;
-
-                for (int i = 0; i < count; ++i)
-                {
-                    //hueVec.Y = 1;
-                    //hueVec.X = 0x44 + (i * 20);
-
-                    batcher.Draw(
-                        spriteInfo.Texture,
-                        pos,
-                        rect,
-                        hueVec,
-                        0f,
-                        Vector2.Zero,
-                        1f,
-                        flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
-                        depth + 1f + (i * tiles)
-                    //depth + (i * tiles) + (owner.PriorityZ * 0.001f)
-                    );
-
-                    pos.Y += rect.Height;
-                    rect.Y += rect.Height;
-                    rect.Height = remains; // Math.Min(value, remains);
-                    remains -= rect.Height;
+                    color = _equipConvData.Value.Color;
+                    ispartialhue = false;
                 }
             }
+
+            if (
+                ProfileManager.CurrentProfile.NoColorObjectsOutOfRange
+                && owner.Distance > World.ClientViewRange
+            )
+            {
+                hueVec = ShaderHueTranslator.GetHueVector(
+                    Constants.OUT_RANGE_COLOR + 1,
+                    false,
+                    1
+                );
+            }
+            else if (
+                World.Player.IsDead && ProfileManager.CurrentProfile.EnableBlackWhiteEffect
+            )
+            {
+                hueVec = ShaderHueTranslator.GetHueVector(
+                    Constants.DEAD_RANGE_COLOR + 1,
+                    false,
+                    1
+                );
+            }
+            else
+            {
+                if ((ProfileManager.CurrentProfile.GridLootType > 0 || ProfileManager.CurrentProfile.UseGridLayoutContainerGumps) && SelectedObject.CorpseObject == owner)
+                {
+                    color = 0x0034;
+                }
+                else if (
+                    ProfileManager.CurrentProfile.HighlightGameObjects
+                    && ReferenceEquals(SelectedObject.Object, owner)
+                )
+                {
+                    color = Constants.HIGHLIGHT_CURRENT_OBJECT_HUE;
+                }
+
+                hueVec = ShaderHueTranslator.GetHueVector(color, ispartialhue, alpha);
+            }
+
+            Vector2 pos = new Vector2(posX, posY);
+            Rectangle rect = spriteInfo.UV;
+
+            int diffY = (spriteInfo.UV.Height + spriteInfo.Center.Y);
+            int value = /*!isMounted && diffX <= 44 ? spriteInfo.UV.Height * 2 :*/
+            Math.Max(1, diffY);
+            int count = Math.Max((spriteInfo.UV.Height / value) + 1, 2);
+
+            rect.Height = Math.Min(value, rect.Height);
+            int remains = spriteInfo.UV.Height - rect.Height;
+
+            int tiles = (byte)owner.Direction % 2 == 0 ? 2 : 2;
+
+            for (int i = 0; i < count; ++i)
+            {
+                //hueVec.Y = 1;
+                //hueVec.X = 0x44 + (i * 20);
+
+                batcher.Draw(
+                    spriteInfo.Texture,
+                    pos,
+                    rect,
+                    hueVec,
+                    0f,
+                    Vector2.Zero,
+                    1f,
+                    flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
+                    depth + 1f + (i * tiles)
+                //depth + (i * tiles) + (owner.PriorityZ * 0.001f)
+                );
+
+                pos.Y += rect.Height;
+                rect.Y += rect.Height;
+                rect.Height = remains; // Math.Min(value, remains);
+                remains -= rect.Height;
+            }
         }
+        
 
         public override bool CheckMouseSelection()
         {
@@ -650,21 +659,22 @@ namespace ClassicUO.Game.GameObjects
                         animIndex = 0;
                     }
 
-                    // Defensive check: ensure frames still has content before modulo and access
+                    // Defensive check: ensure frames has content before access
                     if (frames.Length == 0)
                     {
                         continue;
                     }
 
-                    animIndex = (byte)(animIndex % frames.Length);
+                    // Safe array access with bounds check built into the index calculation
+                    int safeIndex = animIndex % frames.Length;
 
-                    // Double-check bounds before array access to prevent race conditions
-                    if (animIndex >= frames.Length)
+                    // Additional safety check - if frames is still empty or index is invalid, skip
+                    if (safeIndex >= frames.Length)
                     {
                         continue;
                     }
 
-                    ref var spriteInfo = ref frames[animIndex];
+                    ref var spriteInfo = ref frames[safeIndex];
 
                     if (spriteInfo.Texture != null)
                     {

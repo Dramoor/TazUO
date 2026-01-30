@@ -669,7 +669,7 @@ namespace ClassicUO.Game.GameObjects
                     int safeIndex = animIndex % frames.Length;
 
                     // Additional safety check - if frames is still empty or index is invalid, skip
-                    if (safeIndex >= frames.Length)
+                    if (safeIndex >= frames.Length || safeIndex < 0)
                     {
                         continue;
                     }

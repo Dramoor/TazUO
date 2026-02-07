@@ -604,7 +604,7 @@ namespace ClassicUO.Game
             return true;
         }
 
-        public unsafe void CreateTexture()
+        public void CreateTexture()
         {
             if (Texture != null && !Texture.IsDisposed)
             {
@@ -698,7 +698,15 @@ namespace ClassicUO.Game
 
             if (Texture != null && isValid)
             {
-                fixed (uint* dataPtr = fi.Data)
+                try
+                {
+                    Texture.SetData(fi.Data);
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e.ToString());
+                }
+                /*fixed (uint* dataPtr = fi.Data)
                 {
                     Texture.SetDataPointerEXT(
                         0,
@@ -706,7 +714,7 @@ namespace ClassicUO.Game
                         (IntPtr)dataPtr,
                         fi.Width * fi.Height * sizeof(uint)
                     );
-                }
+                }*/
 
                 Width = Texture.Width;
                 Height = Texture.Height;

@@ -37,6 +37,7 @@ using ClassicUO.Game.Managers;
 using ClassicUO.Game.Scenes;
 using ClassicUO.IO;
 using ClassicUO.Renderer;
+using ClassicUO.Utility.Logging;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -674,37 +675,42 @@ namespace ClassicUO.Game.GameObjects
                         continue;
                     }
 
-                    ref var spriteInfo = ref frames[safeIndex];
+                    try {
+                        ref var spriteInfo = ref frames[safeIndex];
 
-                    if (spriteInfo.Texture != null)
-                    {
-                        int x =
-                            position.X
-                            - (
-                                IsFlipped
-                                    ? spriteInfo.UV.Width - spriteInfo.Center.X
-                                    : spriteInfo.Center.X
-                            );
-                        int y = position.Y - (spriteInfo.UV.Height + spriteInfo.Center.Y);
-
-                        if (
-                            Client.Game.Animations.PixelCheck(
-                                graphic,
-                                group,
-                                direction,
-                                isUOP,
-                                animIndex,
-                                IsFlipped
-                                    ? x
-                                        + spriteInfo.UV.Width
-                                        - SelectedObject.TranslatedMousePositionByViewport.X
-                                    : SelectedObject.TranslatedMousePositionByViewport.X - x,
-                                SelectedObject.TranslatedMousePositionByViewport.Y - y
-                            )
-                        )
+                        if (spriteInfo.Texture != null)
                         {
-                            return true;
+                            int x =
+                                position.X
+                                - (
+                                    IsFlipped
+                                        ? spriteInfo.UV.Width - spriteInfo.Center.X
+                                        : spriteInfo.Center.X
+                                );
+                            int y = position.Y - (spriteInfo.UV.Height + spriteInfo.Center.Y);
+
+                            if (
+                                Client.Game.Animations.PixelCheck(
+                                    graphic,
+                                    group,
+                                    direction,
+                                    isUOP,
+                                    animIndex,
+                                    IsFlipped
+                                        ? x
+                                            + spriteInfo.UV.Width
+                                            - SelectedObject.TranslatedMousePositionByViewport.X
+                                        : SelectedObject.TranslatedMousePositionByViewport.X - x,
+                                    SelectedObject.TranslatedMousePositionByViewport.Y - y
+                                )
+                            )
+                            {
+                                return true;
+                            }
                         }
+                    } catch(Exception e)
+                    {
+                        Log.Error($"This should not ever happen, but here we are: {e}");
                     }
                 }
             }

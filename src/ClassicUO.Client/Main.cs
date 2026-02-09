@@ -561,7 +561,11 @@ namespace ClassicUO
                         CUOEnviroment.NoServerPing = true;
 
                         break;
-
+                    
+                    case "nometrics":
+                        AnonMetrics.MetricsEnabled = false;
+                        Log.Info("Disabling anonymous metrics");
+                        break;
                 }
             }
         }

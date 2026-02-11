@@ -462,7 +462,9 @@ namespace ClassicUO.Game.Scenes
 
                 CurrentLoginStep = LoginSteps.EnteringBritania;
                 NetClient.Socket.Send_SelectCharacter(index, Characters[index], NetClient.Socket.LocalIP);
-                AnonMetrics.TrackLoginFireAndForget(Settings.GlobalSettings.LastServerName);
+
+                if(!World.ServerName.Contains(Account) && !World.ServerName.Contains(Characters[index]))
+                    AnonMetrics.TrackLoginFireAndForget(World.ServerName);
             }
         }
 

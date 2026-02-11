@@ -553,7 +553,7 @@ namespace ClassicUO.Game.UI.Gumps
             base.Restore(xml);
             // skip loading
 
-            Client.Game.GetScene<GameScene>()?.DoubleClickDelayed(LocalSerial);
+            ObjectActionQueue.Instance.Enqueue(ObjectActionQueueItem.DoubleClick(LocalSerial), ActionPriority.UseItem);
 
             Dispose();
         }

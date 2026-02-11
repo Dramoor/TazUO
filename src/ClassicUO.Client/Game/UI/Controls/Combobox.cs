@@ -49,7 +49,7 @@ namespace ClassicUO.Game.UI.Controls
                 }
             );
 
-            string initialText = selected > -1 ? items[selected] : emptyString;
+            string initialText = selected > -1 && selected < items.Length ? items[selected] : emptyString;
 
             bool isAsianLang = string.Compare(Settings.GlobalSettings.Language, "CHT", StringComparison.InvariantCultureIgnoreCase) == 0 ||
                 string.Compare(Settings.GlobalSettings.Language, "KOR", StringComparison.InvariantCultureIgnoreCase) == 0 ||

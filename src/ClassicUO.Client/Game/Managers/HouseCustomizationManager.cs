@@ -1075,25 +1075,22 @@ namespace ClassicUO.Game.Managers
 
                     if (type != CUSTOM_HOUSE_BUILD_TYPE.CHBT_FLOOR)
                     {
-                        foreach (Multi multi in house.GetMultiAt(gobj.X + item.X, gobj.Y + item.Y))
+                        foreach (Multi multiObject in house.GetMultiAt(gobj.X + item.X, gobj.Y + item.Y))
                         {
-                            foreach (Multi multiObject in house.GetMultiAt(gobj.X + item.X, gobj.Y + item.Y)) //HOUSE FIXES Multi multiObject in house.Components.Where(s => s.X == gobj.X + item.X && s.Y == gobj.Y + item.Y))
+                            if (multiObject.IsCustom && (multiObject.State & CUSTOM_HOUSE_MULTI_OBJECT_FLAGS.CHMOF_GENERIC_INTERNAL) == 0 && multiObject.Z >= minZ && multiObject.Z < maxZ)
                             {
-                                if (multiObject.IsCustom && (multiObject.State & CUSTOM_HOUSE_MULTI_OBJECT_FLAGS.CHMOF_GENERIC_INTERNAL) == 0 && multiObject.Z >= minZ && multiObject.Z < maxZ)
+                                if (type == CUSTOM_HOUSE_BUILD_TYPE.CHBT_STAIR)
                                 {
-                                    if (type == CUSTOM_HOUSE_BUILD_TYPE.CHBT_STAIR)
+                                    if ((multiObject.State & CUSTOM_HOUSE_MULTI_OBJECT_FLAGS.CHMOF_FLOOR) == 0)
                                     {
-                                        if ((multiObject.State & CUSTOM_HOUSE_MULTI_OBJECT_FLAGS.CHMOF_FLOOR) == 0)
-                                        {
-                                            return false;
-                                        }
+                                        return false;
                                     }
-                                    else
+                                }
+                                else
+                                {
+                                    if ((multiObject.State & CUSTOM_HOUSE_MULTI_OBJECT_FLAGS.CHMOF_STAIR) != 0)
                                     {
-                                        if ((multiObject.State & CUSTOM_HOUSE_MULTI_OBJECT_FLAGS.CHMOF_STAIR) != 0)
-                                        {
-                                            return false;
-                                        }
+                                        return false;
                                     }
                                 }
                             }

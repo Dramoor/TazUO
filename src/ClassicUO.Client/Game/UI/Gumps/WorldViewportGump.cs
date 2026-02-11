@@ -23,6 +23,8 @@ namespace ClassicUO.Game.UI.Gumps
 {
     public class WorldViewportGump : Gump
     {
+        public static WorldViewportGump Instance { get; private set; } //Special gump, only one will ever exist
+
         public const int BORDER_WIDTH = 5;
         private readonly BorderControl _borderControl;
         private readonly Button _button;
@@ -38,6 +40,7 @@ namespace ClassicUO.Game.UI.Gumps
 
         public WorldViewportGump(World world, GameScene scene) : base(world, 0, 0)
         {
+            Instance = this;
             _scene = scene;
             AcceptMouseInput = false;
             CanMove = !ProfileManager.CurrentProfile.GameWindowLock;

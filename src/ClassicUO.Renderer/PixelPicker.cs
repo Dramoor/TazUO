@@ -1,22 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+using ClassicUO.Utility.Collections;
 
 namespace ClassicUO.Renderer
 {
-    public sealed class PixelPicker
+    public sealed class PixelPicker(bool shortIdBiased)
     {
-        const int InitialDataCount = 0x40000; // 256kb
+        private const int INITIAL_DATA_COUNT = 0x40000; // 256kb
 
-        Dictionary<ulong, int> m_IDs = new Dictionary<ulong, int>();
-        readonly List<byte> m_Data = new List<byte>(InitialDataCount); // list<t> access is 10% slower than t[].
+        private readonly FastUlongLookupTable<int?> _ids = new(shortIdBiased);
+        private readonly List<byte> _data = new(INITIAL_DATA_COUNT); // list<t> access is 10% slower than t[].
 
-        public bool Get(ulong textureID, int x, int y, int extraRange = 0, double scale = 1f)
+        public bool Get(ulong textureId, int x, int y, int extraRange = 0, double scale = 1f)
         {
-            int index;
-            if (!m_IDs.TryGetValue(textureID, out index))
-            {
+            int? index = _ids.Get(textureId);
+            if (!index.HasValue)
                 return false;
-            }
+
+            int textureIdx = index.Value;
 
             if (scale != 1f)
             {
@@ -24,7 +25,7 @@ namespace ClassicUO.Renderer
                 y = (int)(y / scale);
             }
 
-            int width = ReadIntegerFromData(ref index);
+            int width = ReadIntegerFromData(ref textureIdx);
 
 
             if (x < 0 || x >= width)
@@ -32,7 +33,7 @@ namespace ClassicUO.Renderer
                 return false;
             }
 
-            if (y < 0 || y >= ReadIntegerFromData(ref index))
+            if (y < 0 || y >= ReadIntegerFromData(ref textureIdx))
             {
                 return false;
             }
@@ -42,7 +43,7 @@ namespace ClassicUO.Renderer
             bool inTransparentSpan = true;
             while (current < target)
             {
-                int spanLength = ReadIntegerFromData(ref index);
+                int spanLength = ReadIntegerFromData(ref textureIdx);
                 current += spanLength;
                 if (extraRange == 0)
                 {
@@ -72,26 +73,27 @@ namespace ClassicUO.Renderer
             return false;
         }
 
-        public void GetDimensions(ulong textureID, out int width, out int height)
+        public void GetDimensions(ulong textureId, out int width, out int height)
         {
-            int index;
-            if (!m_IDs.TryGetValue(textureID, out index))
+            int? index = _ids.Get(textureId);
+            if (!index.HasValue)
             {
                 width = height = 0;
                 return;
             }
-            width = ReadIntegerFromData(ref index);
-            height = ReadIntegerFromData(ref index);
+
+            int textureIdx = index.Value;
+
+            width = ReadIntegerFromData(ref textureIdx);
+            height = ReadIntegerFromData(ref textureIdx);
         }
 
-        public void Set(ulong textureID, int width, int height, ReadOnlySpan<uint> pixels)
+        public void Set(ulong textureId, int width, int height, ReadOnlySpan<uint> pixels)
         {
-            if (Has(textureID))
-            {
+            if (_ids.Get(textureId).HasValue)
                 return;
-            }
 
-            int begin = m_Data.Count;
+            int begin = _data.Count;
             WriteIntegerToData(width);
             WriteIntegerToData(height);
             bool countingTransparent = true;
@@ -108,28 +110,26 @@ namespace ClassicUO.Renderer
                 count += 1;
             }
             WriteIntegerToData(count);
-            m_IDs[textureID] = begin;
+            _ids.Set(textureId, begin);
         }
 
-        bool Has(ulong textureID) => m_IDs.ContainsKey(textureID);
-
-        void WriteIntegerToData(int value)
+        private void WriteIntegerToData(int value)
         {
             while (value > 0x7f)
             {
-                m_Data.Add((byte)((value & 0x7f) | 0x80));
+                _data.Add((byte)((value & 0x7f) | 0x80));
                 value >>= 7;
             }
-            m_Data.Add((byte)value);
+            _data.Add((byte)value);
         }
 
-        int ReadIntegerFromData(ref int index)
+        private int ReadIntegerFromData(ref int index)
         {
             int value = 0;
             int shift = 0;
             while (true)
             {
-                byte data = m_Data[index++];
+                byte data = _data[index++];
                 value += (data & 0x7f) << shift;
                 if ((data & 0x80) == 0x00)
                 {

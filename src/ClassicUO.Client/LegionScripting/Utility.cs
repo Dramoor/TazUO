@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using ClassicUO.Game;
 using ClassicUO.Game.Data;
@@ -167,6 +169,8 @@ internal static class Utility
                 case Direction.South: return "south";
                 case Direction.Left: return "southwest";
                 case Direction.West: return "west";
+                case Direction.Running:
+                case Direction.NONE: //Running north for some reason is resulting in NONE, so we'll default it to northwest.
                 case Direction.Up: return "northwest";
                 default: return "none";
             }
@@ -268,5 +272,68 @@ internal static class Utility
         }
 
         return Color.Black;
+    }
+
+    /// <summary>
+    ///     Converts the given values into an array of <see cref="API.Notoriety" />
+    ///     Throws if any value is not a valid notoriety
+    /// </summary>
+    /// <param name="values"></param>
+    /// <returns>An array of notoriety values in the same order as provided</returns>
+    /// <exception cref="InvalidEnumArgumentException">
+    ///     One or more given values are not valid <see cref="API.Notoriety" />
+    /// </exception>
+    public static API.Notoriety[] ConvertNotorietyOrThrow(IEnumerable values) =>
+        values is null
+            ? []
+            : (from object item in values select ConvertNotorietyOrThrow(item)).ToArray();
+
+
+    /// <summary>
+    ///     Converts a given value to <see cref="API.Notoriety" />.
+    ///     Throws if conversion fails.
+    /// </summary>
+    /// <param name="value">The value to convert</param>
+    /// <returns>The converted notoriety value</returns>
+    /// <exception cref="InvalidEnumArgumentException">The given value is not a valid <see cref="API.Notoriety" /></exception>
+    public static API.Notoriety ConvertNotorietyOrThrow(object value)
+    {
+        if (!TryConvertToNotoriety(value, out API.Notoriety notoriety))
+            throw new InvalidEnumArgumentException(
+                $"Notoriety value '{value}' is not valid");
+
+        return notoriety;
+    }
+
+    /// <summary>
+    ///     Tries to convert a given value to an <see cref="API.Notoriety" /> value
+    /// </summary>
+    /// <param name="value">The value to convert</param>
+    /// <param name="notoriety">The conversion result</param>
+    /// <returns>True if the given value is a valid notoriety, false otherwise</returns>
+    public static bool TryConvertToNotoriety(object value, out API.Notoriety notoriety)
+    {
+        switch (value)
+        {
+            case API.Notoriety n:
+                notoriety = n;
+                return Enum.IsDefined(n);
+
+            case string s:
+                return Enum.TryParse(s, true, out notoriety)
+                       && Enum.IsDefined(notoriety);
+
+            case int i:
+                notoriety = (API.Notoriety)i;
+                return Enum.IsDefined(notoriety);
+
+            case uint u:
+                notoriety = (API.Notoriety)u;
+                return Enum.IsDefined(notoriety);
+
+            default:
+                notoriety = API.Notoriety.Unknown;
+                return false;
+        }
     }
 }

@@ -4,8 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Runtime.CompilerServices;
-using System.Security;
-using System.Text;
 using SDL3;
 
 namespace ClassicUO.Utility
@@ -400,6 +398,31 @@ namespace ClassicUO.Utility
                 return false;
 
             return int.TryParse(text, NumberStyles.AllowThousands, CultureInfo.CurrentCulture, out result);
+        }
+
+        public static string Truncate(string str, int maxLength, bool addEllipsis = true)
+        {
+            if (string.IsNullOrEmpty(str) || maxLength <= 0)
+            {
+                return string.Empty;
+            }
+
+            if (str.Length <= maxLength)
+            {
+                return str;
+            }
+
+            if (addEllipsis)
+            {
+                if (maxLength <= 3)
+                {
+                    return str[..maxLength];
+                }
+
+                return string.Concat(str.AsSpan(0, maxLength - 3), "...");
+            }
+
+            return str[..maxLength];
         }
     }
 }

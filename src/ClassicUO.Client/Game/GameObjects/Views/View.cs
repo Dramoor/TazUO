@@ -40,6 +40,7 @@ namespace ClassicUO.Game.GameObjects
         public bool AllowedToDraw = true;
         public ObjectHandlesStatus ObjectHandlesStatus;
         public Rectangle FrameInfo;
+        public Color? OutlineColor = null;
         protected bool IsFlipped;
 
         public abstract bool Draw(UltimaBatcher2D batcher, int posX, int posY, float depth);
@@ -139,7 +140,8 @@ namespace ClassicUO.Game.GameObjects
             int y,
             Vector3 hue,
             float depth,
-            bool isWet = false
+            bool isWet = false,
+            Color? outlineColor = null
         )
         {
             ref readonly SpriteInfo artInfo = ref Client.Game.UO.Arts.GetArt(graphic);
@@ -197,6 +199,26 @@ namespace ClassicUO.Game.GameObjects
                         Vector2.One,
                         SpriteEffects.None,
                         renderDepth
+                    );
+                }
+
+                if (outlineColor.HasValue)
+                {
+                    Color oc = outlineColor.Value;
+                    Vector3 outlineNormal = new Vector3(oc.R / 255f, oc.G / 255f, oc.B / 255f);
+                    Vector3 outlineHue = ShaderHueTranslator.GetOutlineHueVector(hue.Z);
+
+                    batcher.DrawOutlined(
+                        artInfo.Texture,
+                        pos,
+                        artInfo.UV,
+                        outlineHue,
+                        outlineNormal,
+                        0f,
+                        Vector2.Zero,
+                        Vector2.One,
+                        SpriteEffects.None,
+                        renderDepth - 0.001f
                     );
                 }
             }
@@ -277,7 +299,8 @@ namespace ClassicUO.Game.GameObjects
             Vector3 hue,
             bool shadow,
             float depth,
-            bool isWet = false
+            bool isWet = false,
+            Color? outlineColor = null
         )
         {
             ref UOFileIndex index = ref Client.Game.UO.FileManager.Arts.File.GetValidRefEntry(graphic + ART_STATIC_OFFSET);
@@ -344,6 +367,26 @@ namespace ClassicUO.Game.GameObjects
                         Vector2.One,
                         SpriteEffects.None,
                         renderDepth
+                    );
+                }
+
+                if (outlineColor.HasValue)
+                {
+                    Color oc = outlineColor.Value;
+                    Vector3 outlineNormal = new Vector3(oc.R / 255f, oc.G / 255f, oc.B / 255f);
+                    Vector3 outlineHue = ShaderHueTranslator.GetOutlineHueVector(hue.Z);
+
+                    batcher.DrawOutlined(
+                        artInfo.Texture,
+                        pos,
+                        artInfo.UV,
+                        outlineHue,
+                        outlineNormal,
+                        0f,
+                        Vector2.Zero,
+                        Vector2.One,
+                        SpriteEffects.None,
+                        renderDepth - 0.001f
                     );
                 }
             }

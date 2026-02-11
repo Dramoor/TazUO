@@ -753,6 +753,46 @@ namespace ClassicUO.Configuration
             }
         } = 11;
 
+
+        [JsonIgnore]
+        public bool QueueManualItemMoves
+        {
+            get;
+            set
+            {
+                if (field != value)
+                    _ = Client.Settings.SetAsync(SettingsScope.Global, Constants.SqlSettings.QUEUE_MANUAL_ITEM_MOVES, value);
+
+                field = value;
+            }
+        }
+
+        [JsonIgnore]
+        public bool QueueManualItemUses
+        {
+            get;
+            set
+            {
+                if (field != value)
+                    _ = Client.Settings.SetAsync(SettingsScope.Global, Constants.SqlSettings.QUEUE_MANUAL_ITEM_USES, value);
+
+                field = value;
+            }
+        }
+
+        [JsonIgnore]
+        public bool HueCorpseAfterAutoloot
+        {
+            get;
+            set
+            {
+                if (field != value)
+                    _ = Client.Settings.SetAsync(SettingsScope.Global, Constants.SqlSettings.HUE_CORPSE_AFTER_AUTOLOOT, value);
+
+                field = value;
+            }
+        }
+
         private long lastSave;
 
         internal void AfterLoad()
@@ -764,8 +804,30 @@ namespace ClassicUO.Configuration
             }
 
             //These are fine if we continue without loading them yet (non-Char scoped)
-            _ = Client.Settings.GetAsyncOnMainThread(SettingsScope.Global, Constants.SqlSettings.MIN_GUMP_MOVE_DIST, 5, b => { MinGumpMoveDistance = b; });
-            _ = Client.Settings.GetAsyncOnMainThread(SettingsScope.Global, Constants.SqlSettings.DISABLE_WEATHER, false, b => { DisableWeather = b; });
+            Client.Settings.GetAllAsync(SettingsScope.Global).ContinueWith(t =>
+            {
+                Dictionary<string, string> kvp = t.Result;
+                MainThreadQueue.EnqueueAction(() =>
+                {
+                    string val;
+                    bool b;
+
+                    if (kvp.TryGetValue(Constants.SqlSettings.MIN_GUMP_MOVE_DIST, out val) && int.TryParse(val, out int v))
+                        MinGumpMoveDistance = v;
+
+                    if (kvp.TryGetValue(Constants.SqlSettings.DISABLE_WEATHER, out val) && bool.TryParse(val, out b))
+                        DisableWeather = b;
+
+                    if (kvp.TryGetValue(Constants.SqlSettings.QUEUE_MANUAL_ITEM_MOVES, out val) && bool.TryParse(val, out b))
+                        QueueManualItemMoves = b;
+
+                    if (kvp.TryGetValue(Constants.SqlSettings.QUEUE_MANUAL_ITEM_USES, out val) && bool.TryParse(val, out b))
+                        QueueManualItemUses = b;
+
+                    if (kvp.TryGetValue(Constants.SqlSettings.HUE_CORPSE_AFTER_AUTOLOOT, out val) && bool.TryParse(val, out b))
+                        HueCorpseAfterAutoloot = b;
+                });
+            });
 
             //These must be waited before continue for various purposes elsewhere
             Task[] mustWait = [
@@ -780,11 +842,12 @@ namespace ClassicUO.Configuration
         {
             if (Client.Settings == null)
             {
-                Log.Error("Warning, SQL settings failed to load!");
+                Log.Error("Warning, char scoped SQL settings failed to load!");
                 return;
             }
 
-            // Load Char-scoped settings after player is created (when serial is available)
+            //When we get enough settings here, it will be better to use Settings.GetAllAsync and grab them manually
+            //Load Char-scoped settings after player is created (when serial is available)
             _ = Client.Settings.GetAsyncOnMainThread(SettingsScope.Char, Constants.SqlSettings.SCALE_PETS_ENABLED, false, b => { EnablePetScaling = b; });
             _ = Client.Settings.GetAsyncOnMainThread(SettingsScope.Char, Constants.SqlSettings.AUTO_UNEQUIP_FOR_ACTIONS, false, b => { AutoUnequipForActions = b; });
             _ = Client.Settings.GetAsyncOnMainThread(SettingsScope.Char, Constants.SqlSettings.QUICK_HEAL_SPELL, 29, b => { QuickHealSpell = b; });

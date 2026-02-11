@@ -3221,106 +3221,105 @@ namespace ClassicUO.Assets
         {
             color = 0x00_00_00_00;
 
-            if (!buffer.IsEmpty)
+            if (buffer.IsEmpty) return;
+
+            if (buffer[0] == '#')
             {
-                if (buffer[0] == '#')
+                if (buffer.Length > 1)
                 {
-                    if (buffer.Length > 1)
-                    {
-                        int startIndex = buffer[1] == '0' && buffer[2] == 'x' ? 3 : 1;
+                    int startIndex = buffer.Length > 3 && buffer[1] == '0' && buffer[2] == 'x' ? 3 : 1;
 
-                        uint.TryParse(
-                            buffer.Slice(startIndex),
-                            NumberStyles.HexNumber,
-                            CultureInfo.InvariantCulture,
-                            out uint cc
-                        );
+                    uint.TryParse(
+                        buffer.Slice(startIndex),
+                        NumberStyles.HexNumber,
+                        CultureInfo.InvariantCulture,
+                        out uint cc
+                    );
 
-                        byte* clrbuf = (byte*)&cc;
-                        color = (uint)(
-                            (clrbuf[0] << 24) | (clrbuf[1] << 16) | (clrbuf[2] << 8) | 0xFF
-                        );
-                    }
+                    byte* clrbuf = (byte*)&cc;
+                    color = (uint)(
+                        (clrbuf[0] << 24) | (clrbuf[1] << 16) | (clrbuf[2] << 8) | 0xFF
+                    );
                 }
-                else if (char.IsNumber(buffer[0]))
+            }
+            else if (char.IsNumber(buffer[0]))
+            {
+                color = Convert.ToUInt32(buffer.ToString(), 16);
+            }
+            else
+            {
+                if (MemoryExtensions.Equals(buffer, "red", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    color = Convert.ToUInt32(buffer.ToString(), 16);
+                    color = 0x0000FFFF;
                 }
-                else
+                else if (MemoryExtensions.Equals(buffer, "cyan", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    if (MemoryExtensions.Equals(buffer, "red", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        color = 0x0000FFFF;
-                    }
-                    else if (MemoryExtensions.Equals(buffer, "cyan", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        color = 0xFFFF00FF;
-                    }
-                    else if (MemoryExtensions.Equals(buffer, "blue", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        color = 0xFF0000FF;
-                    }
-                    else if (MemoryExtensions.Equals(buffer, "darkblue", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        color = 0xA00000FF;
-                    }
-                    else if (MemoryExtensions.Equals(buffer, "lightblue", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        color = 0xE6D8ADFF;
-                    }
-                    else if (MemoryExtensions.Equals(buffer, "purple", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        color = 0x800080FF;
-                    }
-                    else if (MemoryExtensions.Equals(buffer, "yellow", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        color = 0x00FFFFFF;
-                    }
-                    else if (MemoryExtensions.Equals(buffer, "lime", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        color = 0x00FF00FF;
-                    }
-                    else if (MemoryExtensions.Equals(buffer, "magenta", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        color = 0xFF00FFFF;
-                    }
-                    else if (MemoryExtensions.Equals(buffer, "white", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        color = 0xFFFEFEFF;
-                    }
-                    else if (MemoryExtensions.Equals(buffer, "silver", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        color = 0xC0C0C0FF;
-                    }
-                    else if (MemoryExtensions.Equals(buffer, "grey", StringComparison.InvariantCultureIgnoreCase) ||
-                             MemoryExtensions.Equals(buffer, "gray", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        color = 0x808080FF;
-                    }
-                    else if (MemoryExtensions.Equals(buffer, "black", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        color = 0x010101FF;
-                    }
-                    else if (MemoryExtensions.Equals(buffer, "orange", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        color = 0x00A5FFFF;
-                    }
-                    else if (MemoryExtensions.Equals(buffer, "brown", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        color = 0x2A2AA5FF;
-                    }
-                    else if (MemoryExtensions.Equals(buffer, "maroon", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        color = 0x000080FF;
-                    }
-                    else if (MemoryExtensions.Equals(buffer, "green", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        color = 0x008000FF;
-                    }
-                    else if (MemoryExtensions.Equals(buffer, "olive", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        color = 0x008080FF;
-                    }
+                    color = 0xFFFF00FF;
+                }
+                else if (MemoryExtensions.Equals(buffer, "blue", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    color = 0xFF0000FF;
+                }
+                else if (MemoryExtensions.Equals(buffer, "darkblue", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    color = 0xA00000FF;
+                }
+                else if (MemoryExtensions.Equals(buffer, "lightblue", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    color = 0xE6D8ADFF;
+                }
+                else if (MemoryExtensions.Equals(buffer, "purple", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    color = 0x800080FF;
+                }
+                else if (MemoryExtensions.Equals(buffer, "yellow", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    color = 0x00FFFFFF;
+                }
+                else if (MemoryExtensions.Equals(buffer, "lime", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    color = 0x00FF00FF;
+                }
+                else if (MemoryExtensions.Equals(buffer, "magenta", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    color = 0xFF00FFFF;
+                }
+                else if (MemoryExtensions.Equals(buffer, "white", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    color = 0xFFFEFEFF;
+                }
+                else if (MemoryExtensions.Equals(buffer, "silver", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    color = 0xC0C0C0FF;
+                }
+                else if (MemoryExtensions.Equals(buffer, "grey", StringComparison.InvariantCultureIgnoreCase) ||
+                         MemoryExtensions.Equals(buffer, "gray", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    color = 0x808080FF;
+                }
+                else if (MemoryExtensions.Equals(buffer, "black", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    color = 0x010101FF;
+                }
+                else if (MemoryExtensions.Equals(buffer, "orange", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    color = 0x00A5FFFF;
+                }
+                else if (MemoryExtensions.Equals(buffer, "brown", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    color = 0x2A2AA5FF;
+                }
+                else if (MemoryExtensions.Equals(buffer, "maroon", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    color = 0x000080FF;
+                }
+                else if (MemoryExtensions.Equals(buffer, "green", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    color = 0x008000FF;
+                }
+                else if (MemoryExtensions.Equals(buffer, "olive", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    color = 0x008080FF;
                 }
             }
         }

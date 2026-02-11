@@ -1539,11 +1539,13 @@ namespace ClassicUO.Game.Managers
 
                     if (_itemsInHand[handIndex] != 0)
                     {
-                        GameActions.PickUp(_world, _itemsInHand[handIndex], 0, 0, 1);
-                        GameActions.Equip(_world);
+                        if(_world.Items.TryGetValue(_itemsInHand[handIndex], out Item item))
+                        {
+                            ObjectActionQueue.Instance.Enqueue(ObjectActionQueueItem.EquipItem(item, (Layer)item.ItemData.Layer), ActionPriority.EquipItem);
 
-                        _itemsInHand[handIndex] = 0;
-                        _nextTimer = Time.Ticks + 1000;
+                            _itemsInHand[handIndex] = 0;
+                            _nextTimer = Time.Ticks + 1000;
+                        }
                     }
                     else
                     {
@@ -2211,66 +2213,53 @@ namespace ClassicUO.Game.Managers
                 case MacroType.CloseAllHealthBars:
 
                     //Includes HealthBarGump/HealthBarGumpCustom
-                    IEnumerable<BaseHealthBarGump> healthBarGumps = UIManager.Gumps.OfType<BaseHealthBarGump>();
 
-                    foreach (BaseHealthBarGump healthbar in healthBarGumps)
+                    UIManager.ForEach<BaseHealthBarGump>(g =>
                     {
-                        if (UIManager.AnchorManager[healthbar] == null && healthbar.LocalSerial != _world.Player)
+                        if (UIManager.AnchorManager[g] == null && g.LocalSerial != _world.Player)
                         {
-                            healthbar.Dispose();
+                            g.Dispose();
                         }
-                    }
+                    });
 
                     break;
 
                 case MacroType.CloseInactiveHealthBars:
-                    IEnumerable<BaseHealthBarGump> inactiveHealthBarGumps = UIManager.Gumps.OfType<BaseHealthBarGump>().Where(hb => hb.IsInactive);
-
-                    foreach (BaseHealthBarGump healthbar in inactiveHealthBarGumps)
+                    UIManager.ForEach<BaseHealthBarGump>(g =>
                     {
-                        if (healthbar.LocalSerial == _world.Player) continue;
-
-                        if (UIManager.AnchorManager[healthbar] != null)
+                        if (g.IsInactive && g.LocalSerial != _world.Player)
                         {
-                            UIManager.AnchorManager[healthbar].DetachControl(healthbar);
-                        }
+                            if (UIManager.AnchorManager[g] != null)
+                            {
+                                UIManager.AnchorManager[g].DetachControl(g);
+                            }
 
-                        healthbar.Dispose();
-                    }
+                            g.Dispose();
+                        }
+                    });
                     break;
 
                 case MacroType.CloseCorpses:
                     int? gridLootType = ProfileManager.CurrentProfile?.GridLootType; // 0 = none, 1 = only grid, 2 = both
+
                     if (gridLootType == 0 || gridLootType == 2)
-                    {
-                        IEnumerable<ContainerGump> containerGumps = UIManager.Gumps.OfType<ContainerGump>().Where(cg => cg.Graphic == ContainerGump.CORPSES_GUMP);
-
-                        foreach (ContainerGump containerGump in containerGumps)
+                        UIManager.ForEach<ContainerGump>(g =>
                         {
-                            containerGump.Dispose();
-                        }
-                    }
+                            if(g.Graphic == ContainerGump.CORPSES_GUMP)
+                                g.Dispose();
+                        });
+
                     if (gridLootType == 1 || gridLootType == 2)
-                    {
-                        IEnumerable<GridLootGump> gridLootGumps = UIManager.Gumps.OfType<GridLootGump>();
-
-                        foreach (GridLootGump gridLootGump in gridLootGumps)
+                        UIManager.ForEach<GridLootGump>(g =>
                         {
-                            gridLootGump.Dispose();
-                        }
-                    }
+                            g.Dispose();
+                        });
 
-                    // Close GridContainer corpses
-                    IEnumerable<GridContainer> gridContainerCorpses = UIManager.Gumps.OfType<GridContainer>().Where(gc =>
+                    UIManager.ForEach<GridContainer>(g =>
                     {
-                        Item item = _world.Items.Get(gc.LocalSerial);
-                        return item != null && item.IsCorpse;
+                        Item item = _world.Items.Get(g.LocalSerial);
+                        if (item != null && item.IsCorpse) g.Dispose();
                     });
-
-                    foreach (GridContainer gridContainer in gridContainerCorpses)
-                    {
-                        gridContainer.Dispose();
-                    }
                     break;
 
                 case MacroType.ToggleDrawRoofs:
@@ -2344,7 +2333,7 @@ namespace ClassicUO.Game.Managers
                     GameActions.Print($"Hotkeys {(ProfileManager.CurrentProfile.DisableHotkeys ? "disabled" : "enabled")}.");
                     break;
 
-                    
+
                 case MacroType.CastMasterySpell:
                     int mspell = (int)macro.SubCode + 459; //Inspire is enum #242 for backwards compat, we need to add 459 because 242 + 459 = 701 which is the spell index
 

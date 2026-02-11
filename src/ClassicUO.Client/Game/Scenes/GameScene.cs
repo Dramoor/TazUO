@@ -23,6 +23,7 @@ using System.Net.Sockets;
 using ClassicUO.Game.Map;
 using ClassicUO.Game.UI.Gumps.GridHighLight;
 using ClassicUO.LegionScripting;
+using ClassicUO.Network.PacketHandlers.Helpers;
 using ImGuiNET;
 
 namespace ClassicUO.Game.Scenes
@@ -79,8 +80,6 @@ namespace ClassicUO.Game.Scenes
         private PostProcessingType _currentFilter;
         private Effect _postFx;
         private SamplerState _postSampler = SamplerState.PointClamp;
-        private readonly UseItemQueue _useItemQueue;
-        private readonly MoveItemQueue _moveItemQueue;
         private readonly AutoUnequipActionManager _autoUnequipActionManager;
         private bool _useObjectHandles;
         private RenderTarget2D _worldRenderTarget, _lightRenderTarget;
@@ -91,8 +90,6 @@ namespace ClassicUO.Game.Scenes
         public GameScene(World world)
         {
             _world = world;
-            _useItemQueue = new UseItemQueue(world);
-            _moveItemQueue = new MoveItemQueue(_world);
             _autoUnequipActionManager = new AutoUnequipActionManager(_world);
 
             SDL.SDL_SetWindowMinimumSize(Client.Game.Window.Handle, 640, 480);
@@ -162,7 +159,6 @@ namespace ClassicUO.Game.Scenes
         }
         private long _nextProfileSave = Time.Ticks + 1000*60*60;
 
-        public MoveItemQueue MoveItemQueue => _moveItemQueue;
         public bool UpdateDrawPosition { get; set; }
         public bool DisconnectionRequested { get; set; }
 
@@ -178,12 +174,6 @@ namespace ClassicUO.Game.Scenes
 
         private uint _lastResync = Time.Ticks;
         private Matrix _worldRtMatrix;
-
-        public GameScene()
-        {
-        }
-
-        public void DoubleClickDelayed(uint serial) => _useItemQueue.Add(serial);
 
         public override void Load()
         {
@@ -398,9 +388,8 @@ namespace ClassicUO.Game.Scenes
             JournalFilterManager.Instance.Save();
 
             SpellBarManager.Unload();
-            _moveItemQueue.Clear();
-            _autoUnequipActionManager?.Clear();
-            GlobalPriorityQueue.Instance.Clear();
+            _autoUnequipActionManager?.Dispose();
+            ObjectActionQueue.Instance.Clear();
 
             GraphicsReplacement.Save();
             BuySellAgent.Unload();
@@ -476,8 +465,6 @@ namespace ClassicUO.Game.Scenes
             _world.ChatManager.Clear();
             _world.DelayedObjectClickManager.Clear();
 
-            _useItemQueue?.Clear();
-            GlobalPriorityQueue.Instance.Clear();
             EventSink.MessageReceived -= ChatOnMessageReceived;
 
             Settings.GlobalSettings.WindowSize = new Point(
@@ -927,7 +914,7 @@ namespace ClassicUO.Game.Scenes
             // Update LongDistancePathfinder
             LongDistancePathfinder.Update();
 
-            PacketHandlers.SendMegaClilocRequests(_world);
+            SharedStore.SendMegaCliLocRequests(_world);
 
             if (_forceStopScene)
             {
@@ -971,16 +958,11 @@ namespace ClassicUO.Game.Scenes
                     && _world.Player.IsHidden
             )
             {
-                _useItemQueue.ClearCorpses();
+                ObjectActionQueue.Instance.ClearByPriority(ActionPriority.OpenCorpse);
             }
 
-            // Process priority queue first (for bandages and other high-priority actions)
-            GlobalPriorityQueue.Instance.Update();
-
-            _useItemQueue.Update();
-
+            ObjectActionQueue.Instance.Update();
             AutoLootManager.Instance.Update();
-            _moveItemQueue.ProcessQueue();
             GridHighlightData.ProcessQueue(_world);
 
             if (!MoveCharacterByMouseInput() && !currentProfile.DisableArrowBtn && !MoveCharByController())

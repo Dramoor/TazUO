@@ -1,6 +1,7 @@
 using ClassicUO.Assets;
 using ClassicUO.Game.GameObjects;
 using ClassicUO.Game.Managers;
+using ClassicUO.Utility;
 
 namespace ClassicUO.LegionScripting.PyClasses;
 
@@ -82,6 +83,22 @@ public class PyGameObject
     }
 
     public int Distance => MainThreadQueue.InvokeOnMainThread(() => _gameObject?.Distance ?? 0);
+
+    /// <summary>
+    /// Set an objects outline color using html hex colors.
+    /// Example:
+    /// ```py
+    /// API.Player.SetOutlineColor("#105510")
+    /// ```
+    /// </summary>
+    /// <param name="htmlColor"></param>
+    public void SetOutlineColor(string htmlColor)
+    {
+        if (_gameObject == null || _gameObject.IsDestroyed)
+            return;
+
+        MainThreadQueue.InvokeOnMainThread(() => { _gameObject.OutlineColor = htmlColor.FromHtmlHex(); });
+    }
 
     /// <summary>
     /// Set the hue of a game object.

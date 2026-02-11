@@ -4,6 +4,7 @@ using ClassicUO.Assets;
 using ClassicUO.Configuration;
 using ClassicUO.Game.Data;
 using ClassicUO.Game.GameObjects;
+using ClassicUO.Game.Managers;
 using ClassicUO.Game.Scenes;
 using ClassicUO.Game.UI.Controls;
 using ClassicUO.Input;
@@ -58,7 +59,7 @@ namespace ClassicUO.Game.UI.Gumps
                 if (i.IsLocked && !i.ItemData.IsContainer) continue;
 
                 if(!i.IsLootable) continue;
-                
+
                 if(i.IsCorpse) continue;
 
                 items.Add(new NearbyItemDisplay(World, i));
@@ -128,7 +129,7 @@ namespace ClassicUO.Game.UI.Gumps
             loot.MouseUp += (s, e) =>
             {
                 if(e.Button != MouseButtonType.Left) return;
-                Client.Game.GetScene<GameScene>()?.MoveItemQueue.EnqueueQuick(item);
+                ObjectActionQueue.Instance.Enqueue(ObjectActionQueueItem.QuickLoot(item), ActionPriority.MoveItem);
                 Dispose();
             };
             Add(loot);

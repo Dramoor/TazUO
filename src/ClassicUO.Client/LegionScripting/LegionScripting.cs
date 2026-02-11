@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,7 +13,11 @@ using ClassicUO.Utility.Logging;
 using IronPython.Hosting;
 using Microsoft.Scripting.Hosting;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
+using ClassicUO.Game.UI;
+using ClassicUO.Game.UI.ImGuiControls.Legion;
 using ClassicUO.LegionScripting.PyClasses;
+using ClassicUO.Utility;
 using Microsoft.Scripting;
 
 namespace ClassicUO.LegionScripting
@@ -404,17 +409,97 @@ namespace ClassicUO.LegionScripting
             catch (OperationCanceledException) { }
             catch (Exception e)
             {
-                ExceptionOperations eo = script.PythonEngine.GetService<ExceptionOperations>();
-                string error = e.Message;
-                if (eo != null)
-                    error = eo.FormatException(e);
-
-                GameActions.Print(_world, "Python Script Error:");
-                GameActions.Print(_world, error);
-                Log.Warn(e.ToString());
+                ShowScriptError(script, e);
             }
 
             MainThreadQueue.EnqueueAction(() => { StopScript(script); });
+        }
+
+        /// <summary>
+        /// Formats a script execution exception returned by IronPython/ScriptHost
+        /// </summary>
+        /// <param name="script">The script that triggered the error</param>
+        /// <param name="e">The thrown error</param>
+        private static void ShowScriptError(ScriptFile script, Exception e)
+        {
+            GameActions.Print(_world, $"Legion Script '{script.FileName}' encountered an error.", Constants.HUE_ERROR);
+
+            ExceptionOperations eo = script.PythonEngine.GetService<ExceptionOperations>();
+            if (eo != null)
+            {
+                string formattedEx = eo.FormatException(e);
+                Log.Warn(formattedEx);
+
+                Regex exParserRx = RegexHelper.GetRegex("File \"(?<filepath>.+?)\", line (?<lineno>\\d+)", RegexOptions.Compiled | RegexOptions.Multiline);
+
+                MatchCollection matches = exParserRx.Matches(formattedEx);
+                var errorLocations = new List<ScriptErrorLocation>();
+
+                bool first = true;
+                foreach (Match match in matches)
+                {
+                    string filePath = match.Groups["filepath"].Value;
+
+                    // Skip internal IronPython frames (e.g. File "<string>", ...)
+                    if (filePath.StartsWith("<"))
+                        continue;
+
+                    if (!int.TryParse(match.Groups["lineno"].Value, out int lineNumber))
+                        continue;
+
+                    string fileName = Path.GetFileName(filePath);
+                    string lineContent = "";
+
+                    if (TryReadFileLines(filePath, out string[] fileLines))
+                        lineContent = GetContents(fileLines, first? lineNumber + 1 : lineNumber); //Offset for removal of import API line
+
+                    errorLocations.Add(new ScriptErrorLocation(fileName, filePath, lineNumber, lineContent));
+
+                    first = false;
+                }
+
+                if (errorLocations.Count > 0)
+                {
+                    ImGuiManager.AddWindow(new ScriptErrorWindow(new ScriptErrorDetails(e.Message, errorLocations, script)));
+                }
+                else
+                    GameActions.Print(_world, formattedEx, Constants.HUE_ERROR);
+            }
+            else
+                GameActions.Print(_world, e.Message, Constants.HUE_ERROR);
+
+            if (e.InnerException != null)
+                ShowScriptError(script, e.InnerException);
+        }
+
+        private static string GetContents(string[] lines, int line, int outerLines = 1)
+        {
+            var sb = new StringBuilder();
+            int errorIndex = line - 1;
+
+            for (int i = errorIndex - outerLines; i <= errorIndex + outerLines; i++)
+            {
+                if (i < 0 || i >= lines.Length)
+                    continue;
+
+                sb.AppendLine(i == errorIndex ? lines[i] + "  <-- Error line" : lines[i]);
+            }
+
+            return sb.ToString();
+        }
+
+        private static bool TryReadFileLines(string filePath, out string[] lines)
+        {
+            try
+            {
+                lines = File.ReadAllText(filePath).Split("\n");
+                return true;
+            }
+            catch
+            {
+                lines = null;
+                return false;
+            }
         }
 
         public static void StopScript(ScriptFile script)

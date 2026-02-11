@@ -197,7 +197,7 @@ namespace ClassicUO.Game.UI.ImGuiControls
                         return;
                     }
                     _selectedConfig.SourceContSerial = sourceEntity.Serial;
-                    GameActions.Print($"Source container set to {sourceEntity.Serial:X}", Constants.HUE_SUCCESS);
+                    GameActions.Print($"Source container set to 0x{sourceEntity.Serial:X4} ({sourceEntity.Name})", Constants.HUE_SUCCESS);
                 });
             }
 
@@ -213,14 +213,14 @@ namespace ClassicUO.Game.UI.ImGuiControls
                         return;
                     }
                     _selectedConfig.DestContSerial = destEntity.Serial;
-                    GameActions.Print($"Destination container set to {destEntity.Serial:X}", Constants.HUE_SUCCESS);
+                    GameActions.Print($"Destination container set to 0x{destEntity.Serial:X4} ({destEntity.Name})", Constants.HUE_SUCCESS);
                 });
             }
 
             // Display current containers
             if (_selectedConfig.SourceContSerial != 0)
             {
-                ImGui.Text($"Source: ({_selectedConfig.SourceContSerial:X})");
+                ImGui.Text($"Source: (0x{_selectedConfig.SourceContSerial:X4})");
             }
             else
             {
@@ -231,7 +231,7 @@ namespace ClassicUO.Game.UI.ImGuiControls
 
             if (_selectedConfig.DestContSerial != 0)
             {
-                ImGui.Text($"Destination: ({_selectedConfig.DestContSerial:X})");
+                ImGui.Text($"Destination: (0x{_selectedConfig.DestContSerial:X4})");
             }
             else
             {

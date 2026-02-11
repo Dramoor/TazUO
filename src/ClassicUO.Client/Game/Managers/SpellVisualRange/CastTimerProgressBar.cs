@@ -56,7 +56,9 @@ public class CastTimerProgressBar : Gump
                     out int height
                 );
 
-                WorldViewportGump vp = UIManager.GetGump<WorldViewportGump>();
+                WorldViewportGump vp = WorldViewportGump.Instance;
+
+                if (vp == null) return false;
 
                 x = vp.Location.X + (int)(m.RealScreenPosition.X - (m.Offset.X + 22 + 5));
                 y = vp.Location.Y + (int)(m.RealScreenPosition.Y - ((m.Offset.Y - m.Offset.Z) - (height + centerY + 15) + (m.IsGargoyle && m.IsFlying ? -22 : !m.IsMounted ? 22 : 0)));

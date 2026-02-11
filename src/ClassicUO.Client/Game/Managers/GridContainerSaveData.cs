@@ -285,6 +285,8 @@ public class GridContainerSaveData
 
 public class GridContainerEntry
 {
+    [JsonPropertyName("cn")] public string CustomName { get; set; }
+
     [JsonPropertyName("s")] public uint Serial { get; set; }
 
     [JsonPropertyName("l")] public long LastOpened { get; set; } = DateTimeOffset.UtcNow.ToUnixTimeSeconds();

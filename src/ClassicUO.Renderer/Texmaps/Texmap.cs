@@ -7,7 +7,7 @@ namespace ClassicUO.Renderer.Texmaps
     {
         private readonly TextureAtlas _atlas;
         private readonly SpriteInfo[] _spriteInfos;
-        private readonly PixelPicker _picker = new PixelPicker();
+        private readonly PixelPicker _picker = new PixelPicker(true);
         private readonly TexmapsLoader _texmapsLoader;
 
         public Texmap(TexmapsLoader texmapsLoader, GraphicsDevice device)

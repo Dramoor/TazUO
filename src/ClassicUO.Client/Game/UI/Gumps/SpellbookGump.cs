@@ -91,9 +91,9 @@ namespace ClassicUO.Game.UI.Gumps
         {
             base.Restore(xml);
 
-            Client.Game.GetScene<GameScene>().DoubleClickDelayed(LocalSerial);
-
             Dispose();
+
+            ObjectActionQueue.Instance.Enqueue(ObjectActionQueueItem.DoubleClick(LocalSerial), ActionPriority.UseItem);
         }
 
         private void BuildGump()

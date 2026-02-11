@@ -11,6 +11,7 @@ using ClassicUO.Game;
 using ClassicUO.Game.Data;
 using ClassicUO.Game.GameObjects;
 using ClassicUO.Game.Managers;
+using ClassicUO.Game.Managers.Structs;
 using ClassicUO.Game.Scenes;
 using ClassicUO.Game.UI.Controls;
 using ClassicUO.Game.UI.Gumps;
@@ -464,7 +465,7 @@ namespace ClassicUO.LegionScripting
                 if (i != null)
                 {
                     Item bp = World.Player.Backpack;
-                    MoveItemQueue.Instance.Enqueue(i, bp);
+                    ObjectActionQueue.Instance.Enqueue(new MoveRequest(i, bp).ToObjectActionQueueItem(), ActionPriority.MoveItem);
                     Found = i.Serial;
                     return new PyItem(i);
                 }
@@ -493,7 +494,7 @@ namespace ClassicUO.LegionScripting
                 if (i != null)
                 {
                     Item bp = World.Player.Backpack;
-                    MoveItemQueue.Instance.Enqueue(i, bp);
+                    ObjectActionQueue.Instance.Enqueue(new MoveRequest(i, bp).ToObjectActionQueueItem(), ActionPriority.MoveItem);
                     Found = i.Serial;
                     return new PyItem(i);
                 }
@@ -647,15 +648,20 @@ namespace ClassicUO.LegionScripting
         public void EquipItem(uint serial) => MainThreadQueue.InvokeOnMainThread
         (() =>
             {
-                GameActions.PickUp(World, serial, 0, 0, 1);
-                GameActions.Equip(World);
+                if(ProfileManager.CurrentProfile.QueueManualItemMoves && World.Items.Get(serial) is Item i)
+                    ObjectActionQueue.Instance.Enqueue(ObjectActionQueueItem.EquipItem(serial, (Layer)i.ItemData.Layer), ActionPriority.EquipItem);
+                else
+                {
+                    GameActions.PickUp(World, serial, 0, 0, 1);
+                    GameActions.Equip(World);
+                }
             }
         );
 
         /// <summary>
         /// Clear the move item que of all items.
         /// </summary>
-        public void ClearMoveQueue() => MainThreadQueue.InvokeOnMainThread(() => Client.Game.GetScene<GameScene>()?.MoveItemQueue.Clear());
+        public void ClearMoveQueue() => MainThreadQueue.InvokeOnMainThread(() => ObjectActionQueue.Instance.ClearByPriority(ActionPriority.MoveItem));
 
         /// <summary>
         /// Move an item to another container.
@@ -683,7 +689,7 @@ namespace ClassicUO.LegionScripting
         public void QueueMoveItem(uint serial, uint destination, ushort amt = 0, int x = 0xFFFF, int y = 0xFFFF) => MainThreadQueue.InvokeOnMainThread
         (() =>
             {
-                Client.Game.GetScene<GameScene>()?.MoveItemQueue.Enqueue(serial, destination, amt, x, y);
+                ObjectActionQueue.Instance.Enqueue(new MoveRequest(serial, destination, amt, x, y).ToObjectActionQueueItem(), ActionPriority.MoveItem);
             }
         );
 
@@ -755,7 +761,7 @@ namespace ClassicUO.LegionScripting
                 if (!useCalculatedZ)
                     z = World.Player.Z + z;
 
-                Client.Game.GetScene<GameScene>()?.MoveItemQueue.Enqueue(serial, OSI ? uint.MaxValue : 0, amt, World.Player.X + x, World.Player.Y + y, z);
+                ObjectActionQueue.Instance.Enqueue(new MoveRequest(serial, OSI ? uint.MaxValue : 0, amt, World.Player.X + x, World.Player.Y + y, z).ToObjectActionQueueItem(), ActionPriority.MoveItem);
             }
         );
 
@@ -838,7 +844,11 @@ namespace ClassicUO.LegionScripting
         /// ```
         /// </summary>
         /// <param name="spellName">This can be a partial match. Fireba will cast Fireball.</param>
-        public void CastSpell(string spellName) => MainThreadQueue.InvokeOnMainThread(() => { GameActions.CastSpellByName(spellName); });
+        public void CastSpell(string spellName) => MainThreadQueue.InvokeOnMainThread(() =>
+        {
+            if(!GameActions.CastSpellByName(spellName, false))
+                GameActions.CastSpellByName(spellName);
+        });
 
         /// <summary>
         /// Dress from a saved dress configuration.
@@ -3022,27 +3032,34 @@ namespace ClassicUO.LegionScripting
         /// <param name="notoriety">List of notorieties</param>
         /// <param name="maxDistance"></param>
         /// <returns></returns>
-        public PyMobile NearestMobile(IList<Notoriety> notoriety, int maxDistance = 10) => MainThreadQueue.InvokeOnMainThread
-        (() =>
-            {
-                Found = 0;
-                if (notoriety == null || notoriety.Count == 0)
-                    return null;
+        public PyMobile NearestMobile(IList<Notoriety> notoriety, int maxDistance = 10)
+        {
+            Found = 0;
 
-                Mobile mob = World.Mobiles.Values.Where
-                (m => !m.IsDestroyed && !m.IsDead && m.Serial != World.Player.Serial && notoriety.Contains
-                     ((Notoriety)(byte)m.NotorietyFlag) && m.Distance <= maxDistance && !OnIgnoreList(m)
-                ).OrderBy(m => m.Distance).FirstOrDefault();
-
-                if (mob != null)
-                {
-                    Found = mob.Serial;
-                    return new PyMobile(mob);
-                }
-
+            if (notoriety == null || notoriety.Count == 0)
                 return null;
-            }
-        );
+
+            // IronPython can yield a mixed list - there's no guarantee the values are actually Notoriety
+            Notoriety[] requestedNotoriety = Utility.ConvertNotorietyOrThrow(notoriety);
+
+            return MainThreadQueue.BubblingInvokeOnMainThread
+            (() =>
+                {
+                    Mobile mob = World.Mobiles.Values.Where
+                    (m => !m.IsDestroyed && !m.IsDead && m.Serial != World.Player.Serial && requestedNotoriety.Contains
+                            ((Notoriety)(byte)m.NotorietyFlag) && m.Distance <= maxDistance && !OnIgnoreList(m)
+                    ).OrderBy(m => m.Distance).FirstOrDefault();
+
+                    if (mob != null)
+                    {
+                        Found = mob.Serial;
+                        return new PyMobile(mob);
+                    }
+
+                    return null;
+                }
+            );
+        }
 
         /// <summary>
         /// Get the nearest corpse within a distance.
@@ -3085,14 +3102,16 @@ namespace ClassicUO.LegionScripting
         /// <param name="notoriety">List of notorieties</param>
         /// <param name="maxDistance"></param>
         /// <returns></returns>
-        public PyMobile[] NearestMobiles(IList<Notoriety> notoriety, int maxDistance = 10) => MainThreadQueue.InvokeOnMainThread
+        public PyMobile[] NearestMobiles(IList<Notoriety> notoriety, int maxDistance = 10) => MainThreadQueue.BubblingInvokeOnMainThread
         (() =>
             {
                 if (notoriety == null || notoriety.Count == 0)
                     return null;
 
+                Notoriety[] requestedNotoriety = Utility.ConvertNotorietyOrThrow(notoriety);
+
                 Mobile[] list = World.Mobiles.Values.Where
-                (m => !m.IsDestroyed && !m.IsDead && m.Serial != World.Player.Serial && notoriety.Contains
+                (m => !m.IsDestroyed && !m.IsDead && m.Serial != World.Player.Serial && requestedNotoriety.Contains
                      ((Notoriety)(byte)m.NotorietyFlag) && m.Distance <= maxDistance && !OnIgnoreList(m)
                 ).OrderBy(m => m.Distance).ToArray();
 
@@ -3146,7 +3165,7 @@ namespace ClassicUO.LegionScripting
         /// <param name="distance">Optional maximum distance from player</param>
         /// <param name="notoriety">Optional list of notoriety flags to filter by</param>
         /// <returns></returns>
-        public PyMobile[] GetAllMobiles(ushort? graphic = null, int? distance = null, IList<Notoriety> notoriety = null) => MainThreadQueue.InvokeOnMainThread(() =>
+        public PyMobile[] GetAllMobiles(ushort? graphic = null, int? distance = null, IList<Notoriety> notoriety = null) => MainThreadQueue.BubblingInvokeOnMainThread(() =>
         {
             IEnumerable<Mobile> mobiles = World.Mobiles.Values.AsEnumerable();
 
@@ -3157,7 +3176,10 @@ namespace ClassicUO.LegionScripting
                 mobiles = mobiles.Where(m => m.Distance <= distance.Value);
 
             if (notoriety != null && notoriety.Count > 0)
-                mobiles = mobiles.Where(m => notoriety.Contains((Notoriety)(byte)m.NotorietyFlag));
+            {
+                Notoriety[] requestedNotoriety = Utility.ConvertNotorietyOrThrow(notoriety);
+                mobiles = mobiles.Where(m => requestedNotoriety.Contains((Notoriety)(byte)m.NotorietyFlag));
+            }
 
             return mobiles.Select(m => new PyMobile(m)).ToArray();
         });
@@ -3705,7 +3727,7 @@ namespace ClassicUO.LegionScripting
         /// ```
         /// </summary>
         /// <returns></returns>
-        public bool IsProcessingMoveQueue() => MainThreadQueue.InvokeOnMainThread(() => !MoveItemQueue.Instance.IsEmpty);
+        public bool IsProcessingMoveQueue() => MainThreadQueue.InvokeOnMainThread(() => !ObjectActionQueue.Instance.IsEmpty); //Todo: check if any items of MoveItem priority exist
 
         /// <summary>
         /// Check if the use item queue is being processed. You can use this to prevent actions if the queue is being processed.
@@ -3716,7 +3738,7 @@ namespace ClassicUO.LegionScripting
         /// ```
         /// </summary>
         /// <returns></returns>
-        public bool IsProcessingUseItemQueue() => MainThreadQueue.InvokeOnMainThread(() => !UseItemQueue.Instance.IsEmpty);
+        public bool IsProcessingUseItemQueue() => MainThreadQueue.InvokeOnMainThread(() => !ObjectActionQueue.Instance.IsEmpty);
 
         /// <summary>
         /// Check if the global cooldown is currently active. This applies to actions like moving or using items,

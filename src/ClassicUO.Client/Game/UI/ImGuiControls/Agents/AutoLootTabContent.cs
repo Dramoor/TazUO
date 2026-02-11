@@ -12,15 +12,11 @@ namespace ClassicUO.Game.UI.ImGuiControls
     public class AutoLootTabContent : TabContent
     {
         private Profile profile;
-        private bool enableAutoLoot;
-        private bool enableScavenger;
-        private bool enableProgressBar;
-        private bool autoLootHumanCorpses;
+        private bool enableAutoLoot, enableScavenger, enableProgressBar, autoLootHumanCorpses, hueAfterProcess;
 
         private string newGraphicInput = "";
         private string newHueInput = "";
         private string newRegexInput = "";
-        private int actionDelay = 1000;
 
         private List<AutoLootManager.AutoLootConfigEntry> lootEntries;
         private bool showAddEntry = false;
@@ -38,7 +34,7 @@ namespace ClassicUO.Game.UI.ImGuiControls
             enableScavenger = profile.EnableScavenger;
             enableProgressBar = profile.EnableAutoLootProgressBar;
             autoLootHumanCorpses = profile.AutoLootHumanCorpses;
-            actionDelay = profile.MoveMultiObjectDelay;
+            hueAfterProcess = profile.HueCorpseAfterAutoloot;
 
             lootEntries = AutoLootManager.Instance.AutoLootList;
         }
@@ -52,10 +48,8 @@ namespace ClassicUO.Game.UI.ImGuiControls
             }
             // Main settings
             ImGui.Spacing();
-            if (ImGui.Checkbox("Enable Auto Loot", ref enableAutoLoot))
-            {
-                profile.EnableAutoLoot = enableAutoLoot;
-            }
+            if (ImGui.Checkbox("Enable Auto Loot", ref enableAutoLoot))            
+                profile.EnableAutoLoot = enableAutoLoot;            
             ImGuiComponents.Tooltip("Auto Loot allows you to automatically pick up items from corpses based on configured criteria.");
 
             ImGui.SameLine();
@@ -65,36 +59,29 @@ namespace ClassicUO.Game.UI.ImGuiControls
                 GameActions.Print(Client.Game.UO.World, "Target container to grab items into");
                 Client.Game.UO.World.TargetManager.SetTargeting(CursorTarget.SetGrabBag, 0, TargetType.Neutral);
             }
-            ImGui.SameLine();
-
             ImGuiComponents.Tooltip("Choose a container to grab items into");
 
             ImGui.SeparatorText("Options:");
-
-            if (ImGui.Checkbox("Enable Scavenger", ref enableScavenger))
-            {
-                profile.EnableScavenger = enableScavenger;
-            }
-            ImGui.SameLine();
-
+            if (ImGui.Checkbox("Enable Scavenger", ref enableScavenger))            
+                profile.EnableScavenger = enableScavenger;            
             ImGuiComponents.Tooltip("Scavenger option allows to pick objects from ground.");
 
-            if (ImGui.Checkbox("Enable progress bar", ref enableProgressBar))
-            {
-                profile.EnableAutoLootProgressBar = enableProgressBar;
-            }
             ImGui.SameLine();
 
+
+            if (ImGui.Checkbox("Enable progress bar", ref enableProgressBar))            
+                profile.EnableAutoLootProgressBar = enableProgressBar;            
             ImGuiComponents.Tooltip("Shows a progress bar gump.");
 
 
-            if (ImGui.Checkbox("Auto loot human corpses", ref autoLootHumanCorpses))
-            {
-                profile.AutoLootHumanCorpses = autoLootHumanCorpses;
-            }
-            ImGui.SameLine();
-
+            if (ImGui.Checkbox("Auto loot human corpses", ref autoLootHumanCorpses))            
+                profile.AutoLootHumanCorpses = autoLootHumanCorpses;            
             ImGuiComponents.Tooltip("Auto loots human corpses.");
+
+            ImGui.SameLine();
+            if (ImGui.Checkbox("Hue corpse after processing", ref hueAfterProcess))
+                profile.HueCorpseAfterAutoloot = hueAfterProcess;
+            ImGuiComponents.Tooltip("Hue corpses after processing to make it easier to see if autoloot has processed them.");
 
             ImGui.SeparatorText("Entries:");
 

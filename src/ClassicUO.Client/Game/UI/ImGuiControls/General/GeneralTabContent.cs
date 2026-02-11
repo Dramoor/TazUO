@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Numerics;
 using ImGuiNET;
 using ClassicUO.Configuration;
+using ClassicUO.Game.Data;
 using ClassicUO.Game.GameObjects;
 using ClassicUO.Game.Managers;
+using ClassicUO.Game.Processes;
+using ClassicUO.Game.UI.Gumps.SpellBar;
 using ClassicUO.Network;
 
 namespace ClassicUO.Game.UI.ImGuiControls
@@ -13,18 +16,14 @@ namespace ClassicUO.Game.UI.ImGuiControls
     {
         private readonly Profile _profile = ProfileManager.CurrentProfile;
         private int _objectMoveDelay;
-        private bool _highlightObjects, _petScaling;
-        private bool _showNames;
-        private bool _autoOpenOwnCorpse;
-        private bool _autoUnequipForActions;
-        private bool _disableWeather;
-        private bool _useLongDistancePathing;
+        private bool _highlightObjects, _petScaling, _disableWeather, _useLongDistancePathing, _showNames, _autoOpenOwnCorpse, _autoUnequipForActions;
         private ushort _turnDelay;
         private float _imguiWindowAlpha, _lastImguiWindowAlpha;
         private float _cameraSmoothingFactor;
         private int _currentThemeIndex, _minGumpMoveDist, _gameScale, _minScale, _maxScale;
         private string[] _themeNames;
         private int _pathfindingGenerationTimeMs;
+        private string _quickHealSpell, _quickCureSpell;
 
         // Child tab contents
         private HudTabContent _hudTab;
@@ -40,7 +39,6 @@ namespace ClassicUO.Game.UI.ImGuiControls
 
         public GeneralTabContent()
         {
-            _objectMoveDelay = _profile.MoveMultiObjectDelay;
             _highlightObjects = _profile.HighlightGameObjects;
             _showNames = _profile.NameOverheadToggled;
             _autoOpenOwnCorpse = _profile.AutoOpenOwnCorpse;
@@ -56,6 +54,11 @@ namespace ClassicUO.Game.UI.ImGuiControls
             _gameScale = (int)(100 * Client.Game.RenderScale);
             _minScale = Math.Abs((int)(100 * Constants.MIN_GAME_SCALE));
             _maxScale = (int)(100 * Constants.MAX_GAME_SCALE);
+
+            var heal = SpellDefinition.FullIndexGetSpell(_profile.QuickHealSpell);
+            var cure = SpellDefinition.FullIndexGetSpell(_profile.QuickCureSpell);
+            _quickHealSpell = heal != null ? heal.Name : _profile.QuickHealSpell.ToString();
+            _quickCureSpell = cure != null ? cure.Name : _profile.QuickCureSpell.ToString();
 
             // Initialize theme selector
             _themeNames = ImGuiTheme.GetThemes();
@@ -244,6 +247,7 @@ namespace ClassicUO.Game.UI.ImGuiControls
                 _profile.TurnDelay = _turnDelay;
             }
             ImGui.SetNextItemWidth(150);
+            _objectMoveDelay = ProfileManager.CurrentProfile.MoveMultiObjectDelay;
             if (ImGui.InputInt("Object Delay", ref _objectMoveDelay, 50, 100))
             {
                 _objectMoveDelay = Math.Clamp(_objectMoveDelay, 0, 3000);
@@ -251,10 +255,30 @@ namespace ClassicUO.Game.UI.ImGuiControls
                 _profile.MoveMultiObjectDelay = _objectMoveDelay;
             }
 
+            if (ImGui.Button("Automated delay checker"))
+            {
+                AutomatedObjectDelay.Begin();
+            }
+            ImGuiComponents.Tooltip("Run a small test to try to determine the best object delay time.\nThis is an experimental feature, if it doesn't work for you just adjust your delay manually.");
+
             ImGui.Spacing();
             ImGui.Spacing();
             ImGui.AlignTextToFramePadding();
             ImGui.TextColored(ImGuiTheme.Current.BaseContent, "Misc");
+
+            bool queueManualMoves = _profile.QueueManualItemMoves;
+            if (ImGui.Checkbox("Queue item moves", ref queueManualMoves))
+            {
+                _profile.QueueManualItemMoves = queueManualMoves;
+            }
+            ImGuiComponents.Tooltip("Instead of instantly moving an item, put it in a queue to prevent \"You must wait\" messages.");
+
+            bool queueManualUses = _profile.QueueManualItemUses;
+            if (ImGui.Checkbox("Queue object uses", ref queueManualUses))
+            {
+                _profile.QueueManualItemUses = queueManualUses;
+            }
+            ImGuiComponents.Tooltip("Instead of instantly double clicking an item or mobile, put it in a queue to prevent \"You must wait\" messages.");
 
             if (ImGui.Checkbox("Auto open own corpse", ref _autoOpenOwnCorpse))
             {
@@ -262,11 +286,11 @@ namespace ClassicUO.Game.UI.ImGuiControls
             }
             ImGuiComponents.Tooltip("Automatically open your own corpse when you die, even if auto open corpses is disabled.");
 
-            if (ImGui.Checkbox("Auto unequip for spells", ref _autoUnequipForActions))
+            if (ImGui.Checkbox("Auto unequip for spells & potions", ref _autoUnequipForActions))
             {
                 _profile.AutoUnequipForActions = _autoUnequipForActions;
             }
-            ImGuiComponents.Tooltip("Automatically unequip weapons when casting spells, then reequip them after.");
+            ImGuiComponents.Tooltip("Automatically unequip weapons for spells & potions, then reequip them after.");
 
             if (ImGui.Checkbox("Disable weather", ref _disableWeather))
             {
@@ -277,6 +301,33 @@ namespace ClassicUO.Game.UI.ImGuiControls
                 }
             }
             ImGuiComponents.Tooltip("Disable weather effects (rain, snow, storms).");
+
+            const string QUICK_SPELL_TOOLTIP = "These are used on health-bars for party members/pets";
+            if (ImGui.Button("Set quick heal spell"))
+                UIManager.Add(new SpellQuickSearch(World.Instance, 0, 0, (s) =>
+                {
+                    if(s != null)
+                    {
+                        _quickHealSpell = s.Name;
+                        _profile.QuickHealSpell = s.ID;
+                    }
+                }, true).CenterInViewPort());
+            ImGui.SameLine();
+            ImGui.Text(_quickHealSpell);
+            ImGuiComponents.Tooltip(QUICK_SPELL_TOOLTIP);
+
+            if (ImGui.Button("Set quick cure spell"))
+                UIManager.Add(new SpellQuickSearch(World.Instance, 0, 0, (s) =>
+                {
+                    if(s != null)
+                    {
+                        _quickCureSpell = s.Name;
+                        _profile.QuickCureSpell = s.ID;
+                    }
+                }, true).CenterInViewPort());
+            ImGui.SameLine();
+            ImGui.Text(_quickCureSpell);
+            ImGuiComponents.Tooltip(QUICK_SPELL_TOOLTIP);
 
             ImGui.EndGroup();
         }
@@ -289,7 +340,7 @@ namespace ClassicUO.Game.UI.ImGuiControls
             if (ImGui.Checkbox("Long-Distance Pathfinding", ref _useLongDistancePathing))
             {
                 World.Instance.Player.Pathfinder.UseLongDistancePathfinding = _useLongDistancePathing;
-                Client.Settings.SetAsync(SettingsScope.Global, Constants.SqlSettings.USE_LONG_DISTANCE_PATHING,  _useLongDistancePathing);
+                Client.Settings?.SetAsync(SettingsScope.Global, Constants.SqlSettings.USE_LONG_DISTANCE_PATHING,  _useLongDistancePathing);
             }
             ImGuiComponents.Tooltip("This is currently in beta.");
 

@@ -7,7 +7,7 @@ namespace ClassicUO.Renderer.Gumps
     {
         private readonly TextureAtlas _atlas;
         private readonly SpriteInfo[] _spriteInfos;
-        private readonly PixelPicker _picker = new PixelPicker();
+        private readonly PixelPicker _picker = new PixelPicker(true);
         private readonly GumpsLoader _gumpsLoader;
 
         public GumpsLoader GetGumpsLoader => _gumpsLoader;

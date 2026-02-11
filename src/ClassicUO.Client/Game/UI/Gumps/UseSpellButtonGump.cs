@@ -34,6 +34,7 @@ namespace ClassicUO.Game.UI.Gumps
             Width = (int)Math.Round(44 * (ProfileManager.CurrentProfile.SpellIconScale / 100f));
             Height = (int)Math.Round(44 * (ProfileManager.CurrentProfile.SpellIconScale / 100f));
             _mm = world.Macros;
+            CanBeLocked = false;
         }
 
         public UseSpellButtonGump(World world, SpellDefinition spell) : this(world)

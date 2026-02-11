@@ -322,6 +322,7 @@ namespace ClassicUO.Game.Data
             { 0xAEB3, new (0xAEB3, Ability.DoubleStrike, Ability.WhirlwindAttack) },
             { 0xAEC2, new (0xAEC2, Ability.DoubleStrike, Ability.WhirlwindAttack) },
             { 0xAED1, new (0xAED1, Ability.DoubleStrike, Ability.WhirlwindAttack) }, // Publish 119 Paladin War Hammers
+            { 0x4071, new (0x4071, Ability.ArmorIgnore, Ability.ParalyzingBlow) },
         };
     }
 }

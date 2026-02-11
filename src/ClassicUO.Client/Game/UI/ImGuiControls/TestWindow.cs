@@ -1,10 +1,13 @@
-﻿using ClassicUO.Utility;
+﻿using ClassicUO.Game.Managers;
+using ClassicUO.Utility;
 using ImGuiNET;
 
 namespace ClassicUO.Game.UI.ImGuiControls;
 
 public class TestWindow : SingletonImGuiWindow<TestWindow>
 {
+    public static string TestMessage = string.Empty;
+
     private int _currency = 0;
     private string _formattedCurrency = string.Empty;
     private string _formattedAsInt = string.Empty;
@@ -17,16 +20,16 @@ public class TestWindow : SingletonImGuiWindow<TestWindow>
 
     public override void DrawContent()
     {
-        if (ImGui.InputInt("Currency Test", ref _currency))
-        {
-            _formattedCurrency = StringHelper.FormatAsCurrency(_currency);
-            if (StringHelper.TryParseCurrency(_formattedCurrency, out int val))
-            {
-                _formattedAsInt = val.ToString();
-            }
-        }
+        ImGui.Text(TestMessage);
 
-        ImGui.Text(_formattedCurrency);
-        ImGui.Text(_formattedAsInt);
+        ImGui.Text("This window is not meant to be optimized, it *may* run very poorly.");
+
+        ImGui.Text("Pending heals: " + BandageManager.Instance.PendingHealCount);
+        ImGui.Text("Pending heals in global queue: " + BandageManager.Instance.PendingInGlobalQueueCount);
+
+        ImGui.Text("Pending queue items: " + ObjectActionQueue.Instance.GetCurrentQueuedCount);
+        if (ImGui.Button("Try mount"))
+            GameActions.Mount();
+
     }
 }

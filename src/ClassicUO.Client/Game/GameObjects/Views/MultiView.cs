@@ -93,7 +93,7 @@ namespace ClassicUO.Game.GameObjects
             posX += (int)Offset.X;
             posY += (int)(Offset.Y + Offset.Z);
 
-            DrawStaticAnimated(batcher, graphic, posX, posY, hueVec, false, depth);
+            DrawStaticAnimated(batcher, graphic, posX, posY, hueVec, false, depth, outlineColor: OutlineColor);
 
             if (ItemData.IsLight)
             {

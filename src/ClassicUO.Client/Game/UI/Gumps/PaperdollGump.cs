@@ -14,6 +14,7 @@ using ClassicUO.Utility.Logging;
 using Microsoft.Xna.Framework;
 using System;
 using System.Xml;
+using ClassicUO.Game.Managers.Structs;
 
 namespace ClassicUO.Game.UI.Gumps
 {
@@ -461,8 +462,8 @@ namespace ClassicUO.Game.UI.Gumps
                     && (item.Layer == Layer.Backpack || item.ItemData.IsContainer);
 
                 if (
-                    _paperDollInteractable.HasFakeItem && !Client.Game.UO.GameCursor.ItemHold.Enabled
-                    || force_false
+                    _paperDollInteractable.HasFakeItem && (!Client.Game.UO.GameCursor.ItemHold.Enabled
+                    || force_false)
                 )
                 {
                     _paperDollInteractable.SetFakeItem(false);
@@ -536,10 +537,19 @@ namespace ClassicUO.Game.UI.Gumps
 
                                 if (equipment == null)
                                 {
-                                    GameActions.Equip(World,
-                                        LocalSerial != World.Player ? container : World.Player
-                                    );
+                                    if(ProfileManager.CurrentProfile.QueueManualItemMoves)
+                                    {
+                                        var mr = new MoveRequest(
+                                            Client.Game.UO.GameCursor.ItemHold.Serial,
+                                            LocalSerial != World.Player ? container : World.Player,
+                                            layer: (Layer)Client.Game.UO.GameCursor.ItemHold.ItemData.Layer, moveType: MoveType.Equip);
+                                        ObjectActionQueue.Instance.Enqueue(mr.ToObjectActionQueueItem(), ActionPriority.EquipItem);
+                                    }
+                                    else
+                                        GameActions.Equip(World, LocalSerial != World.Player ? container : World.Player);
                                     Mouse.CancelDoubleClick = true;
+
+                                    Client.Game.UO.GameCursor.ItemHold.Clear();
                                 }
                             }
                         }

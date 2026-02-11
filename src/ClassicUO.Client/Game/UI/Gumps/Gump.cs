@@ -163,6 +163,13 @@ namespace ClassicUO.Game.UI.Gumps
             Y = camera.Bounds.Y + ((camera.Bounds.Height - Height) / 2);
         }
 
+        public Gump CenterInViewPort()
+        {
+            CenterXInViewPort();
+            CenterYInViewPort();
+            return this;
+        }
+
         public void SetInScreen()
         {
             Rectangle windowBounds = Client.Game.Window.ClientBounds;

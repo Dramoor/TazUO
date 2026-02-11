@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using ClassicUO.Configuration;
 using ClassicUO.Game.Managers;
 using Microsoft.Xna.Framework;
@@ -12,6 +11,8 @@ namespace ClassicUO.Game.GameObjects
     public sealed class House : IEquatable<uint>
     {
         private readonly World _world;
+        private Dictionary<long, List<Multi>> _spatialIndex = new Dictionary<long, List<Multi>>();
+        private bool _spatialIndexDirty = true;
 
         public House(World world, uint serial, uint revision, bool isCustom)
         {
@@ -31,7 +32,43 @@ namespace ClassicUO.Game.GameObjects
         public bool IsCustom;
         public uint Revision;
 
-        public IEnumerable<Multi> GetMultiAt(int x, int y) => Components.Where(s => !s.IsDestroyed && s.X == x && s.Y == y);
+        private static long GetSpatialKey(int x, int y) => ((long)x << 32) | (uint)y;
+
+        public void InvalidateSpatialIndex() => _spatialIndexDirty = true;
+
+        private void RebuildSpatialIndex()
+        {
+            _spatialIndex.Clear();
+
+            for (int i = 0; i < Components.Count; i++)
+            {
+                Multi m = Components[i];
+                if (m.IsDestroyed)
+                    continue;
+
+                long key = GetSpatialKey(m.X, m.Y);
+                if (!_spatialIndex.TryGetValue(key, out List<Multi> list))
+                {
+                    list = new List<Multi>();
+                    _spatialIndex[key] = list;
+                }
+                list.Add(m);
+            }
+
+            _spatialIndexDirty = false;
+        }
+
+        public IReadOnlyList<Multi> GetMultiAt(int x, int y)
+        {
+            if (_spatialIndexDirty)
+                RebuildSpatialIndex();
+
+            long key = GetSpatialKey(x, y);
+            if (_spatialIndex.TryGetValue(key, out List<Multi> list))
+                return list;
+
+            return Array.Empty<Multi>();
+        }
 
         public Multi Add
         (
@@ -52,6 +89,18 @@ namespace ClassicUO.Game.GameObjects
             m.SetInWorldTile(x, y, z);
 
             Components.Add(m);
+
+            // Incrementally add to spatial index if it's already built
+            if (!_spatialIndexDirty)
+            {
+                long key = GetSpatialKey(x, y);
+                if (!_spatialIndex.TryGetValue(key, out List<Multi> list))
+                {
+                    list = new List<Multi>();
+                    _spatialIndex[key] = list;
+                }
+                list.Add(m);
+            }
 
             if (ProfileManager.CurrentProfile.ForceHouseTransparency)
             {
@@ -102,6 +151,7 @@ namespace ClassicUO.Game.GameObjects
                     if (component.IsDestroyed)
                     {
                         Components.RemoveAt(i--);
+                        _spatialIndexDirty = true;
                     }
                 }
             }
@@ -111,6 +161,9 @@ namespace ClassicUO.Game.GameObjects
         {
             Item item = _world.Items.Get(Serial);
             //ClearCustomHouseComponents(0);
+
+            if (recalculate)
+                _spatialIndexDirty = true;
 
             foreach (Multi s in Components)
             {
@@ -162,6 +215,7 @@ namespace ClassicUO.Game.GameObjects
 
                 s.Destroy();
                 Components.RemoveAt(i--);
+                _spatialIndexDirty = true;
             }
 
             //Components.Clear();

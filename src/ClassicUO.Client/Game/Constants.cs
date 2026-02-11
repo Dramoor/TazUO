@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
+using Microsoft.Xna.Framework;
+
 namespace ClassicUO.Game
 {
     internal static class Constants
@@ -88,6 +90,7 @@ namespace ClassicUO.Game
         public const int PREDICTABLE_CHUNKS = 300;
         public const float MAX_GAME_SCALE = 1.5f;
         public const float MIN_GAME_SCALE = -0.6f;
+        public static Color SELECTED_COLOR = Color.DarkRed;
 
         public static readonly bool[] BAD_CONTAINER_LAYERS =
         {
@@ -124,6 +127,9 @@ namespace ClassicUO.Game
             public const string ENABLE_ENHANCED_PACKETS = "enhanced_packets_enabled";
             public const string QUICK_HEAL_SPELL = "quick_heal_spell";
             public const string QUICK_CURE_SPELL = "quick_cure_spell";
+            public const string QUEUE_MANUAL_ITEM_MOVES = "queue_manual_item_moves";
+            public const string QUEUE_MANUAL_ITEM_USES = "queue_manual_item_uses";
+            public const string HUE_CORPSE_AFTER_AUTOLOOT = "hue_corpse_after_autoloot";
         }
     }
 }

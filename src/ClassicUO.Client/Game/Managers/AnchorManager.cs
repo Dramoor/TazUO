@@ -212,22 +212,22 @@ namespace ClassicUO.Game.Managers
             AnchorableGump closestControl = null;
             int closestDistance = 99999;
 
-            foreach (Gump c in UIManager.Gumps)
+            UIManager.ForEach<AnchorableGump>(g =>
             {
-                if (!c.IsDisposed && c is AnchorableGump host && host.AnchorType == control.AnchorType)
+                if (g.AnchorType == control.AnchorType)
                 {
-                    if (IsOverlapping(control, host))
+                    if (IsOverlapping(control, g))
                     {
-                        int dirtyDistance = Math.Abs(control.X - host.X) + Math.Abs(control.Y - host.Y);
+                        int dirtyDistance = Math.Abs(control.X - g.X) + Math.Abs(control.Y - g.Y);
 
                         if (dirtyDistance < closestDistance)
                         {
                             closestDistance = dirtyDistance;
-                            closestControl = host;
+                            closestControl = g;
                         }
                     }
                 }
-            }
+            });
 
             return closestControl;
         }

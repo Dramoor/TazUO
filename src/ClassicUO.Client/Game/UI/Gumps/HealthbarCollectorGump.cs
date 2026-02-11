@@ -49,6 +49,24 @@ namespace ClassicUO.Game.UI.Gumps
             CanMove = true;
             CanCloseWithRightClick = true;
             Build();
+            EventSink.NotorietyFlagChanged += EventSinkOnNotorietyFlagChanged;
+            EventSink.MobileCreated += EventSinkOnMobileCreated;
+        }
+
+        private void EventSinkOnMobileCreated(object sender, Mobile mob)
+        {
+            if (MobileMatchesFilter(mob))
+                AddMobileHealthbar(mob);
+        }
+
+        private void EventSinkOnNotorietyFlagChanged(uint serial, NotorietyFlag e)
+        {
+            Entity ent = _world.Get(serial);
+
+            if (ent is not Mobile mob) return;
+
+            if (MobileMatchesFilter(mob))
+                AddMobileHealthbar(mob);
         }
 
         public override bool AcceptMouseInput { get; set; } = true;
@@ -345,7 +363,7 @@ namespace ClassicUO.Game.UI.Gumps
 
         public override bool Draw(UltimaBatcher2D batcher, int x, int y)
         {
-            base.Draw(batcher, x, y);
+            if (!base.Draw(batcher, x, y)) return false;
 
             // Draw border as plain lines
             Vector3 hueVector = ShaderHueTranslator.GetHueVector(_borderHue, false, 1.0f);
@@ -453,8 +471,11 @@ namespace ClassicUO.Game.UI.Gumps
 
         public override void Dispose()
         {
+            EventSink.NotorietyFlagChanged -= EventSinkOnNotorietyFlagChanged;
+            EventSink.MobileCreated -= EventSinkOnMobileCreated;
             // Dispose all compact healthbars
             foreach (CompactHealthBar bar in _healthbars.Values) bar.Dispose();
+
             _healthbars.Clear();
 
             base.Dispose();
@@ -702,8 +723,8 @@ namespace ClassicUO.Game.UI.Gumps
                 base.OnMouseDown(x, y, button);
             }
 
-            protected override void OnMouseEnter(int x, int y) 
-            { 
+            protected override void OnMouseEnter(int x, int y)
+            {
                 if (_mobile != null && !_mobile.IsDestroyed)
                 {
                     SelectedObject.HealthbarObject = _mobile;
@@ -767,9 +788,9 @@ namespace ClassicUO.Game.UI.Gumps
 
             private Vector3 _backgroundHueVector = new(0, 0, 0.3f);
 
-            public override bool Draw(UltimaBatcher2D batcher, int x, int y) 
+            public override bool Draw(UltimaBatcher2D batcher, int x, int y)
             {
-                if(IsDisposed) return false;
+                if (IsDisposed) return false;
 
                 if (MouseIsOver)
                 {

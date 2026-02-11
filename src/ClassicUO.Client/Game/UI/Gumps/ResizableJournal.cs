@@ -144,7 +144,7 @@ namespace ClassicUO.Game.UI.Gumps
             InitJournalEntries();
             ResizeWindow(ProfileManager.CurrentProfile.ResizeJournalSize);
             BuildBorder();
-            EventSink.JournalEntryAdded += EventSink_EntryAdded; ;
+            EventSink.JournalEntryAdded += EventSink_EntryAdded;
         }
 
         private void EventSink_EntryAdded(object sender, JournalEntry e) => AddJournalEntry(e);
@@ -160,9 +160,7 @@ namespace ClassicUO.Game.UI.Gumps
             Style4,
             Style5,
             Style6,
-            Style7,
-            Style8,
-            //Style9
+            Style7
         }
 
         private void BuildTabs()
@@ -219,29 +217,6 @@ namespace ClassicUO.Game.UI.Gumps
                 case BorderStyle.Style7:
                     graphic = 9260; borderSize = 17;
                     break;
-                case BorderStyle.Style8:
-                    {
-                        if (Client.Game.UO.Gumps.GetGump(40303).Texture != null)
-                            graphic = 40303;
-                        else
-                            graphic = 83;
-                        borderSize = 16;
-                        break;
-                    }
-                //case BorderStyle.Style9:
-                //    {
-                //        if (Assets.GumpsLoader.Instance.GetGumpTexture(40313, out var bounds) != null)
-                //        {
-                //            graphic = 40313;
-                //            borderSize = 75;
-                //        }
-                //        else
-                //        {
-                //            graphic = 83;
-                //            borderSize = 16;
-                //        }
-                //        break;
-                //    }
 
                 default:
                 case BorderStyle.Default:

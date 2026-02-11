@@ -10,6 +10,7 @@ namespace ClassicUO.Renderer.Effects
             WorldMatrix = Parameters["WorldMatrix"];
             Viewport = Parameters["Viewport"];
             Brighlight = Parameters["Brightlight"];
+            TexelSize = Parameters["TexelSize"];
 
             CurrentTechnique = Techniques["HueTechnique"];
             Pass = CurrentTechnique.Passes[0];
@@ -19,6 +20,7 @@ namespace ClassicUO.Renderer.Effects
         public EffectParameter WorldMatrix { get; }
         public EffectParameter Viewport { get; }
         public EffectParameter Brighlight { get; }
+        public EffectParameter TexelSize { get; }
         public EffectPass Pass { get; }
     }
 }

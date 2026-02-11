@@ -5,7 +5,6 @@ using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -239,6 +238,8 @@ namespace ClassicUO.Utility
         }
 
         public static bool NotNullNotEmpty(this string text) => !string.IsNullOrEmpty(text);
+
+        public static string Truncate(this string text, int maxLength, bool addEllipsis = true) => StringHelper.Truncate(text, maxLength, addEllipsis);
 
         extension(int value)
         {

@@ -150,6 +150,7 @@ namespace ClassicUO.Game.Managers
         public static event EventHandler<int> SpellCastBegin;
         /// <summary>Invokes <see cref="SpellCastBegin"/>.</summary>
         public static void InvokeSpellCastBegin(int spell) => SpellCastBegin?.Invoke(null, spell);
+
         /// <summary>
         /// Called when the visual spell manager detects a spell done being cast.
         /// The event argument is the spell ID.
@@ -157,6 +158,16 @@ namespace ClassicUO.Game.Managers
         public static event EventHandler SpellCastEnd;
         /// <summary>Invokes <see cref="SpellCastEnd"/>.</summary>
         public static void InvokeSpellCastEnd() => SpellCastEnd?.Invoke(null, null);
+
+        /// <summary>
+        /// Invoked when a mobile's notoriety has changed
+        /// </summary>
+        public static event EventHandler<uint, NotorietyFlag> NotorietyFlagChanged;
+        public static void InvokeNotorietyChange(uint serial, NotorietyFlag flag) => NotorietyFlagChanged?.Invoke(serial, flag);
+
+        public static event EventHandler<Mobile> MobileCreated;
+        public static void InvokeMobileCreated(Mobile m) => MobileCreated?.Invoke(m, m);
+
         /// <summary>
         /// Called when the visual spell manager detects a spell recovery phase.
         /// The event argument is the spell ID.

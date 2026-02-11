@@ -8,6 +8,7 @@ using ClassicUO.Game.GameObjects;
 using ClassicUO.Game.UI.Controls;
 using ClassicUO.Game.UI.Gumps.GridHighLight;
 using ClassicUO.Network;
+using ClassicUO.Network.PacketHandlers.Helpers;
 using ClassicUO.Utility;
 
 namespace ClassicUO.Game.Managers
@@ -54,7 +55,7 @@ namespace ClassicUO.Game.Managers
             // if we don't have the OPL of this item, let's request it to the server.
             // Original client seems asking for OPL when character is not running.
             // We'll ask OPL when mouse is over an object.
-            PacketHandlers.AddMegaClilocRequest(serial);
+            SharedStore.AddMegaCliLocRequest(serial);
 
             return false;
         }

@@ -4,6 +4,7 @@ using ClassicUO.Configuration;
 using ClassicUO.Game.Data;
 using ClassicUO.Game.GameObjects;
 using ClassicUO.Game.Managers;
+using ClassicUO.Game.Managers.Structs;
 using ClassicUO.Game.Scenes;
 using ClassicUO.Game.UI;
 using ClassicUO.Game.UI.Gumps;
@@ -13,6 +14,7 @@ using ClassicUO.LegionScripting;
 using ClassicUO.Network;
 using ClassicUO.Resources;
 using ClassicUO.Utility;
+using ClassicUO.Utility.Logging;
 using Microsoft.Xna.Framework;
 using static ClassicUO.Network.AsyncNetClient;
 
@@ -47,18 +49,7 @@ internal static class GameActions
     ///
     /// </summary>
     /// <returns>False if no durability gump was open</returns>
-    internal static bool CloseDurabilityGump()
-    {
-        Gump g = UIManager.GetGump<DurabilitysGump>();
-
-        if (g != null)
-        {
-            g.Dispose();
-            return true;
-        }
-
-        return false;
-    }
+    internal static bool CloseDurabilityGump() => UIManager.ForEach<DurabilitysGump>(g => g.Dispose());
 
     internal static void OpenDurabilityGump(World world) => UIManager.Add(new DurabilitysGump(world));
 
@@ -592,18 +583,26 @@ internal static class GameActions
         Socket.Send_AttackRequest(serial);
     }
 
-    internal static void DoubleClickQueued(uint serial) => Client.Game.GetScene<GameScene>()?.DoubleClickDelayed(serial);
+    internal static void QueueOpenCorpse(uint serial) => ObjectActionQueue.Instance.Enqueue(ObjectActionQueueItem.DoubleClick(serial), ActionPriority.OpenCorpse);
+
+    internal static void DoubleClickQueued(uint serial) => ObjectActionQueue.Instance.Enqueue(ObjectActionQueueItem.DoubleClick(serial), ActionPriority.UseItem);
 
     internal static void DoubleClickQueued(uint serial, bool ignoreWarMode)
     {
         if (World.Instance != null)
-            GlobalPriorityQueue.Instance.Enqueue(() => { DoubleClick(World.Instance, serial, ignoreWarMode); });
+            ObjectActionQueue.Instance.Enqueue(new ObjectActionQueueItem(() =>
+            {
+                DoubleClick(World.Instance, serial, ignoreWarMode, true);
+            }), ActionPriority.UseItem);
     }
 
-    internal static void DoubleClick(World world, uint serial, bool ignoreWarMode = false)
+    internal static void DoubleClick(World world, uint serial, bool ignoreWarMode = false, bool ignoreQueue = false)
     {
+        bool isItem = SerialHelper.IsItem(serial);
+        bool isMobile = SerialHelper.IsMobile(serial);
+
         // Record action for script recording (only for items)
-        if (SerialHelper.IsItem(serial))
+        if (isItem)
             ScriptRecorder.Instance.RecordUseItem(serial);
 
         ScriptingInfoGump.AddOrUpdateInfo("Last Object", $"0x{serial:X}");
@@ -611,14 +610,14 @@ internal static class GameActions
         if (obj != null)
             ScriptingInfoGump.AddOrUpdateInfo("Last Object Graphic", $"0x{obj.Graphic:X}");
 
-        if (serial != world.Player && SerialHelper.IsMobile(serial) && world.Player.InWarMode && !ignoreWarMode)
+        if (serial != world.Player && isMobile && world.Player.InWarMode && !ignoreWarMode)
         {
             RequestMobileStatus(world, serial);
             Attack(world, serial);
         }
         else
         {
-            if (SerialHelper.IsItem(serial))
+            if (isItem)
             {
                 Gump g = UIManager.GetGump<GridContainer>(serial);
                 if (g != null)
@@ -626,13 +625,21 @@ internal static class GameActions
                     g.SetInScreen();
                     g.BringOnTop();
                 }
-                Socket.Send_DoubleClick(serial);
             }
+
+            if (ProfileManager.CurrentProfile.QueueManualItemUses && !ignoreQueue)
+                ObjectActionQueue.Instance.Enqueue(ObjectActionQueueItem.DoubleClick(serial), ActionPriority.ManualUseItem);
             else
-                Socket.Send_DoubleClick(serial);
+            {
+                bool intercepted = AutoUnequipActionManager.Instance?.TryInterceptDoubleClick(serial, Socket.Send_DoubleClick) ?? false;
+
+                if (!intercepted)
+                    // Run the actual send only if the interceptor yielded control back, otherwise, the auto manager would have handled the 'send' part
+                    Socket.Send_DoubleClick(serial);
+            }
         }
 
-        if (SerialHelper.IsItem(serial) || (SerialHelper.IsMobile(serial) && (world.Mobiles.Get(serial)?.IsHuman ?? false)))
+        if (isItem || (isMobile && (world.Mobiles.Get(serial)?.IsHuman ?? false)))
         {
             world.LastObject = serial;
         }
@@ -840,7 +847,10 @@ internal static class GameActions
         Client.Game.UO.GameCursor.ItemHold.Clear();
         Client.Game.UO.GameCursor.ItemHold.Set(item, (ushort)amount, offset);
         Client.Game.UO.GameCursor.ItemHold.IsGumpTexture = is_gump;
-        Socket.Send_PickUpRequest(item, (ushort)amount);
+
+        if (!ProfileManager.CurrentProfile.QueueManualItemMoves)
+            Socket.Send_PickUpRequest(item, (ushort)amount);
+
         ScriptingInfoGump.AddOrUpdateInfo("Last Picked Up Item", $"0x{item.Serial:X}");
         ScriptingInfoGump.AddOrUpdateInfo("Last Object Graphic", $"0x{item.Graphic:X}");
 
@@ -862,8 +872,19 @@ internal static class GameActions
         {
             // Record action for script recording
             uint sourceSerial = Client.Game.UO.GameCursor.ItemHold.Enabled ? Client.Game.UO.GameCursor.ItemHold.Serial : serial;
-                int amount = Client.Game.UO.GameCursor.ItemHold.Enabled ? Client.Game.UO.GameCursor.ItemHold.Amount : -1;
-                ScriptRecorder.Instance.RecordDragDrop(sourceSerial, container, amount, x, y);
+            int amount = Client.Game.UO.GameCursor.ItemHold.Enabled ? Client.Game.UO.GameCursor.ItemHold.Amount : -1;
+            ScriptRecorder.Instance.RecordDragDrop(sourceSerial, container, amount, x, y);
+
+            Client.Game.UO.GameCursor.ItemHold.Enabled = false;
+            Client.Game.UO.GameCursor.ItemHold.Dropped = true;
+
+            if (ProfileManager.CurrentProfile.QueueManualItemMoves && !force)
+            {
+                Client.Game.UO.GameCursor.ItemHold.Clear();
+                ObjectActionQueue.Instance.Enqueue(new MoveRequest(serial, container, (ushort)amount, x, y, z).ToObjectActionQueueItem(), ActionPriority.MoveItem);
+                return;
+            }
+
             if (Client.Game.UO.Version >= ClientVersion.CV_6017)
             {
                 Socket.Send_DropRequest(serial,
@@ -881,9 +902,6 @@ internal static class GameActions
                                             (sbyte)z,
                                             container);
             }
-
-            Client.Game.UO.GameCursor.ItemHold.Enabled = false;
-            Client.Game.UO.GameCursor.ItemHold.Dropped = true;
         }
     }
 
@@ -896,8 +914,8 @@ internal static class GameActions
                 container = world.Player.Serial;
             }
 
-                // Record action for script recording
-                ScriptRecorder.Instance.RecordEquipItem(Client.Game.UO.GameCursor.ItemHold.Serial, (Layer)Client.Game.UO.GameCursor.ItemHold.ItemData.Layer);
+            // Record action for script recording
+            ScriptRecorder.Instance.RecordEquipItem(Client.Game.UO.GameCursor.ItemHold.Serial, (Layer)Client.Game.UO.GameCursor.ItemHold.ItemData.Layer);
 
             Socket.Send_EquipRequest(Client.Game.UO.GameCursor.ItemHold.Serial, (Layer)Client.Game.UO.GameCursor.ItemHold.ItemData.Layer, container);
 
@@ -1046,15 +1064,15 @@ internal static class GameActions
     ///
     /// </summary>
     /// <param name="name">Can be a partial match</param>
-    internal static bool CastSpellByName(string name)
+    internal static bool CastSpellByName(string name, bool partialMatch = true)
     {
         name = name.Trim();
 
-        if (!string.IsNullOrEmpty(name) && SpellDefinition.TryGetSpellFromName(name, out SpellDefinition spellDef))
+        if (!string.IsNullOrEmpty(name) && SpellDefinition.TryGetSpellFromName(name, out SpellDefinition spellDef, partialMatch))
         {
-                // Record action for script recording
-                ScriptRecorder.Instance.RecordCastSpell(name);
-                ScriptingInfoGump.AddOrUpdateInfo("Last Spell", name);
+            // Record action for script recording
+            ScriptRecorder.Instance.RecordCastSpell(name);
+            ScriptingInfoGump.AddOrUpdateInfo("Last Spell", name);
 
             CastSpell(spellDef.ID);
             return true;
@@ -1202,7 +1220,7 @@ internal static class GameActions
             SendAbility(world, 0, true);
         }
 
-            ScriptRecorder.Instance.RecordAbility("primary");
+        ScriptRecorder.Instance.RecordAbility("primary");
 
         ability ^= (Ability)0x80;
     }

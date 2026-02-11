@@ -10,8 +10,8 @@
 
 namespace ClassicUO.Resources {
     using System;
-    
-    
+
+
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -23,15 +23,15 @@ namespace ClassicUO.Resources {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class ResErrorMessages {
-        
+
         private static global::System.Resources.ResourceManager resourceMan;
-        
+
         private static global::System.Globalization.CultureInfo resourceCulture;
-        
+
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         internal ResErrorMessages() {
         }
-        
+
         /// <summary>
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
@@ -45,7 +45,7 @@ namespace ClassicUO.Resources {
                 return resourceMan;
             }
         }
-        
+
         /// <summary>
         ///   Overrides the current thread's CurrentUICulture property for all
         ///   resource lookups using this strongly typed resource class.
@@ -59,7 +59,7 @@ namespace ClassicUO.Resources {
                 resourceCulture = value;
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Another character from this account is currently online in this world.  You must either log in as that character or wait for it to time out..
         /// </summary>
@@ -68,7 +68,13 @@ namespace ClassicUO.Resources {
                 return ResourceManager.GetString("AnotherCharacterOnline", resourceCulture);
             }
         }
-        
+
+        public static string AutoUnequipFailedStopped {
+            get {
+                return ResourceManager.GetString("AutoUnequipFailedStopped", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to This character already exists.
         ///Playing....
@@ -78,7 +84,7 @@ namespace ClassicUO.Resources {
                 return ResourceManager.GetString("CharacterAlreadyExists", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to This character does not exist anymore.  You will have to recreate it..
         /// </summary>
@@ -87,7 +93,7 @@ namespace ClassicUO.Resources {
                 return ResourceManager.GetString("CharacterDoesNotExist", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to That character is not old enough to delete. The character must be 7 days old before it can be deleted..
         /// </summary>
@@ -96,7 +102,7 @@ namespace ClassicUO.Resources {
                 return ResourceManager.GetString("CharacterIsNotOldEnough", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to That character is currently queued for backup and cannot be deleted..
         /// </summary>
@@ -105,7 +111,7 @@ namespace ClassicUO.Resources {
                 return ResourceManager.GetString("CharacterIsQueuedForBackup", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to That character password is invalid..
         /// </summary>
@@ -114,7 +120,7 @@ namespace ClassicUO.Resources {
                 return ResourceManager.GetString("CharacterPasswordInvalid", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Character transfer in progress..
         /// </summary>
@@ -123,7 +129,7 @@ namespace ClassicUO.Resources {
                 return ResourceManager.GetString("CharacterTransferInProgress", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to The client could not attach to the game server. It must have been taken down, please wait a few minutes and try again..
         /// </summary>
@@ -132,7 +138,7 @@ namespace ClassicUO.Resources {
                 return ResourceManager.GetString("ClientCouldNotAttachToServer", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to &apos;{0}&apos; is not a valid UO directory.
         /// </summary>
@@ -141,7 +147,7 @@ namespace ClassicUO.Resources {
                 return ResourceManager.GetString("ClientPathIsNotAValidUODirectory", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Communication problem..
         /// </summary>
@@ -150,7 +156,7 @@ namespace ClassicUO.Resources {
                 return ResourceManager.GetString("CommunicationProblem", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Could not attach to game server..
         /// </summary>
@@ -159,7 +165,7 @@ namespace ClassicUO.Resources {
                 return ResourceManager.GetString("CouldNotAttachServer", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Couldn&apos;t carry out your request..
         /// </summary>
@@ -168,7 +174,7 @@ namespace ClassicUO.Resources {
                 return ResourceManager.GetString("CouldntCarryOutYourRequest", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Couldn&apos;t connect to Ultima Online.  Please try again in a few moments..
         /// </summary>
@@ -177,7 +183,7 @@ namespace ClassicUO.Resources {
                 return ResourceManager.GetString("CouldntConnectToUO", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to An error has occurred in the synchronization between the login servers and this world.  Please close your client and try again..
         /// </summary>
@@ -186,7 +192,7 @@ namespace ClassicUO.Resources {
                 return ResourceManager.GetString("ErrorInSynchronization", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to General IGR authentication failure..
         /// </summary>
@@ -195,7 +201,7 @@ namespace ClassicUO.Resources {
                 return ResourceManager.GetString("GeneralIGRAuthenticationFailure", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to You have been idle for too long.  If you do not do anything in the next minute, you will be logged out..
         /// </summary>
@@ -204,7 +210,7 @@ namespace ClassicUO.Resources {
                 return ResourceManager.GetString("IdleTooLong", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Incorrect name/password..
         /// </summary>
@@ -213,7 +219,7 @@ namespace ClassicUO.Resources {
                 return ResourceManager.GetString("IncorrectNamePassword", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Incorrect password.
         /// </summary>
@@ -222,7 +228,7 @@ namespace ClassicUO.Resources {
                 return ResourceManager.GetString("IncorrectPassword", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Invalid name.
         /// </summary>
@@ -231,7 +237,7 @@ namespace ClassicUO.Resources {
                 return ResourceManager.GetString("NameIsInvalid", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Someone is already using this account..
         /// </summary>
@@ -240,7 +246,7 @@ namespace ClassicUO.Resources {
                 return ResourceManager.GetString("SomeoneIsAlreadyUsingThisAccount", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to That character does not exist..
         /// </summary>
@@ -249,7 +255,7 @@ namespace ClassicUO.Resources {
                 return ResourceManager.GetString("ThatCharacterDoesNotExist", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to That character is being played right now..
         /// </summary>
@@ -258,7 +264,7 @@ namespace ClassicUO.Resources {
                 return ResourceManager.GetString("ThatCharacterIsBeingPlayed", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to That is out of sight..
         /// </summary>
@@ -267,7 +273,7 @@ namespace ClassicUO.Resources {
                 return ResourceManager.GetString("ThatIsOutOfSight", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to That is too far away..
         /// </summary>
@@ -276,7 +282,7 @@ namespace ClassicUO.Resources {
                 return ResourceManager.GetString("ThatIsTooFarAway", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to That item does not belong to you.  You&apos;ll have to steal it..
         /// </summary>
@@ -285,7 +291,7 @@ namespace ClassicUO.Resources {
                 return ResourceManager.GetString("ThatItemDoesNotBelongToYou", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to The IGR concurrency limit has been met..
         /// </summary>
@@ -294,7 +300,7 @@ namespace ClassicUO.Resources {
                 return ResourceManager.GetString("TheIGRConcurrencyLimitHasBeenMet", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to The IGR time limit has been met..
         /// </summary>
@@ -303,7 +309,7 @@ namespace ClassicUO.Resources {
                 return ResourceManager.GetString("TheIGRTimeLimitHasBeenMet", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to You are already holding an item..
         /// </summary>
@@ -312,7 +318,7 @@ namespace ClassicUO.Resources {
                 return ResourceManager.GetString("YouAreAlreadyHoldingAnItem", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to You can not pick that up..
         /// </summary>
@@ -321,7 +327,7 @@ namespace ClassicUO.Resources {
                 return ResourceManager.GetString("YouCanNotPickThatUp", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Your account credentials are invalid..
         /// </summary>
@@ -330,7 +336,7 @@ namespace ClassicUO.Resources {
                 return ResourceManager.GetString("YourAccountCredentialsAreInvalid", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Your account has been blocked..
         /// </summary>

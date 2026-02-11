@@ -89,7 +89,10 @@ public static class HideHudManager
                 gump.IsVisible = isVisible;
             else if (ByteFlagHelper.HasFlag(flags, (ulong)HideHudFlags.NameOverheadGump) && gump is NameOverHeadHandlerGump)
                 gump.IsVisible = isVisible;
-            // ScriptManagerGump removed - use ScriptManagerWindow instead
+            else if (ByteFlagHelper.HasFlag(flags, (ulong)HideHudFlags.HealthBarCollector) && gump is HealthbarCollectorGump)
+                gump.IsVisible = isVisible;
+            else if (ByteFlagHelper.HasFlag(flags, (ulong)HideHudFlags.AbilityButtons) && gump is UseAbilityButtonGump)
+                gump.IsVisible = isVisible;
         }
     }
 }

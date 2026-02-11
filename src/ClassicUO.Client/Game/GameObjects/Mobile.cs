@@ -202,7 +202,7 @@ namespace ClassicUO.Game.GameObjects
             set
             {
                 field = value;
-                HealthbarCollectorGump.CheckAndAddMobile(World, Serial);
+                EventSink.InvokeNotorietyChange(Serial, value);
             }
         }
 
@@ -1091,8 +1091,8 @@ namespace ClassicUO.Game.GameObjects
 
             if (!(this is PlayerMobile))
             {
-                UIManager.GetGump<PaperDollGump>(serial)?.Dispose();
-                UIManager.GetGump<ModernPaperdoll>(serial)?.Dispose();
+                UIManager.ForEach<PaperDollGump>(g => g.Dispose(), serial);
+                UIManager.ForEach<ModernPaperdoll>(g => g.Dispose(), serial);
 
                 //_pool.ReturnOne(this);
             }

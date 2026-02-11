@@ -36,13 +36,27 @@ public class PyItem : PyEntity
 
             return m != null ? new PyMobile(m) : null;
         }
-        else
-        {
-            Client.Game.UO.World.Items.TryGetValue(item.RootContainer, out Item i);
 
-            return i != null ? new PyItem(i) : null;
-        }
+        Client.Game.UO.World.Items.TryGetValue(item.RootContainer, out Item i);
+
+        return i != null ? new PyItem(i) : null;
     });
+
+    /// <summary>
+    /// Get the items ItemData
+    /// </summary>
+    /// <returns></returns>
+    public PyItemData GetItemData() =>
+        MainThreadQueue.InvokeOnMainThread(() =>
+        {
+            if (item == null)
+            {
+                item = GetItemUnsafe();
+                if (item == null) return null;
+            }
+
+            return new PyItemData(item.ItemData);
+        });
 
     /// <summary>
     /// If this item matches a grid highlight rule, this is the rule name it matched against

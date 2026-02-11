@@ -14,6 +14,7 @@ using System.Globalization;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading;
 
 namespace ClassicUO
@@ -74,6 +75,10 @@ namespace ClassicUO
                     sb.AppendLine($"ClientVersion: {Settings.GlobalSettings.ClientVersion}");
                     sb.AppendLine();
                 }
+
+                string suggestedFix = GetSuggestedFix(e.ExceptionObject);
+                if (suggestedFix != null)
+                    sb.AppendLine(suggestedFix);
 
                 sb.AppendFormat("Exception:\n{0}\n", e.ExceptionObject);
                 sb.AppendLine("######################## [END LOG] ########################");
@@ -223,6 +228,32 @@ namespace ClassicUO
             }
 
             Log.Trace("Closing...");
+        }
+
+        private static string GetSuggestedFix(object e)
+        {
+            try
+            {
+                if (e is Microsoft.Xna.Framework.Graphics.NoSuitableGraphicsDeviceException graphicsException &&
+                    graphicsException.Message.Contains("Could not create swapchain!"))
+                {
+                    string dataPath = Path.Join(CUOEnviroment.ExecutablePath, "Data");
+                    string scriptsPath = Path.Join(CUOEnviroment.ExecutablePath, "LegionScripts");
+                    var sb = new StringBuilder();
+                    sb.AppendLine("Issue analysis indicates a potential conflict with your TazUO installation.");
+                    sb.AppendLine("The client does not support side-by-side installation of both legacy and modern builds.");
+                    sb.AppendLine($"Please backup your data ('{dataPath}') and script ('{scriptsPath}') folders and delete everything else.");
+                    sb.AppendLine("Re-download *only* your selected channel (Legacy or Modern) from the launcher.");
+                    sb.AppendLine("Copy your backed up Data and LegionScripts folders back to where they were.");
+                    return sb.ToString();
+                }
+            }
+            catch
+            {
+                Log.Error("Failed to obtain a suggested fix for error");
+            }
+
+            return null;
         }
 
         private static void ReadSettingsFromArgs(string[] args)
@@ -506,6 +537,12 @@ namespace ClassicUO
 
                     case "zlib":
                         ZLib.SetForceManagedZlib(true);
+
+                        break;
+
+                    case "nometrics":
+                        AnonMetrics.MetricsEnabled = false;
+                        Log.Info("Anonymous metrics disabled");
 
                         break;
                 }

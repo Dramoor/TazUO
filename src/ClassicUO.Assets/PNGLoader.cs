@@ -95,10 +95,10 @@ namespace ClassicUO.Assets
                     FileStream titleStream = File.OpenRead(fullImagePath);
                     var tempTexture = Texture2D.FromStream(GraphicsDevice, titleStream);
                     titleStream.Close();
-                    
+
                     if (tempTexture == null)
                         return new GumpInfo();
-                        
+
                     FixPNGAlpha(ref tempTexture);
 
                     uint[] pixels = GetPixels(tempTexture);
@@ -151,10 +151,10 @@ namespace ClassicUO.Assets
                     {
                         tempTexture = Texture2D.FromStream(GraphicsDevice, titleStream);
                     }
-                    
+
                     if (tempTexture == null)
                         return new ArtInfo();
-                        
+
                     FixPNGAlpha(ref tempTexture);
 
                     uint[] pixels = GetPixels(tempTexture);
@@ -245,73 +245,6 @@ namespace ClassicUO.Assets
 
             System.Reflection.Assembly assembly = GetType().Assembly;
 
-            //Load the custom gump art included with TUO
-            for (uint i = 40303; i <= 40312; i++)
-            {
-                //Check if the art already exists
-                GumpInfo gumpInfo = LoadGumpTexture(i);
-
-                if (gumpInfo.Pixels.IsEmpty)
-                {
-                    gumpInfo = gumps.GetGump(i);
-
-                    if (!gumpInfo.Pixels.IsEmpty)
-                    {
-                        continue;
-                    }
-                }
-                else
-                {
-                    continue;
-                }
-
-                string resourceName = assembly.GetName().Name + $".gumpartassets.{i}.png";
-
-                try
-                {
-                    Stream stream = assembly.GetManifestResourceStream(resourceName);
-
-                    if (stream != null)
-                    {
-                        var tempTexture = Texture2D.FromStream(GraphicsDevice, stream);
-                        
-                        if (tempTexture == null)
-                        {
-                            stream.Dispose();
-                            continue;
-                        }
-                        
-                        FixPNGAlpha(ref tempTexture);
-
-                        uint[] pixels = GetPixels(tempTexture);
-                        int width = tempTexture.Width;
-                        int height = tempTexture.Height;
-                        gump_textureCache.Add(i, (pixels, width, height));
-                        tempTexture.Dispose();
-
-
-                        //Increase available gump id's
-                        if (gump_availableIDs != null)
-                        {
-                            uint[] availableIDs = new uint[gump_availableIDs.Length + 1];
-                            gump_availableIDs.CopyTo(availableIDs, 0);
-                            availableIDs[availableIDs.Length - 1] = i;
-                            gump_availableIDs = availableIDs;
-                        }
-                        else
-                        {
-                            gump_availableIDs = [i];
-                        }
-
-                        stream.Dispose();
-                    }
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.Message);
-                }
-            }
-
             //Load all embedded art in gumpartassets folder
             string[] resourceNames = assembly.GetManifestResourceNames();
 
@@ -319,7 +252,7 @@ namespace ClassicUO.Assets
             {
                 string path = assembly.GetName().Name + ".gumpartassets.";
 
-                if (resourceName.IndexOf(path) == 0 && resourceName.EndsWith(".png"))
+                if (resourceName.StartsWith(path, StringComparison.Ordinal) && resourceName.EndsWith(".png", StringComparison.Ordinal))
                 {
                     string fName = resourceName.Substring(path.Length);
                     Log.Debug("Loading PNG: " + fName);
@@ -331,13 +264,13 @@ namespace ClassicUO.Assets
                         if (stream != null)
                         {
                             var texture = Texture2D.FromStream(GraphicsDevice, stream);
-                            
+
                             if (texture == null)
                             {
                                 stream.Dispose();
                                 continue;
                             }
-                            
+
                             FixPNGAlpha(ref texture);
                             EmbeddedArt.Add(fName, texture);
                             stream.Dispose();

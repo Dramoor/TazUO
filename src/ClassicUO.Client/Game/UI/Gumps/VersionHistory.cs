@@ -11,8 +11,93 @@ internal class VersionHistory : NineSliceGump
     private static readonly string[] _updateTexts =
     [
         """
-        /c[white][4.16.0]/cd
+        /c[white][4.17.0]/cd
+        ## Misc:
+        - Implemented a new priority queue
+        - Less iteration over gumps for better performance and more stable FPS
+        - Add create macro button to new macro editor window
+        - Add queue all item moves
+        - Add queue all item uses(double clicks)
+        - Merged existing use item queue into new priority queue system
+        - Add an experimental object delay detector
+        - Add Take Item button the Item Detail Window in item database interface - Sarumon
+        - Renamable containers
+        - Add health bar collector & ability buttons to hide hud feature
+        - Auto-Unequip for Potions (And complete rewrite for spell unequip also!) - Vem
+        - Add option to set quick heal/cure spells in assistant
+        - Changed item inspector gump to copy to clipboard instead of dump
+        - Add corpse hue option for autoloot
+        ## Legion
+        - `API.CastSpell` now tries for an exact spell first, if that fails it will try for a partial match
+        - Add a simple search box to script manager window
+        - Add `API.GetItemData()` to PyItem's
+        - Add API.SetOutlineColor() to objects
 
+        ## Bugs
+        - Fix for healthbar collector race condition crash
+        - Fix for grid sorting via name - Vem
+        - Disable ctrl alt lock for spell button gump
+        - Fix targeting backpack in paperdoll
+        - Fix for context menus appearing in the wrong spot
+        - Add more robust bandage healing checks to bandage agent
+        - Fix nameplates when mobile is scaled
+        - Fix for joystick still moving character when game is not in focus
+        - Truncate container name's and add tooltip to see full name
+        - House customization lag fix
+        - Removed style 8 from journal and grid container
+        - Fix web map not rendering markers set as color None
+
+        ## Other
+        - Add Hit Magic Arrow to DefaultProperties in GridHighLightRules - Vem
+        - Split packet handlers for better organization internally - Vem
+        - `PixelPicker` cache optimization - Vem
+        - Added some back-end stuff to support tagging items with a custom name in the future
+        """,
+
+        """
+        /c[white][4.16.0]/cd
+        ## Misc
+        - Improved graphic filter UI
+        - Added export/import to sound filter UI
+        - Allow XBR when not zoomed in/out
+        - Add season filter
+        - Added spell id's to spell indicator editor
+        - Added delete button to spell indicator editor
+        - Grid container visual rework to allow minimizing(Double click title bar)
+        - Add heal/cure buttons to pet health bars in addition to party members
+        - Updated graphics driver hints for SDL.
+        - Script editor window now has a minimum size instead of being ultra small
+        - **Added macro editor in assistant window**
+        - Season filter will now update live
+        - Add clipboard import/export to organizer, auto buy/sell/loot, graphic filter, journal filter and macros.
+        - Updated auto loot export to use clipboard
+        - Add mobs/npcs to web map
+        - Add healthbar collector gump
+        - Leaving the go-to location empty will clear the current goto location on submit - <@493756177893818369>
+        - Sort and add spaces to main macro actions in assistant macro editor
+        - Move mastery spell macros to its own action
+
+        ## Legion
+        - Added -stopall command to stop all running legion scripts
+        - Fix API.SetSkillLock
+        - API.CloseGump now returns a bool if a gump was closed or not
+        - Added `API.CurrentAbilityNames()` and `API.KnownAbilityNames()` - <@493756177893818369>
+        - Added `API.GetPartyMemberSerials()` - <@493756177893818369>
+        - Update `API.ReplyGump` to also take option switches
+
+        ## Bugs
+        - Reworked a lot of graphic replacement system
+        - Fix title not showing up in paperdolls when closing/reopening
+        - Viewport clamping fix
+        - Fix paperdoll lag issue
+        - Potential crash fix for rendered text.
+        - Added null and enabled checks for controller input handling.
+        - Updated plugin creation to handle empty paths better.
+        - Fix auto sell error when switching characters.
+        - Fix division by zero crash in anchor manager.
+        - Fix KR dress packet
+        - Fix game scaling not scaling the login scene properly
+        - Fix `API.ConfigNextGump` crashing client - <@493756177893818369>
         """,
 
         """
@@ -356,66 +441,7 @@ internal class VersionHistory : NineSliceGump
         """ +
         "\n",
 
-        "/c[white][4.4.0]/cd\n" +
-        """
-        - Improved draw times for mobiles
-        - Better tooltip override handling in settings
-        - Auto complete(press tab) while typing
-        - Added a Journal Filter assistant feature([wiki](<https://github.com/PlayTazUO/TazUO/wiki/Journal-Filters>))
-        - Reworked grid container highlight menu to be resizable
-        - Can move grid highlights up and down the list now
-        - You can now type unlimited length in the chat box, anything past 100 characters will be sent the next time you hit enter
-        - Added a title bar status feature([wiki](<https://github.com/PlayTazUO/TazUO/wiki/Title-Bar-Status>))
-        - Added auto bandaging ([wiki](<https://github.com/PlayTazUO/TazUO/wiki/Auto-Bandage>))
-        - Added Mount and Setmount macros
-        - Added Dress and Undress agent
-        - Added friends list manager(For future use with api and other things)
-        - Added organizer agent
-        - Auto loot from grid highlight matches
-
-        ### Minor changes
-        - Removed old options gump
-        - Some currency formatting for trade currencies(1,000,000)
-        - Grid containers now show more than 125 items if the container has more items in it
-        - Added a couple missing mounts from OSI
-        - Added a new scroll bar control for future gump usage
-        - Can now sort by name in grid containers(When names are available to the client)
-        - Can now deselect items from the multi move gump( @nesci0471 )
-        - Scavenger now works without moving, also checks if an item is movable first and has a delay before retrying the same item again.
-        - Journal entries where the name and text are the same will only show the text(For example: a bird: a bird is now just a  bird)
-        - World map now also loads map files from UO folder, and TazUO/Data/ServerName
-        - Can now pathfind to objects instead of just surfaces( Lichz )
-        - Added more gumps to hide hud feature
-        - Zoom changes(Increase max, lower min, finer stepping for more precise control)
-        - Nameplates have an optional no-overlap toggle
-        - Autoloot now has import/export buttons
-        - Grid highlighting will now user colors intead of hues
-        - Bug fixes
-
-        ### Python API Changes
-        - Added `.Impassible` to PyGameObject
-        - Fixed FindLayer returning an empty item when no item was found
-        - Added `GetMultisAt`, `GetMultisInArea`, `PreTarget` `CancelPreTarget`
-        - Fixed a bug where API calls that don't need to wait for a return value were still waiting
-        """ +
-        "\n",
-
-        "/c[white][4.3.0]/cd\n" +
-        "- Added hud toggle to macros and assistant menu\n" +
-        "- Added resync macro\n" +
-        "- Added a new macro type to toggle forced house transparency\n" +
-        "- Added some backend UI improvements for future use\n" +
-        "- Added option to not make enemies gray\n" +
-        "- Reopening sub container on login should work now\n" +
-        "- Better profile and grid container save systems with backups\n" +
-        "- Improved draw times slightly\n" +
-        "- Discord item sharing\n" +
-        "- Extended grid highlighting system\n" +
-        "- Extended python api\n" +
-        "- Other small changes" +
-        "\n",
-
-        "\n\n/c[white]For further history please visit our discord."
+        "\n\n/c[white]For further history please visit our forums: forums.tazuo.org"
     ];
 
     private ScrollArea _scrollArea;

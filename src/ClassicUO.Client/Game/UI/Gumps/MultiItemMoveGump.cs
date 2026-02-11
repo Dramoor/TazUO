@@ -5,6 +5,7 @@ using ClassicUO.Configuration;
 using ClassicUO.Game.Data;
 using ClassicUO.Game.GameObjects;
 using ClassicUO.Game.Managers;
+using ClassicUO.Game.Managers.Structs;
 using ClassicUO.Game.UI.Controls;
 using ClassicUO.Game.UI.Gumps.GridHighLight;
 using ClassicUO.Input;
@@ -328,29 +329,26 @@ namespace ClassicUO.Game.UI.Gumps
                     {
                         case ProcessType.Ground:
                             StaticTiles itemData = Client.Game.UO.FileManager.TileData.StaticData[moveItem.Graphic];
-                            MoveItemQueue.Instance.Enqueue(
-                                moveItem.Serial,
-                                0,
-                                moveItem.Amount,
-                                groundX,
-                                groundY,
-                                groundZ + (sbyte)(itemData.Height == 0xFF ? 0 : itemData.Height));
+                            ObjectActionQueue.Instance.Enqueue(new MoveRequest(moveItem.Serial,
+                               0,
+                               moveItem.Amount,
+                               groundX,
+                               groundY,
+                               groundZ + (sbyte)(itemData.Height == 0xFF ? 0 : itemData.Height)).ToObjectActionQueueItem(), ActionPriority.MoveItem);
                             enqueued = true;
                             break;
 
                         case ProcessType.Container:
-                            MoveItemQueue.Instance.Enqueue(moveItem.Serial, containerId, moveItem.Amount);
+                            ObjectActionQueue.Instance.Enqueue(new MoveRequest(moveItem.Serial, containerId, moveItem.Amount).ToObjectActionQueueItem(), ActionPriority.MoveItem);
                             enqueued = true;
                             break;
 
                         case ProcessType.TradeWindow:
-                            MoveItemQueue.Instance.Enqueue(
-                                moveItem.Serial,
-                                tradeId,
-                                moveItem.Amount,
-                                RandomHelper.GetValue(0, 20),
-                                RandomHelper.GetValue(0, 20),
-                                0);
+                            ObjectActionQueue.Instance.Enqueue(new MoveRequest(moveItem.Serial,
+                               tradeId,
+                               moveItem.Amount,
+                               RandomHelper.GetValue(0, 20),
+                               RandomHelper.GetValue(0, 20)).ToObjectActionQueueItem(), ActionPriority.MoveItem);
                             enqueued = true;
                             break;
 

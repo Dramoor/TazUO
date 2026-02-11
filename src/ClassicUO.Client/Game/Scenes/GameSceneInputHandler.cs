@@ -93,7 +93,7 @@ namespace ClassicUO.Game.Scenes
 
         private bool MoveCharByController()
         {
-            if(ProfileManager.CurrentProfile == null || !ProfileManager.CurrentProfile.ControllerEnabled) return false;
+            if(!Client.Game.IsActive || ProfileManager.CurrentProfile == null || !ProfileManager.CurrentProfile.ControllerEnabled) return false;
 
             const float THRESHOLD = 0.3f;
 

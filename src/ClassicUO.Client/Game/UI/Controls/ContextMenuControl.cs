@@ -142,7 +142,7 @@ namespace ClassicUO.Game.UI.Controls
                 Y = Client.Game.Window.ClientBounds.Height - _background.Height;
             }
 
-            if (Y < Client.Game.Window.ClientBounds.Y)
+            if (Y < 0)
             {
                 Y = 0;
             }

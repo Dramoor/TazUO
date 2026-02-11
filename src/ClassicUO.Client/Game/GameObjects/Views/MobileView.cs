@@ -339,7 +339,8 @@ namespace ClassicUO.Game.GameObjects
                 depth,
                 mountOffsetY,
                 overridenHue,
-                charSitting
+                charSitting,
+                OutlineColor
             );
 
             Profiler.EnterContext("SECTION 5");
@@ -353,9 +354,7 @@ namespace ClassicUO.Game.GameObjects
                 {
                     Layer layer = LayerOrder.UsedLayers[layerDir, i];
 
-                    Profiler.EnterContext("FIND LAYER");
                     Item item = FindItemByLayer(layer);
-                    Profiler.ExitContext("FIND LAYER");
 
                     if (item == null)
                     {
@@ -369,12 +368,10 @@ namespace ClassicUO.Game.GameObjects
 
                     if (isHuman)
                     {
-                        Profiler.EnterContext("HIDDEN LAYERS");
                         if (hiddenLayersEnabled && profile.HiddenLayers.Contains((int)layer) && ((hideLayersForSelf && IsPlayer) || !hideLayersForSelf))
                         {
                             continue;
                         }
-                        Profiler.ExitContext("HIDDEN LAYERS");
 
                         if (IsCovered(this, layer))
                         {
@@ -390,7 +387,6 @@ namespace ClassicUO.Game.GameObjects
                                 FixGargoyleEquipments(ref graphic);
                             }
 
-                            Profiler.EnterContext("EQUIP_CONV");
                             if (
                                 Client.Game.UO.FileManager.Animations.EquipConversions.TryGetValue(
                                     Graphic,
@@ -404,16 +400,11 @@ namespace ClassicUO.Game.GameObjects
                                     graphic = data.Graphic;
                                 }
                             }
-                            Profiler.ExitContext("EQUIP_CONV");
 
-                            Profiler.EnterContext("EQUIP_DRAW");
-
-                            Profiler.EnterContext("GROUPFORANIM");
                             byte group = isGargoyle /*&& item.ItemData.IsWeapon*/
                                         && seatData.Graphic == 0
                                 ? GetGroupForAnimation(this, graphic, true)
                                 : animGroup;
-                            Profiler.ExitContext("GROUPFORANIM");
 
                             DrawInternal(
                                 batcher,
@@ -435,9 +426,9 @@ namespace ClassicUO.Game.GameObjects
                                 depth,
                                 mountOffsetY,
                                 overridenHue,
-                                charSitting
+                                charSitting,
+                                OutlineColor
                             );
-                            Profiler.ExitContext("EQUIP_DRAW");
                         }
                         else
                         {
@@ -639,7 +630,8 @@ namespace ClassicUO.Game.GameObjects
             float depth,
             sbyte mountOffset,
             ushort overridedHue,
-            bool charIsSitting
+            bool charIsSitting,
+            Color? outlineColor = null
         )
         {
             if (id >= Client.Game.UO.Animations.MaxAnimationCount || owner == null)
@@ -794,6 +786,26 @@ namespace ClassicUO.Game.GameObjects
                             rect.Y += rect.Height;
                             rect.Height = remains;
                             remains -= rect.Height;
+                        }
+
+                        if (outlineColor.HasValue)
+                        {
+                            Color oc = outlineColor.Value;
+                            Vector3 outlineNormal = new Vector3(oc.R / 255f, oc.G / 255f, oc.B / 255f);
+                            Vector3 outlineHue = ShaderHueTranslator.GetOutlineHueVector(hueVec.Z);
+
+                            batcher.DrawOutlined(
+                                spriteInfo.Texture,
+                                new Vector2(x, y),
+                                spriteInfo.UV,
+                                outlineHue,
+                                outlineNormal,
+                                0f,
+                                Vector2.Zero,
+                                owner.Scale,
+                                mirror ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
+                                depth + 0.999f
+                            );
                         }
                     }
 

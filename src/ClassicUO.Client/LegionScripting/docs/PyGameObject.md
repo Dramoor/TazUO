@@ -73,6 +73,25 @@ description:  Base class for all Python-accessible game world objects.   Encapsu
 *No enums found.*
 
 ## Methods
+### SetOutlineColor
+`(htmlColor)`
+ Set an objects outline color using html hex colors.
+ Example:
+ ```py
+ API.Player.SetOutlineColor("#105510")
+ ```
+
+
+**Parameters:**
+
+| Name | Type | Optional | Description |
+| --- | --- | --- | --- |
+| `htmlColor` | `string` | ❌ No |  |
+
+**Return Type:** `void` *(Does not return anything)*
+
+---
+
 ### SetHue
 `(hue)`
  Set the hue of a game object.

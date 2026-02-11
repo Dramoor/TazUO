@@ -12,7 +12,7 @@ namespace ClassicUO.Renderer.Arts
     {
         private readonly SpriteInfo[] _spriteInfos;
         private readonly TextureAtlas _atlas;
-        private readonly PixelPicker _picker = new PixelPicker();
+        private readonly PixelPicker _picker = new PixelPicker(true);
         private readonly Rectangle[] _realArtBounds;
         private readonly ArtLoader _artLoader;
         private readonly HuesLoader _huesLoader;

@@ -490,23 +490,29 @@ namespace ClassicUO.Game.UI.Gumps
                     out int height
                 );
 
-                _lockedPosition.X = (int)(m.RealScreenPosition.X + m.Offset.X + 22 + 5);
-
-                _lockedPosition.Y = (int)(
-                    m.RealScreenPosition.Y
-                    + (m.Offset.Y - m.Offset.Z)
-                    - (height + centerY + 15)
-                    + (
-                        m.IsGargoyle && m.IsFlying
-                            ? -22
-                            : !m.IsMounted
-                                ? 22
-                                : 0
-                    )
-                );
+                _lockedPosition = GetPosition(m, height, centerY);
             }
 
             base.OnMouseOver(x, y);
+        }
+
+        private Point GetPosition(Mobile m, int height, int centerY)
+        {
+            Point p = new(
+                (int)(m.RealScreenPosition.X + m.Offset.X + 22 + 5),
+                (int)(m.RealScreenPosition.Y
+                      + (m.Offset.Y - m.Offset.Z)
+                      - (height + centerY + 15) * m.Scale
+                      + (
+                          m.IsGargoyle && m.IsFlying
+                              ? -22
+                              : !m.IsMounted
+                                  ? 22
+                                  : 0
+                      )
+                    ));
+
+            return p;
         }
 
         protected override void OnMouseExit(int x, int y)
@@ -711,19 +717,10 @@ namespace ClassicUO.Game.UI.Gumps
                         out int height
                     );
 
-                    x = (int)(m.RealScreenPosition.X + m.Offset.X + 22 + 5);
-                    y = (int)(
-                        m.RealScreenPosition.Y
-                        + (m.Offset.Y - m.Offset.Z)
-                        - (height + centerY + 15) * m.Scale
-                        + (
-                            m.IsGargoyle && m.IsFlying
-                                ? -22
-                                : !m.IsMounted
-                                    ? 22
-                                    : 0
-                        )
-                    );
+                    Point pos = GetPosition(m, height, centerY);
+
+                    x = pos.X;
+                    y = pos.Y;
                 }
             }
             else if (SerialHelper.IsItem(LocalSerial))

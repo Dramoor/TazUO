@@ -1,69 +1,96 @@
 ﻿// SPDX-License-Identifier: BSD-2-Clause
 
 using System.Diagnostics;
+using System.IO;
+using System.Runtime.CompilerServices;
 
-namespace ClassicUO.Utility.Logging
+namespace ClassicUO.Utility.Logging;
+
+public class Log
 {
-    public class Log
+    private static Logger _logger;
+
+    public static void Start(LogTypes logTypes, LogFile logFile = null)
     {
-        private static Logger _logger;
+        _logger ??= new Logger { LogTypes = logTypes };
 
-        public static void Start(LogTypes logTypes, LogFile logFile = null)
-        {
-            _logger = _logger ?? new Logger
-            {
-                LogTypes = logTypes
-            };
-
-            _logger.Start(logFile);
-        }
-
-        public static void Stop()
-        {
-            _logger?.Stop();
-            _logger = null;
-        }
-
-        public static void Resume(LogTypes logTypes)
-        {
-            if (_logger != null)
-                _logger.LogTypes = logTypes;
-        }
-
-        public static void Pause()
-        {
-            if (_logger != null)
-                _logger.LogTypes = LogTypes.None;
-        }
-
-        [Conditional("DEBUG")]
-        public static void Debug(string text) => _logger?.Message(LogTypes.Debug, text);
-
-        public static void Info(string text) => _logger?.Message(LogTypes.Info, text);
-
-        public static void Trace(string text) => _logger?.Message(LogTypes.Trace, text);
-
-        [Conditional("DEBUG")]
-        public static void TraceDebug(string text) => Trace(text);
-
-        public static void Warn(string text) => _logger?.Message(LogTypes.Warning, text);
-
-        [Conditional("DEBUG")]
-        public static void WarnDebug(string text) => Warn(text);
-
-        public static void Error(string text) => _logger?.Message(LogTypes.Error, text);
-
-        [Conditional("DEBUG")]
-        public static void ErrorDebug(string text) => Error(text);
-
-        public static void Panic(string text) => _logger?.Message(LogTypes.Error, text);
-
-        public static void NewLine() => _logger?.NewLine();
-
-        public static void Clear() => _logger?.Clear();
-
-        public static void PushIndent() => _logger?.PushIndent();
-
-        public static void PopIndent() => _logger?.PopIndent();
+        _logger.Start(logFile);
     }
+
+    public static void Stop()
+    {
+        _logger?.Stop();
+        _logger = null;
+    }
+
+    public static void Resume(LogTypes logTypes) => _logger?.LogTypes = logTypes;
+
+    public static void Pause() => _logger?.LogTypes = LogTypes.None;
+
+    public static void Trace(
+        string text,
+        [CallerFilePath] string callerPath = "Unk",
+        [CallerMemberName] string callerName = "Unk"
+    ) => _logger?.Message(LogTypes.Trace, $"[{Path.GetFileNameWithoutExtension(callerPath)}.{callerName}] {text}");
+
+    [Conditional("DEBUG")]
+    public static void TraceDebug(
+        string text,
+        [CallerFilePath] string callerPath = "Unk",
+        [CallerMemberName] string callerName = "Unk"
+    ) => Trace(text, callerPath, callerName);
+
+    [Conditional("DEBUG")]
+    public static void Debug(
+        string text,
+        [CallerFilePath] string callerPath = "Unk",
+        [CallerMemberName] string callerName = "Unk"
+    ) => _logger?.Message(LogTypes.Debug, $"[{Path.GetFileNameWithoutExtension(callerPath)}.{callerName}] {text}");
+
+
+    public static void Info(
+        string text,
+        [CallerFilePath] string callerPath = "Unk",
+        [CallerMemberName] string callerName = "Unk"
+    ) => _logger?.Message(LogTypes.Info, $"[{Path.GetFileNameWithoutExtension(callerPath)}.{callerName}] {text}");
+
+    public static void Warn(
+        string text,
+        [CallerFilePath] string callerPath = "Unk",
+        [CallerMemberName] string callerName = "Unk"
+    ) => _logger?.Message(LogTypes.Warning, $"[{Path.GetFileNameWithoutExtension(callerPath)}.{callerName}] {text}");
+
+    [Conditional("DEBUG")]
+    public static void WarnDebug(
+        string text,
+        [CallerFilePath] string callerPath = "Unk",
+        [CallerMemberName] string callerName = "Unk"
+    ) => Warn(text, callerPath, callerName);
+
+    public static void Error(
+        string text,
+        [CallerFilePath] string callerPath = "Unk",
+        [CallerMemberName] string callerName = "Unk"
+    ) => _logger?.Message(LogTypes.Error, $"[{Path.GetFileNameWithoutExtension(callerPath)}.{callerName}] {text}");
+
+    [Conditional("DEBUG")]
+    public static void ErrorDebug(
+        string text,
+        [CallerFilePath] string callerPath = "Unk",
+        [CallerMemberName] string callerName = "Unk"
+    ) => Error(text, callerPath, callerName);
+
+    public static void Panic(
+        string text,
+        [CallerFilePath] string callerPath = "Unk",
+        [CallerMemberName] string callerName = "Unk"
+    ) => Error(text, callerPath, callerName);
+
+    public static void NewLine() => _logger?.NewLine();
+
+    public static void Clear() => _logger?.Clear();
+
+    public static void PushIndent() => _logger?.PushIndent();
+
+    public static void PopIndent() => _logger?.PopIndent();
 }

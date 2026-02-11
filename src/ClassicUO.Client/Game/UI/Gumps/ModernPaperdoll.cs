@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using System.IO;
+using ClassicUO.Game.Managers.Structs;
 
 
 namespace ClassicUO.Game.UI.Gumps
@@ -317,8 +318,19 @@ namespace ClassicUO.Game.UI.Gumps
 
                             if (equipment == null)
                             {
-                                GameActions.Equip(World, World.Player);
+                                if(ProfileManager.CurrentProfile.QueueManualItemMoves)
+                                {
+                                    var mr = new MoveRequest(
+                                        Client.Game.UO.GameCursor.ItemHold.Serial,
+                                        World.Player,
+                                        layer: (Layer)Client.Game.UO.GameCursor.ItemHold.ItemData.Layer, moveType: MoveType.Equip);
+                                    ObjectActionQueue.Instance.Enqueue(mr.ToObjectActionQueueItem(), ActionPriority.EquipItem);
+                                }
+                                else
+                                    GameActions.Equip(World, World.Player);
+
                                 Mouse.CancelDoubleClick = true;
+                                Client.Game.UO.GameCursor.ItemHold.Clear();
                             }
                         }
                     }

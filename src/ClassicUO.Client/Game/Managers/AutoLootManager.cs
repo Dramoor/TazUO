@@ -10,6 +10,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using ClassicUO.Game.Managers.Structs;
 using ClassicUO.Utility.Logging;
 
 namespace ClassicUO.Game.Managers
@@ -163,6 +164,9 @@ namespace ClassicUO.Game.Managers
 
             for (LinkedObject i = corpse.Items; i != null; i = i.Next)
                 CheckAndLoot((Item)i);
+            
+            if(ProfileManager.CurrentProfile.HueCorpseAfterAutoloot)
+                corpse.Hue = 73;
         }
 
         public void TryRemoveAutoLootEntry(string uid)
@@ -222,17 +226,30 @@ namespace ClassicUO.Game.Managers
             Instance = null;
         }
 
+        /// <summary>
+        /// Invoked whenever the player changes position.
+        ///
+        /// The other looter entry points are item update events but those are not enough;
+        /// If the player opens a corpse and walks away a few steps, there wouldn't be any new events firing.
+        ///
+        /// This handler effectively allows re-triggering as soon as the corpses are back in range.
+        ///
+        /// Note that this venue kicks in only when distance is less than 3.
+        /// </summary>
+        /// <param name="sender">The source event sink</param>
+        /// <param name="e">The position change event arguments</param>
         private void OnPositionChanged(object sender, PositionChangedArgs e)
         {
             if (!_loaded) return;
 
-            if(ProfileManager.CurrentProfile.EnableScavenger)
+            if (ProfileManager.CurrentProfile.EnableScavenger)
                 foreach (Item item in _world.Items.Values)
-                {
-                    if (item == null || !item.OnGround || item.IsCorpse || item.IsLocked) continue;
-                    if (item.Distance >= 3) continue;
-                    CheckAndLoot(item);
-                }
+                    if (item != null && item.OnGround && !item.IsLocked && !item.IsCorpse && item.Distance < 3)
+                        CheckAndLoot(item);
+
+            if (IsEnabled)
+                foreach (Item corpse in _world.GetCorpseSnapshot())
+                    CheckCorpse(corpse);
         }
 
         private void OnOpenContainer(object sender, uint e)
@@ -334,7 +351,7 @@ namespace ClassicUO.Game.Managers
             }
 
             if (destinationSerial != 0)
-                MoveItemQueue.Instance?.Enqueue(moveItem.Serial, destinationSerial, moveItem.Amount, 0xFFFF, 0xFFFF);
+                ObjectActionQueue.Instance.Enqueue(new MoveRequest(moveItem.Serial, destinationSerial, moveItem.Amount).ToObjectActionQueueItem(), ActionPriority.LootItem);
             else
                 GameActions.Print("Could not find a container to loot into. Try setting a grab bag.");
 

@@ -5,6 +5,7 @@ using System.Numerics;
 using ImGuiNET;
 using ClassicUO.Configuration;
 using ClassicUO.Game.Managers;
+using ClassicUO.Game.UI.Gumps;
 using ClassicUO.Input;
 using ClassicUO.Utility;
 using SDL3;
@@ -201,6 +202,8 @@ namespace ClassicUO.Game.UI.ImGuiControls
             }
 
             ImGui.SameLine();
+
+            ImGui.SameLine();
             ImGui.SetNextItemWidth(150);
             if (ImGui.InputTextWithHint("##Filter", "Filter...", ref _filterText, 256))
             {
@@ -295,6 +298,27 @@ namespace ClassicUO.Game.UI.ImGuiControls
 
             // Hotkey Capture
             DrawHotkeyCapture(macro);
+
+            // Create Macro Button
+            ImGui.SameLine();
+            if (ImGui.Button("Create Macro Button"))
+            {
+                // Dispose any existing MacroButtonGump for this macro
+                foreach (Gump gump in UIManager.Gumps)
+                {
+                    if (gump is MacroButtonGump mbg && mbg.TheMacro == _selectedMacro)
+                    {
+                        mbg.Dispose();
+                        break;
+                    }
+                }
+
+                var macroButtonGump = new MacroButtonGump(World.Instance, _selectedMacro, 0, 0);
+                macroButtonGump.CenterXInViewPort();
+                macroButtonGump.CenterYInViewPort();
+                UIManager.Add(macroButtonGump);
+            }
+            ImGuiComponents.Tooltip("Create a draggable macro button for the selected macro.");
 
             ImGui.Separator();
             ImGui.Spacing();

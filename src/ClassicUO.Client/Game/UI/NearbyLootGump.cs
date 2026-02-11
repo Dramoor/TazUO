@@ -243,14 +243,14 @@ namespace ClassicUO.Game.UI
             if(ProfileManager.CurrentProfile.NearbyLootConcealsContainerOnOpen)
                 _corpsesRequested.Add(corpse.Serial);
 
-            GameActions.DoubleClickQueued(corpse.Serial);
+            GameActions.QueueOpenCorpse(corpse.Serial);
         }
         private void LootSelectedIndex()
         {
             if (SelectedIndex == -1)
                 _lootButton.InvokeMouseUp(_lootButton.Location, MouseButtonType.Left);
             else if (_dataBox.Children.Count > SelectedIndex)
-                MoveItemQueue.Instance?.EnqueueQuick(_dataBox.Children[SelectedIndex].LocalSerial); //Directly use move item queue instead of autoloot
+                ObjectActionQueue.Instance.Enqueue(ObjectActionQueueItem.QuickLoot(_dataBox.Children[SelectedIndex].LocalSerial), ActionPriority.MoveItem);
         }
 
         public static bool IsCorpseRequested(uint serial, bool remove = true)
@@ -465,7 +465,7 @@ namespace ClassicUO.Game.UI
                 GameActions.Print(world, $"Added this item to auto loot.");
             }
 
-            MoveItemQueue.Instance?.EnqueueQuick(currentItem); //Directly use move item queue instead of autoloot
+            ObjectActionQueue.Instance.Enqueue(ObjectActionQueueItem.QuickLoot(currentItem), ActionPriority.MoveItem);
         }
 
         public override bool Draw(UltimaBatcher2D batcher, int x, int y)

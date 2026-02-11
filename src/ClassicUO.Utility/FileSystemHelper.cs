@@ -1,8 +1,11 @@
 ﻿// SPDX-License-Identifier: BSD-2-Clause
 
 using System;
+using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
+using ClassicUO.Utility.Logging;
 
 namespace ClassicUO.Utility
 {
@@ -83,6 +86,31 @@ namespace ClassicUO.Utility
                 DirectoryInfo nextTargetSubDir = target.CreateSubdirectory(diSourceSubDir.Name);
 
                 diSourceSubDir.CopyAllTo(nextTargetSubDir);
+            }
+        }
+
+        public static void OpenFileWithDefaultApp(string filePath)
+        {
+            try
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    Process.Start(new ProcessStartInfo(filePath) { UseShellExecute = true });
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {
+                    ProcessStartInfo p = new() { FileName = "xdg-open", ArgumentList = { filePath }};
+                    Process.Start(p);
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                {
+                    ProcessStartInfo p = new() { FileName = "open", ArgumentList = { filePath }};
+                    Process.Start(p);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Error opening file: " + ex.Message);
             }
         }
     }

@@ -10,6 +10,7 @@ using ClassicUO.Game;
 using ClassicUO.Game.Data;
 using ClassicUO.Game.Managers;
 using ClassicUO.Assets;
+using ClassicUO.Network.PacketHandlers;
 using ClassicUO.Renderer.Batching;
 using ClassicUO.Utility.Logging;
 using ClassicUO.Utility.Platforms;
@@ -774,9 +775,9 @@ namespace ClassicUO.Network
         {
             if (!Enabled) return true;
 
-            lock (PacketHandlers.Handler)
+            lock (PacketParser.Instance)
             {
-                PacketHandlers.Handler.Append(data.AsSpan(0, length), true);
+                PacketParser.Instance.Append(data.AsSpan(0, length), true);
             }
 
             return true;
@@ -800,9 +801,9 @@ namespace ClassicUO.Network
 
             if (buffer != IntPtr.Zero && length > 0)
             {
-                lock (PacketHandlers.Handler)
+                lock (PacketParser.Instance)
                 {
-                    PacketHandlers.Handler.Append(new Span<byte>(buffer.ToPointer(), length), true);
+                    PacketParser.Instance.Append(new Span<byte>(buffer.ToPointer(), length), true);
                 }
             }
 

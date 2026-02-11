@@ -301,11 +301,7 @@ namespace ClassicUO.Game.GameObjects
             _buffIcons[type] = new BuffIcon(type, graphic, time, text, title);
 
             if (ProfileManager.CurrentProfile.UseImprovedBuffBar)
-            {
-                ImprovedBuffGump gump = UIManager.GetGump<ImprovedBuffGump>();
-                if (gump != null)
-                    gump.AddBuff(new BuffIcon(type, graphic, time, text, title));
-            }
+                UIManager.ForEach<ImprovedBuffGump>(g => g.AddBuff(new BuffIcon(type, graphic, time, text, title)));
 
             EventSink.InvokeOnBuffAdded(null, new BuffEventArgs(_buffIcons[type]));
         }
@@ -321,11 +317,7 @@ namespace ClassicUO.Game.GameObjects
             }
 
             if (ProfileManager.CurrentProfile.UseImprovedBuffBar)
-            {
-                ImprovedBuffGump gump = UIManager.GetGump<ImprovedBuffGump>();
-                if (gump != null)
-                    gump.RemoveBuff(graphic);
-            }
+                UIManager.ForEach<ImprovedBuffGump>(g => g.RemoveBuff(graphic));
         }
 
         public void UpdateAbilities()
@@ -356,11 +348,8 @@ namespace ClassicUO.Game.GameObjects
                 }
             }
 
-            for (LinkedListNode<Gump> gump = UIManager.Gumps.First; gump != null; gump = gump.Next)
-            {
-                if (gump.Value is UseAbilityButtonGump or CombatBookGump)
-                    gump.Value.RequestUpdateContents();
-            }
+            UIManager.ForEach<CombatBookGump>(g => g.RequestUpdateContents());
+            UIManager.ForEach<UseAbilityButtonGump>(g => g.RequestUpdateContents());
         }
 
         protected override void OnPositionChanged()
@@ -383,10 +372,7 @@ namespace ClassicUO.Game.GameObjects
         public void TryOpenCorpses()
         {
             // Early return if both auto-open settings are disabled
-            if (!ProfileManager.CurrentProfile.AutoOpenCorpses && !ProfileManager.CurrentProfile.AutoOpenOwnCorpse)
-            {
-                return;
-            }
+            if (!ProfileManager.CurrentProfile.AutoOpenCorpses && !ProfileManager.CurrentProfile.AutoOpenOwnCorpse) return;
 
             // Use the optimized corpse collection instead of iterating all items
             Item[] corpses = World.GetCorpseSnapshot();
@@ -421,7 +407,7 @@ namespace ClassicUO.Game.GameObjects
                         }
 
                         AutoOpenedCorpses.Add(item.Serial);
-                        GameActions.DoubleClickQueued(item.Serial);
+                        GameActions.QueueOpenCorpse(item.Serial);
                     }
                 }
             }
@@ -482,10 +468,8 @@ namespace ClassicUO.Game.GameObjects
                     bank.Items = null;
                 }
 
-                UIManager.GetGump<ContainerGump>(bank.Serial)?.Dispose();
-                #region GridContainer
-                UIManager.GetGump<GridContainer>(bank.Serial)?.Dispose();
-                #endregion
+                UIManager.ForEach<ContainerGump>(g=> g.Dispose(), bank.Serial);
+                UIManager.ForEach<GridContainer>(g=> g.Dispose(), bank.Serial);
 
                 bank.Opened = false;
             }

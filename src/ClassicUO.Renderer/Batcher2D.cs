@@ -1104,6 +1104,121 @@ namespace ClassicUO.Renderer
             );
         }
 
+        public void DrawOutlined
+        (
+            Texture2D texture,
+            Vector2 position,
+            Rectangle? sourceRectangle,
+            Vector3 hue,
+            Vector3 outlineColor,
+            float rotation,
+            Vector2 origin,
+            Vector2 scale,
+            SpriteEffects effects,
+            float layerDepth
+        )
+        {
+            float sourceX, sourceY, sourceW, sourceH;
+            if (sourceRectangle.HasValue)
+            {
+                sourceX = sourceRectangle.Value.X / (float)texture.Width;
+                sourceY = sourceRectangle.Value.Y / (float)texture.Height;
+                sourceW = Math.Sign(sourceRectangle.Value.Width) * Math.Max(Math.Abs(sourceRectangle.Value.Width), Utility.MathHelper.MachineEpsilonFloat) / (float)texture.Width;
+                sourceH = Math.Sign(sourceRectangle.Value.Height) * Math.Max(Math.Abs(sourceRectangle.Value.Height), Utility.MathHelper.MachineEpsilonFloat) / (float)texture.Height;
+                scale.X *= sourceRectangle.Value.Width;
+                scale.Y *= sourceRectangle.Value.Height;
+            }
+            else
+            {
+                sourceX = 0.0f;
+                sourceY = 0.0f;
+                sourceW = 1.0f;
+                sourceH = 1.0f;
+                scale.X *= texture.Width;
+                scale.Y *= texture.Height;
+            }
+
+            AddSprite
+            (
+                texture,
+                sourceX,
+                sourceY,
+                sourceW,
+                sourceH,
+                position.X,
+                position.Y,
+                scale.X,
+                scale.Y,
+                hue,
+                origin.X / sourceW / (float)texture.Width,
+                origin.Y / sourceH / (float)texture.Height,
+                (float)Math.Sin(rotation),
+                (float)Math.Cos(rotation),
+                layerDepth,
+                (byte)(effects & (SpriteEffects)0x03),
+                outlineColor
+            );
+        }
+
+        public void DrawOutlined
+        (
+            Texture2D texture,
+            Vector2 position,
+            Rectangle? sourceRectangle,
+            Vector3 hue,
+            Vector3 outlineColor,
+            float rotation,
+            Vector2 origin,
+            float scale,
+            SpriteEffects effects,
+            float layerDepth
+        )
+        {
+            float sourceX, sourceY, sourceW, sourceH;
+            float destW = scale;
+            float destH = scale;
+
+            if (sourceRectangle.HasValue)
+            {
+                sourceX = sourceRectangle.Value.X / (float)texture.Width;
+                sourceY = sourceRectangle.Value.Y / (float)texture.Height;
+                sourceW = Math.Sign(sourceRectangle.Value.Width) * Math.Max(Math.Abs(sourceRectangle.Value.Width), Utility.MathHelper.MachineEpsilonFloat) / (float)texture.Width;
+                sourceH = Math.Sign(sourceRectangle.Value.Height) * Math.Max(Math.Abs(sourceRectangle.Value.Height), Utility.MathHelper.MachineEpsilonFloat) / (float)texture.Height;
+                destW *= sourceRectangle.Value.Width;
+                destH *= sourceRectangle.Value.Height;
+            }
+            else
+            {
+                sourceX = 0.0f;
+                sourceY = 0.0f;
+                sourceW = 1.0f;
+                sourceH = 1.0f;
+                destW *= texture.Width;
+                destH *= texture.Height;
+            }
+
+            AddSprite
+            (
+                texture,
+                sourceX,
+                sourceY,
+                sourceW,
+                sourceH,
+                position.X,
+                position.Y,
+                destW,
+                destH,
+                hue,
+                origin.X / sourceW / (float)texture.Width,
+                origin.Y / sourceH / (float)texture.Height,
+                (float)Math.Sin(rotation),
+                (float)Math.Cos(rotation),
+                layerDepth,
+                (byte)(effects & (SpriteEffects)0x03),
+                outlineColor
+            );
+        }
+
         private void AddSprite
         (
             Texture2D texture,
@@ -1124,6 +1239,30 @@ namespace ClassicUO.Renderer
             byte effects
         )
         {
+            AddSprite(texture, sourceX, sourceY, sourceW, sourceH, destinationX, destinationY, destinationW, destinationH, color, originX, originY, rotationSin, rotationCos, depth, effects, null);
+        }
+
+        private void AddSprite
+        (
+            Texture2D texture,
+            float sourceX,
+            float sourceY,
+            float sourceW,
+            float sourceH,
+            float destinationX,
+            float destinationY,
+            float destinationW,
+            float destinationH,
+            Vector3 color,
+            float originX,
+            float originY,
+            float rotationSin,
+            float rotationCos,
+            float depth,
+            byte effects,
+            Vector3? normal
+        )
+        {
             // Skip if texture is null or disposed
             if (texture == null || texture.IsDisposed)
             {
@@ -1140,7 +1279,8 @@ namespace ClassicUO.Renderer
                 color,
                 originX, originY,
                 rotationSin, rotationCos,
-                depth, effects
+                depth, effects,
+                normal
             );
 
             _textureInfo[_numSprites] = texture;
@@ -1188,7 +1328,8 @@ namespace ClassicUO.Renderer
             float rotationSin,
             float rotationCos,
             float depth,
-            byte effects
+            byte effects,
+            Vector3? normal = null
         )
         {
             float cornerX = -originX * destinationW;
@@ -1238,23 +1379,12 @@ namespace ClassicUO.Renderer
             sprite.Hue2 = color;
             sprite.Hue3 = color;
 
+            Vector3 n = normal ?? new Vector3(0, 0, 1);
 
-
-            sprite.Normal0.X = 0;
-            sprite.Normal0.Y = 0;
-            sprite.Normal0.Z = 1;
-
-            sprite.Normal1.X = 0;
-            sprite.Normal1.Y = 0;
-            sprite.Normal1.Z = 1;
-
-            sprite.Normal2.X = 0;
-            sprite.Normal2.Y = 0;
-            sprite.Normal2.Z = 1;
-
-            sprite.Normal3.X = 0;
-            sprite.Normal3.Y = 0;
-            sprite.Normal3.Z = 1;
+            sprite.Normal0 = n;
+            sprite.Normal1 = n;
+            sprite.Normal2 = n;
+            sprite.Normal3 = n;
         }
 
 
@@ -1391,6 +1521,12 @@ namespace ClassicUO.Renderer
             if (texture == null || texture.IsDisposed)
             {
                 return;
+            }
+
+            if (texture is Texture2D tex2d)
+            {
+                _basicUOEffect.TexelSize.SetValue(new Vector2(1f / tex2d.Width, 1f / tex2d.Height));
+                _basicUOEffect.Pass.Apply();
             }
 
             GraphicsDevice.Textures[0] = texture;

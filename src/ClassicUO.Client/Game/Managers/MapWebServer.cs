@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -9,8 +8,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using ClassicUO.Game.Data;
 using ClassicUO.Game.GameObjects;
-using ClassicUO.Game.UI.Gumps;
 using ClassicUO.Utility.Logging;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace ClassicUO.Game.Managers
@@ -446,7 +445,7 @@ namespace ClassicUO.Game.Managers
                                 x = marker.X,
                                 y = marker.Y,
                                 name = marker.Name,
-                                color = new
+                                color = marker.Color == Color.Transparent ? new { r = (byte)255, g = (byte)255, b = (byte)255, a = (byte)255 } : new
                                 {
                                     r = marker.Color.R,
                                     g = marker.Color.G,

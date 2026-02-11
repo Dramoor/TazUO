@@ -2,8 +2,6 @@
 
 using System;
 using System.Runtime.CompilerServices;
-using ClassicUO.Assets;
-using ClassicUO.Configuration;
 using ClassicUO.Game.Data;
 using ClassicUO.Game.Managers;
 using ClassicUO.Game.Scenes;
@@ -128,7 +126,8 @@ namespace ClassicUO.Game.GameObjects
                     && _profile.ShadowsStatics
                     && (isTree || ItemData.IsFoliage || StaticFilters.IsRock(graphic)),
                 depth,
-                _profile.AnimatedWaterEffect && ItemData.IsWet
+                _profile.AnimatedWaterEffect && ItemData.IsWet,
+                OutlineColor
             );
 
             if (_isLight && GameScene.Instance != null)

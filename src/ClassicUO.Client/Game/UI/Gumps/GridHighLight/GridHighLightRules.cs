@@ -136,6 +136,7 @@ namespace ClassicUO.Game.UI.Gumps.GridHighLight
                 "Hit Lightning",
                 "Hit Lower Attack",
                 "Hit Lower Defense",
+                "Hit Magic Arrow",
                 "Hit Mana Drain",
                 "Hit Mana Leech",
                 "Hit Point Increase",

@@ -6,6 +6,8 @@ using ClassicUO.Game.UI.Gumps;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using ClassicUO.Game.Managers.Structs;
+using ClassicUO.Utility;
 
 namespace ClassicUO.Game.UI.ImGuiControls
 {
@@ -14,12 +16,16 @@ namespace ClassicUO.Game.UI.ImGuiControls
         public static HashSet<ItemInfo> OpenedWindows = new();
 
         private readonly ItemInfo _itemInfo;
+        private readonly uint? _backpackSerial;
+        private Item worldItem;
 
         public ItemDetailWindow(ItemInfo itemInfo) : base($"Item Details - {itemInfo.Name}")
         {
-            _itemInfo = itemInfo ?? throw new ArgumentNullException(nameof(itemInfo));
-            WindowFlags = ImGuiWindowFlags.AlwaysAutoResize;
+            _itemInfo       = itemInfo ?? throw new ArgumentNullException(nameof(itemInfo));
+            _backpackSerial = Client.Game.UO?.World?.Player?.Backpack?.Serial;
+            WindowFlags     = ImGuiWindowFlags.AlwaysAutoResize;
             OpenedWindows.Add(itemInfo);
+            worldItem = Client.Game.UO?.World?.Items?.Get(_itemInfo.Serial);
         }
 
         public override void DrawContent()
@@ -73,15 +79,11 @@ namespace ClassicUO.Game.UI.ImGuiControls
             {
                 // Display the item graphic larger for detail view
                 if (DrawArt(_itemInfo.Graphic, new Vector2(64, 64)))
-                {
                     if (ImGui.IsItemHovered())
                         ImGui.SetTooltip($"Graphic: {_itemInfo.Graphic} (0x{_itemInfo.Graphic:X4})");
-                }
             }
             else
-            {
                 ImGui.Text("No graphic available");
-            }
 
             ImGui.SameLine();
             ImGui.BeginGroup();
@@ -98,8 +100,9 @@ namespace ClassicUO.Game.UI.ImGuiControls
             ImGui.Text("Basic Information");
             ImGui.Separator();
 
-            ImGui.Text($"Name: {_itemInfo.Name}");
-            ImGui.Text($"Serial: 0x{_itemInfo.Serial:X8}");
+            if(_itemInfo.CustomName.NotNullNotEmpty())
+                ImGui.Text($"Custom Name: {_itemInfo.CustomName}");
+            ImGui.Text($"Name: {_itemInfo.Name} (0x{_itemInfo.Serial:X8})");
             ImGui.Text($"Layer: {_itemInfo.Layer} ({(int)_itemInfo.Layer})");
 
             TimeSpan timeAgo = DateTime.Now - _itemInfo.UpdatedTime;
@@ -114,9 +117,12 @@ namespace ClassicUO.Game.UI.ImGuiControls
                 timeText = "Just now";
 
             ImGui.Text($"Last seen: {timeText}");
-            ImGui.Text($"Character: {_itemInfo.CharacterName}");
+            ImGui.Text($"Char: {_itemInfo.CharacterName}");
             if (!string.IsNullOrEmpty(_itemInfo.ServerName))
-                ImGui.Text($"Server: {_itemInfo.ServerName}");
+            {
+                ImGui.SameLine();
+                ImGui.Text($"(Server: {_itemInfo.ServerName})");
+            }
         }
 
         private void DrawLocationInfo()
@@ -125,9 +131,7 @@ namespace ClassicUO.Game.UI.ImGuiControls
             ImGui.Separator();
 
             if (_itemInfo.OnGround)
-            {
                 ImGui.Text($"Location: On ground at {_itemInfo.X}, {_itemInfo.Y}");
-            }
             else
             {
                 ImGui.Text("Location: In container");
@@ -137,10 +141,7 @@ namespace ClassicUO.Game.UI.ImGuiControls
 
                     // Check if we can find root container information
                     Item containerItem = Client.Game.UO?.World?.Items?.Get(_itemInfo.Container);
-                    if (containerItem != null && containerItem.RootContainer != 0 && containerItem.RootContainer != _itemInfo.Container)
-                    {
-                        ImGui.Text($"Root Container: 0x{containerItem.RootContainer:X8}");
-                    }
+                    if (containerItem != null && containerItem.RootContainer != 0 && containerItem.RootContainer != _itemInfo.Container) ImGui.Text($"Root Container: 0x{containerItem.RootContainer:X8}");
                 }
             }
         }
@@ -155,17 +156,11 @@ namespace ClassicUO.Game.UI.ImGuiControls
                 // Replace pipe separators with newlines for better display
                 string[] properties = _itemInfo.Properties.Split('|');
                 foreach (string property in properties)
-                {
                     if (!string.IsNullOrWhiteSpace(property))
-                    {
                         ImGui.BulletText(property.Trim());
-                    }
-                }
             }
             else
-            {
                 ImGui.Text("No properties available");
-            }
         }
 
         private void DrawActionButtons()
@@ -176,10 +171,7 @@ namespace ClassicUO.Game.UI.ImGuiControls
             // Button to open container
             if (!_itemInfo.OnGround && _itemInfo.Container != 0)
             {
-                if (ImGui.Button("View Container"))
-                {
-                    OpenContainerDetailWindow(_itemInfo.Container);
-                }
+                if (ImGui.Button("View Container")) OpenContainerDetailWindow(_itemInfo.Container);
                 ImGui.SameLine();
                 SetTooltip("View detailed information about the container");
 
@@ -187,27 +179,21 @@ namespace ClassicUO.Game.UI.ImGuiControls
                 Item containerItem = Client.Game.UO?.World?.Items?.Get(_itemInfo.Container);
                 if (containerItem != null && containerItem.RootContainer != 0 && containerItem.RootContainer != _itemInfo.Container)
                 {
-                    if (ImGui.Button("View Root Container"))
-                    {
-                        OpenContainerDetailWindow(containerItem.RootContainer);
-                    }
+                    if (ImGui.Button("View Root Container")) OpenContainerDetailWindow(containerItem.RootContainer);
                     ImGui.SameLine();
                     SetTooltip("View the root container details (usually the character's backpack)");
                 }
             }
 
             // Button to locate item if it exists in the world
-            Item worldItem = Client.Game.UO?.World?.Items?.Get(_itemInfo.Serial);
-            if (worldItem != null)
+            if (worldItem != null && !worldItem.IsDestroyed)
             {
-                if (ImGui.Button("Use Item"))
-                {
-                    GameActions.DoubleClick(Client.Game.UO.World, _itemInfo.Serial);
-                }
+                if (ImGui.Button("Use Item")) GameActions.DoubleClick(World.Instance, _itemInfo.Serial);
                 SetTooltip("Double-click the item to use it");
             }
             else
             {
+                worldItem = World.Instance.Items.Get(_itemInfo.Serial);
                 ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0.5f, 0.5f, 0.5f, 1.0f));
                 ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(0.5f, 0.5f, 0.5f, 1.0f));
                 ImGui.PushStyleColor(ImGuiCol.ButtonActive, new Vector4(0.5f, 0.5f, 0.5f, 1.0f));
@@ -218,19 +204,98 @@ namespace ClassicUO.Game.UI.ImGuiControls
                 ImGui.PopStyleColor(3);
             }
 
+            if (_itemInfo.Container != World.Instance.Player.Backpack)
+            {
+                if (ImGui.Button("Take Item")) MoveItemToBackpack(_itemInfo);
+                SetTooltip("Move the item to your backpack");
+            }
+            else
+            {
+                ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0.5f, 0.5f, 0.5f, 1.0f));
+                ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(0.5f, 0.5f, 0.5f, 1.0f));
+                ImGui.PushStyleColor(ImGuiCol.ButtonActive, new Vector4(0.5f, 0.5f, 0.5f, 1.0f));
+
+                ImGui.Button("Take Item");
+                SetTooltip("This item is not currently visible in the game world, the container is not open or the item is already in your backpack.");
+
+                ImGui.PopStyleColor(3);
+            }
+            ImGui.SameLine();
+
+            if (ImGui.Button("Set custom name"))
+            {
+                UIManager.Add(new InputRequest(World.Instance, "Type in a custom name", "Save", "Cancel",
+                    (result, s) =>
+                    {
+                        if (result != InputRequest.Result.BUTTON1) return;
+
+                        _itemInfo.CustomName = s;
+
+                        if(worldItem != null)
+                        {
+                            worldItem.CustomName = s;
+                            ItemDatabaseManager.Instance.AddOrUpdateItem(worldItem, World.Instance);
+                        }
+                    }, _itemInfo.CustomName).CenterInViewPort());
+            }
+
             // Try to locate button
             ImGui.Spacing();
-            if (ImGui.Button("Try to Locate"))
-            {
-                TryToLocateItem();
-            }
+            if (ImGui.Button("Try to Locate")) TryToLocateItem();
+
             SetTooltip("Create a quest arrow pointing to the item's location if known");
 
             // Close button
             ImGui.SameLine();
-            if (ImGui.Button("Close"))
+            if (ImGui.Button("Close")) IsOpen = false;
+        }
+
+        private void MoveItemToBackpack(ItemInfo itemInfo)
+        {
+            try
             {
-                IsOpen = false;
+                World world = Client.Game.UO?.World;
+                PlayerMobile player = world?.Player;
+
+                Item item = world?.Items?.Get(itemInfo.Serial);
+                if (item == null)
+                {
+                    Utility.Logging.Log.Warn("Cannot move item: Item not found in world");
+                    return;
+                }
+
+                if (player == null)
+                {
+                    Utility.Logging.Log.Warn("Cannot move item: Player not available");
+                    return;
+                }
+
+                if (player.Backpack == null)
+                {
+                    Utility.Logging.Log.Warn("Cannot move item: Player backpack not available");
+                    return;
+                }
+
+                Item backpack = world.Items?.Get(player.Backpack.Serial);
+                if (backpack == null)
+                {
+                    Utility.Logging.Log.Warn("Cannot move item: Backpack not found");
+                    return;
+                }
+
+                if(backpack.Serial == item.Container)
+                {
+                    Utility.Logging.Log.Info("Cannot move item: Item is already in backpack");
+                    return;
+                }
+
+                ObjectActionQueue.Instance.Enqueue(new MoveRequest(item.Serial, backpack.Serial).ToObjectActionQueueItem(), ActionPriority.MoveItem);
+
+                Utility.Logging.Log.Info($"Item 0x{item.Serial:X8} moved to backpack");
+            }
+            catch (Exception ex)
+            {
+                Utility.Logging.Log.Error($"Failed to move item to backpack: {ex.Message}");
             }
         }
 
@@ -304,13 +369,9 @@ namespace ClassicUO.Game.UI.ImGuiControls
 
                 // If we have coordinates, create the quest arrow
                 if (targetX.HasValue && targetY.HasValue)
-                {
                     CreateQuestArrow(targetX.Value, targetY.Value);
-                }
                 else
-                {
                     Utility.Logging.Log.Info("Cannot determine location for item");
-                }
             }
             catch (Exception ex)
             {
@@ -328,28 +389,20 @@ namespace ClassicUO.Game.UI.ImGuiControls
                         {
                             ItemInfo containerInfo = results[0];
                             if (containerInfo.OnGround)
-                            {
                                 CreateQuestArrow(containerInfo.X, containerInfo.Y);
-                            }
                             else
                             {
                                 // Container is also in another container, try to find its root
                                 World world = Client.Game.UO?.World;
                                 if (world?.Player != null && containerInfo.Container == world.Player.Serial)
-                                {
                                     // Root is player
                                     CreateQuestArrow(world.Player.X, world.Player.Y);
-                                }
                                 else
-                                {
                                     Utility.Logging.Log.Info($"Container 0x{containerSerial:X8} found but location cannot be determined");
-                                }
                             }
                         }
                         else
-                        {
                             Utility.Logging.Log.Info($"Container 0x{containerSerial:X8} not found in database");
-                        }
                     });
                 },
                 serial: containerSerial,
@@ -369,10 +422,7 @@ namespace ClassicUO.Game.UI.ImGuiControls
 
                 // Remove any existing quest arrow for this item
                 QuestArrowGump existingArrow = UIManager.GetGump<QuestArrowGump>(_itemInfo.Serial);
-                if (existingArrow != null)
-                {
-                    existingArrow.Dispose();
-                }
+                if (existingArrow != null) existingArrow.Dispose();
 
                 // Create new quest arrow
                 var questArrow = new QuestArrowGump(world, _itemInfo.Serial, x, y);
@@ -406,13 +456,10 @@ namespace ClassicUO.Game.UI.ImGuiControls
                                 ImGuiManager.AddWindow(detailWindow);
                             }
                             else
-                            {
                                 // Container not found in database - we could show a notification or message
                                 Utility.Logging.Log.Warn($"Container 0x{containerSerial:X8} not found in item database");
-
-                                // TODO: Could show a temporary message to the user that the container
-                                // information is not available in the database
-                            }
+                            // TODO: Could show a temporary message to the user that the container
+                            // information is not available in the database
                         });
                     },
                     serial: containerSerial,

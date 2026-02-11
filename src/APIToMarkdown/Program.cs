@@ -649,14 +649,17 @@ class Program
             Dictionary<string, Tuple<StringBuilder, StringBuilder>> gen = GenDoc.GenerateMarkdown(filePath);
             //Console.WriteLine($"Generation complete for [{filePath}].");
 
-            string path = Path.GetDirectoryName(filePath)!;
-
             foreach (KeyValuePair<string, Tuple<StringBuilder, StringBuilder>> kvp in gen)
             {
                 if (!Directory.Exists(docsDir))
                     Directory.CreateDirectory(docsDir);
-                File.WriteAllText(Path.Combine(docsDir, $"{kvp.Key}.md"), kvp.Value.Item1.ToString());
-                File.AppendAllText(pyFilePath, kvp.Value.Item2.ToString());
+
+                // Normalize to LF line endings to avoid cross-platform conflicts
+                string mdContent = kvp.Value.Item1.ToString().Replace("\r\n", "\n").Replace("\r", "\n");
+                string pyContent = kvp.Value.Item2.ToString().Replace("\r\n", "\n").Replace("\r", "\n");
+
+                File.WriteAllText(Path.Combine(docsDir, $"{kvp.Key}.md"), mdContent);
+                File.AppendAllText(pyFilePath, pyContent);
             }
         }
     }

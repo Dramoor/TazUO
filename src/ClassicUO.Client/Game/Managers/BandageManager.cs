@@ -20,7 +20,7 @@ namespace ClassicUO.Game.Managers
                     field = new();
                 return field;
             }
-            private set => field = value;
+            private set;
         }
 
         private long _nextBandageTime = 0;
@@ -29,6 +29,9 @@ namespace ClassicUO.Game.Managers
         private readonly Lock _queueLock = new();
         private Timer _retryTimer;
         private const int RETRY_INTERVAL_MS = 100;
+
+        public int PendingHealCount => _pendingHeals.Count;
+        public int PendingInGlobalQueueCount => _enqueuedInGlobalQueue.Count;
 
         private bool IsEnabled => ProfileManager.CurrentProfile?.EnableBandageAgent ?? false;
         private bool FriendBandagingEnabled => ProfileManager.CurrentProfile?.BandageAgentBandageFriends ?? false;
@@ -138,6 +141,11 @@ namespace ClassicUO.Game.Managers
         {
             uint serial;
 
+            if (World.Instance.Player.FindBandage(BandageGraphic) == null) {
+                VerifyTimer();
+                return; //Return early if we don't have bandages..
+            }
+
             // Safely get and remove the first item from the queue
             lock (_queueLock)
             {
@@ -149,9 +157,45 @@ namespace ClassicUO.Game.Managers
 
             // Process outside the lock to avoid holding it during game logic
             Mobile mobile = World.Instance?.Mobiles?.Get(serial);
-            if (ShouldAttemptHeal(mobile)) AttemptHealMobile(mobile);
+            if (ShouldAttemptHeal(mobile))
+            {
+                AttemptHealMobile(mobile);
+            }
+            else if (IsHealCandidate(mobile))
+            {
+                // Conditions temporarily not met (e.g., distance, hidden, invul) but
+                // mobile still needs healing - keep retrying so we don't lose track
+                ScheduleRetry(serial);
+            }
 
             VerifyTimer();
+        }
+
+        /// <summary>
+        /// Checks whether a mobile is still a valid candidate for healing, ignoring
+        /// temp conditions like distance/hidden/invul. Used to decide whether to
+        /// keep retrying when ShouldAttemptHeal returns false.
+        /// </summary>
+        private bool IsHealCandidate(Mobile mobile)
+        {
+            PlayerMobile player = World.Instance?.Player;
+
+            if (player == null || mobile == null || mobile.IsDead)
+                return false;
+
+            bool isPlayer = mobile == player;
+            bool isFriend = !isPlayer && FriendBandagingEnabled && FriendsListManager.Instance.IsFriend(mobile);
+            if (!isPlayer && !isFriend)
+                return false;
+
+            if (isPlayer && DisableSelfHeal)
+                return false;
+
+            if (mobile.HitsMax <= 0)
+                return false;
+
+            int currentHpPercentage = (int)((double)mobile.Hits / mobile.HitsMax * 100);
+            return currentHpPercentage < HpPercentageThreshold || (UseOnPoisoned && mobile.IsPoisoned);
         }
 
         private bool ShouldAttemptHeal(Mobile mobile)
@@ -219,7 +263,7 @@ namespace ClassicUO.Game.Managers
             bool shouldEnqueue;
             lock (_queueLock) shouldEnqueue = _enqueuedInGlobalQueue.Add(mobile.Serial);
 
-            if (shouldEnqueue) GlobalPriorityQueue.Instance.Enqueue(() => ExecuteHealMobile(mobile));
+            if (shouldEnqueue) ObjectActionQueue.Instance.Enqueue(new ObjectActionQueueItem(() => ExecuteHealMobile(mobile)), ActionPriority.Immediate);
         }
 
         private void ExecuteHealMobile(Mobile mobile)

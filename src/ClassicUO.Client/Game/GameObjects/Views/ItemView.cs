@@ -55,6 +55,7 @@ namespace ClassicUO.Game.GameObjects
                 return DrawCorpse(batcher, posX, posY - 3, hueVec, depth);
             }
 
+            bool isSelected = ReferenceEquals(SelectedObject.Object, this);
             ushort hue = Hue;
             ushort graphic = DisplayedGraphic;
             bool partial = ItemData.IsPartialHue;
@@ -116,7 +117,7 @@ namespace ClassicUO.Game.GameObjects
 
             if (
                 ProfileManager.CurrentProfile.HighlightGameObjects
-                && ReferenceEquals(SelectedObject.Object, this)
+                && isSelected
             )
             {
                 hue = Constants.HIGHLIGHT_CURRENT_OBJECT_HUE;
@@ -135,7 +136,7 @@ namespace ClassicUO.Game.GameObjects
             }
             else
             {
-                if (!IsLocked && !IsMulti && ReferenceEquals(SelectedObject.Object, this))
+                if (!IsLocked && !IsMulti && isSelected)
                 {
                     // TODO: check why i put this.
                     //isPartial = ItemData.Weight == 0xFF;
@@ -151,7 +152,7 @@ namespace ClassicUO.Game.GameObjects
 
             if (!IsMulti && !IsCoin && Amount > 1 && ItemData.IsStackable)
             {
-                DrawStaticAnimated(batcher, graphic, posX - 5, posY - 5, hueVec, false, depth);
+                DrawStaticAnimated(batcher, graphic, posX - 5, posY - 5, hueVec, false, depth, outlineColor: OutlineColor);
             }
 
             if (
@@ -163,7 +164,7 @@ namespace ClassicUO.Game.GameObjects
                 hueVec.Z = 0.5f;
             }
 
-            DrawStaticAnimated(batcher, graphic, posX, posY, hueVec, false, depth);
+            DrawStaticAnimated(batcher, graphic, posX, posY, hueVec, false, depth, outlineColor: OutlineColor);
 
             return true;
         }

@@ -18,5 +18,6 @@ namespace ClassicUO.Game.Data
         public int X { get; set; }
         public int Y { get; set; }
         public bool OnGround { get; set; }
+        public string CustomName { get; set; } = string.Empty;
     }
 }

@@ -233,51 +233,48 @@ namespace ClassicUO.Game.UI
             if (SerialHelper.IsValid(serial) && _world.OPL.TryGetNameAndData(serial, out string name, out string data))
             {
                 var sbHTML = new ValueStringBuilder();
+                var sb = new ValueStringBuilder();
+
+                if (!string.IsNullOrEmpty(name))
                 {
-                    var sb = new ValueStringBuilder();
+                    if (SerialHelper.IsItem(serial))
                     {
-                        if (!string.IsNullOrEmpty(name))
+                        sbHTML.Append("/c[yellow]");
+                        hasStartColor = true;
+                    }
+                    else
+                    {
+                        Mobile mob = _world.Mobiles.Get(serial);
+
+                        if (mob != null)
                         {
-                            if (SerialHelper.IsItem(serial))
-                            {
-                                sbHTML.Append("<basefont color=\"yellow\">");
-                                hasStartColor = true;
-                            }
-                            else
-                            {
-                                Mobile mob = _world.Mobiles.Get(serial);
-
-                                if (mob != null)
-                                {
-                                    sbHTML.Append(Notoriety.GetHTMLHue(mob.NotorietyFlag));
-                                    hasStartColor = true;
-                                }
-                            }
-
-                            sb.Append(name);
-                            sbHTML.Append(name);
-
-                            if (hasStartColor)
-                            {
-                                sbHTML.Append("<basefont color=\"#FFFFFFFF\">");
-                            }
+                            sbHTML.Append(Notoriety.GetHTMLHue(mob.NotorietyFlag));
+                            hasStartColor = true;
                         }
+                    }
 
-                        if (!string.IsNullOrEmpty(data))
-                        {
-                            sb.Append('\n');
-                            sb.Append(data);
-                            sbHTML.Append('\n');
-                            sbHTML.Append(data);
-                        }
+                    sb.Append(name);
+                    sbHTML.Append(name);
 
-                        htmltext = sbHTML.ToString();
-                        result = sb.ToString();
-
-                        sb.Dispose();
-                        sbHTML.Dispose();
+                    if (hasStartColor)
+                    {
+                        sbHTML.Append("/c[#ffffff]");
                     }
                 }
+
+                if (!string.IsNullOrEmpty(data))
+                {
+                    sb.Append('\n');
+                    sb.Append(data);
+                    sbHTML.Append('\n');
+                    sbHTML.Append(data);
+                }
+
+                htmltext = sbHTML.ToString();
+                result = sb.ToString();
+
+                sb.Dispose();
+                sbHTML.Dispose();
             }
             return string.IsNullOrEmpty(result) ? null : result;
         }

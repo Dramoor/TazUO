@@ -1,11 +1,13 @@
 ﻿// SPDX-License-Identifier: BSD-2-Clause
 
 using System;
+using System.Threading.Tasks;
 using ClassicUO.Game.Data;
 using ClassicUO.Game.Managers;
 using ClassicUO.Game.Scenes;
 using ClassicUO.Game.UI.Gumps;
 using ClassicUO.Assets;
+using ClassicUO.Utility.Logging;
 using Microsoft.Xna.Framework;
 using MathHelper = ClassicUO.Utility.MathHelper;
 
@@ -13,63 +15,7 @@ namespace ClassicUO.Game.GameObjects
 {
     public partial class Item : Entity
     {
-        //private static readonly QueuedPool<Item> _pool = new QueuedPool<Item>(
-        //    Constants.PREDICTABLE_CHUNKS * 3,
-        //    i =>
-        //    {
-        //        i.IsDestroyed = false;
-        //        i.Graphic = 0;
-        //        i.Amount = 0;
-        //        i.Container = 0xFFFF_FFFF;
-        //        i._isMulti = false;
-        //        i.Layer = 0;
-        //        i.Price = 0;
-        //        i.UsedLayer = false;
-        //        i._displayedGraphic = null;
-        //        i.X = 0;
-        //        i.Y = 0;
-        //        i.Z = 0;
-
-        //        i.LightID = 0;
-        //        i.MultiDistanceBonus = 0;
-        //        i.Flags = 0;
-        //        i.WantUpdateMulti = true;
-        //        i.MultiInfo = null;
-        //        i.MultiGraphic = 0;
-
-        //        i.AlphaHue = 0;
-        //        i.Name = null;
-        //        i.Direction = 0;
-        //        i.AnimIndex = 0;
-        //        i.Hits = 0;
-        //        i.HitsMax = 0;
-        //        i.LastStepTime = 0;
-        //        i.LastAnimationChangeTime = 0;
-
-        //        i.Clear();
-
-        //        i.IsClicked = false;
-        //        i.IsDamageable = false;
-        //        i.Offset = Vector3.Zero;
-        //        i.HitsPercentage = 0;
-        //        i.Opened = false;
-        //        i.TextContainer?.Clear();
-        //        i.IsFlipped = false;
-        //        i.FrameInfo = Rectangle.Empty;
-        //        i.ObjectHandlesStatus = ObjectHandlesStatus.NONE;
-        //        i.AlphaHue = 0;
-        //        i.AllowedToDraw = true;
-        //        i.ExecuteAnimation = true;
-        //        i.HitsRequest = HitsRequestStatus.None;
-
-        //        i.ResetOriginalGraphic();
-        //        i.MatchesHighlightData = false;
-        //        i.HighlightHue = 0;
-        //    }
-        //);
-
         private ushort? _displayedGraphic;
-        private bool _isMulti;
 
         /// <summary>
         /// Use this constructor for internal usage only, otherwise use the static Create method.
@@ -88,6 +34,8 @@ namespace ClassicUO.Game.GameObjects
         public string HighlightName = string.Empty;
         public bool ShouldAutoLoot;
         public bool HighlightChecked;
+        public string CustomName { get; set; }
+
         public ushort DisplayedGraphic
         {
             get
@@ -99,20 +47,11 @@ namespace ClassicUO.Game.GameObjects
 
                 if (IsCoin)
                 {
-                    if (Amount > 5)
-                    {
-                        return (ushort)(Graphic + 2);
-                    }
+                    if (Amount > 5) return (ushort)(Graphic + 2);
 
-                    if (Amount > 1)
-                    {
-                        return (ushort)(Graphic + 1);
-                    }
+                    if (Amount > 1) return (ushort)(Graphic + 1);
                 }
-                else if (IsMulti)
-                {
-                    return MultiGraphic;
-                }
+                else if (IsMulti) return MultiGraphic;
 
                 return Graphic;
             }
@@ -127,10 +66,10 @@ namespace ClassicUO.Game.GameObjects
 
         public bool IsMulti
         {
-            get => _isMulti;
+            get;
             set
             {
-                _isMulti = value;
+                field = value;
 
                 if (!value)
                 {
@@ -231,8 +170,14 @@ namespace ClassicUO.Game.GameObjects
         {
             var i = new Item(world); // _pool.GetOne();
             i.Serial = serial;
-
+            //i.TryGetCustomName(); //Need a more efficient way to do this in bulk or some sort of "debounce"-like system to bulk many items at the same time
             return i;
+        }
+
+        public async void TryGetCustomName()
+        {
+            string name = await ItemDatabaseManager.Instance.GetItemCustomName(Serial);
+            CustomName = name ?? "";
         }
 
         public override void OnGraphicSet(ushort newGraphic)
@@ -272,20 +217,16 @@ namespace ClassicUO.Game.GameObjects
 
             if (Opened)
             {
-                UIManager.GetGump<ContainerGump>(Serial)?.Dispose();
-                #region GridContainer
-                UIManager.GetGump<GridContainer>(Serial)?.Dispose();
-                #endregion
-                UIManager.GetGump<SpellbookGump>(Serial)?.Dispose();
-                UIManager.GetGump<MapGump>(Serial)?.Dispose();
+                UIManager.ForEach<ContainerGump>(g => g.Dispose(), Serial);
+                UIManager.ForEach<GridContainer>(g => g.Dispose(), Serial);
+                UIManager.ForEach<SpellbookGump>(g => g.Dispose(), Serial);
+                UIManager.ForEach<MapGump>(g => g.Dispose(), Serial);
 
                 if (IsCorpse)
-                {
-                    UIManager.GetGump<GridLootGump>(Serial)?.Dispose();
-                }
+                    UIManager.ForEach<GridLootGump>(g => g.Dispose(), Serial);
 
-                UIManager.GetGump<BulletinBoardGump>(Serial)?.Dispose();
-                UIManager.GetGump<SplitMenuGump>(Serial)?.Dispose();
+                UIManager.ForEach<BulletinBoardGump>(g => g.Dispose(), Serial);
+                UIManager.ForEach<SplitMenuGump>(g => g.Dispose(), Serial);
 
                 Opened = false;
             }
@@ -397,12 +338,9 @@ namespace ClassicUO.Game.GameObjects
 
             house.Bounds = MultiInfo.Value;
 
-            UIManager.GetGump<MiniMapGump>()?.RequestUpdateContents();
+            UIManager.ForEach<MiniMapGump>(g => g.RequestUpdateContents());
 
-            if (World.HouseManager.EntityIntoHouse(Serial, World.Player))
-            {
-                Client.Game.GetScene<GameScene>()?.UpdateMaxDrawZ(true);
-            }
+            if (World.HouseManager.EntityIntoHouse(Serial, World.Player)) GameScene.Instance?.UpdateMaxDrawZ(true);
 
             World.BoatMovingManager.ClearSteps(Serial);
         }

@@ -231,6 +231,8 @@ namespace ClassicUO.Game.Scenes
             SpellBarManager.Load();
             if(ProfileManager.CurrentProfile.EnableCaveBorder)
                 StaticFilters.ApplyCaveTileBorder();
+            
+            TazUOChatManager.Instance.Init();
         }
 
         private void ChatOnMessageReceived(object sender, MessageEventArgs e)
@@ -379,6 +381,8 @@ namespace ClassicUO.Game.Scenes
             }
 
             Instance = null;
+
+            TazUOChatManager.Instance.Dispose();
 
             LongDistancePathfinder.Dispose();
             WalkableManager.Instance.Shutdown();

@@ -55,6 +55,7 @@ namespace ClassicUO.LegionScripting
         private static readonly ConcurrentDictionary<string, object> sharedVars = new();
         private readonly ConcurrentDictionary<string, object> hotkeyCallbacks = new();
         private readonly ConcurrentDictionary<string, bool> pressedKeys = new();
+        private readonly ConcurrentDictionary<string, string> keyToHotkeyMap = new();
 
         internal void ScheduleCallback(Action action)
         {
@@ -144,6 +145,13 @@ namespace ClassicUO.LegionScripting
         {
             if (disposed) return;
 
+            // It's possible that the key up even will not contain the modifier keys anymore
+            // if the user releases them before releasing the main key, so we need to look up
+            // the original hotkey string that was pressed using the base key.
+            // Main thought: If 'x' is released, then all hotkeys involving mod + 'x' should be released
+            string baseKey = hotkey.Split('+').Last();
+            keyToHotkeyMap[baseKey] = hotkey;
+
             if (pressedKeys.TryAdd(hotkey, true) && hotkeyCallbacks.TryGetValue(hotkey, out object callback))
             {
                 ScheduleCallback(callback);
@@ -154,7 +162,12 @@ namespace ClassicUO.LegionScripting
         {
             if (disposed) return;
 
-            pressedKeys.TryRemove(hotkey, out _);
+            // Get the base key and look up the original hotkey string that was pressed
+            string baseKey = hotkey.Split('+').Last();
+            if (keyToHotkeyMap.TryRemove(baseKey, out string originalHotkey))
+            {
+                pressedKeys.TryRemove(originalHotkey, out _);
+            }
         }
 
         public void Dispose()

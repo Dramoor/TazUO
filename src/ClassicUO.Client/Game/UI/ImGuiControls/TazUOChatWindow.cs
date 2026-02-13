@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using ClassicUO.Configuration;
 using ClassicUO.Game.Managers;
 using ImGuiNET;
 
@@ -131,7 +132,8 @@ public class TazUOChatWindow : SingletonImGuiWindow<TazUOChatWindow>
 
         // Input row
         float sendButtonWidth = 60f;
-        ImGui.SetNextItemWidth(available.X - sendButtonWidth - 16f);
+        float menuButtonWidth = 28f;
+        ImGui.SetNextItemWidth(available.X - sendButtonWidth - menuButtonWidth - 24f);
 
         bool enterPressed = ImGui.InputText("##chat_input", _inputBuffer, INPUT_BUF_SIZE, ImGuiInputTextFlags.EnterReturnsTrue);
 
@@ -140,6 +142,25 @@ public class TazUOChatWindow : SingletonImGuiWindow<TazUOChatWindow>
         if ((enterPressed || ImGui.Button("Send", new Vector2(sendButtonWidth, 0))) && !string.IsNullOrEmpty(_selectedChannel))
         {
             TrySend(manager);
+        }
+
+        ImGui.SameLine();
+
+        if (ImGui.Button("...", new Vector2(menuButtonWidth, 0)))
+        {
+            ImGui.OpenPopup("##chat_menu");
+        }
+
+        if (ImGui.BeginPopup("##chat_menu"))
+        {
+            Profile profile = ProfileManager.CurrentProfile;
+            bool connectOnLogin = profile != null && profile.ConnectToIrcOnLogin;
+            if (ImGui.MenuItem("Connect to chat on login", null, connectOnLogin) && profile != null)
+            {
+                profile.ConnectToIrcOnLogin = !connectOnLogin;
+            }
+
+            ImGui.EndPopup();
         }
     }
 

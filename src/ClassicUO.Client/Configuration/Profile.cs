@@ -807,6 +807,22 @@ namespace ClassicUO.Configuration
             }
         }
 
+        [JsonIgnore]
+        public bool ConnectToIrcOnLogin
+        {
+            get;
+            set
+            {
+                if (field != value)
+                    _ = Client.Settings.SetAsync(SettingsScope.Global, Constants.SqlSettings.IRC_AUTO_CONNECT, value);
+
+                if(value && !TazUOChatManager.Instance.IsConnected)
+                    TazUOChatManager.Instance.Init();
+
+                field = value;
+            }
+        }
+
         private long lastSave;
 
         internal void AfterLoad()
@@ -823,13 +839,10 @@ namespace ClassicUO.Configuration
                 Dictionary<string, string> kvp = t.Result;
                 MainThreadQueue.EnqueueAction(() =>
                 {
-                    string val;
-                    bool b;
-
-                    if (kvp.TryGetValue(Constants.SqlSettings.MIN_GUMP_MOVE_DIST, out val) && int.TryParse(val, out int v))
+                    if (kvp.TryGetValue(Constants.SqlSettings.MIN_GUMP_MOVE_DIST, out string val) && int.TryParse(val, out int v))
                         MinGumpMoveDistance = v;
 
-                    if (kvp.TryGetValue(Constants.SqlSettings.DISABLE_WEATHER, out val) && bool.TryParse(val, out b))
+                    if (kvp.TryGetValue(Constants.SqlSettings.DISABLE_WEATHER, out val) && bool.TryParse(val, out bool b))
                         DisableWeather = b;
 
                     if (kvp.TryGetValue(Constants.SqlSettings.QUEUE_MANUAL_ITEM_MOVES, out val) && bool.TryParse(val, out b))
@@ -840,6 +853,9 @@ namespace ClassicUO.Configuration
 
                     if (kvp.TryGetValue(Constants.SqlSettings.HUE_CORPSE_AFTER_AUTOLOOT, out val) && bool.TryParse(val, out b))
                         HueCorpseAfterAutoloot = b;
+
+                    if (kvp.TryGetValue(Constants.SqlSettings.IRC_AUTO_CONNECT, out val) && bool.TryParse(val, out b))
+                        ConnectToIrcOnLogin = b;
                 });
             });
 

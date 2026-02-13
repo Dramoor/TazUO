@@ -280,9 +280,9 @@ public sealed class IrcClient : IAsyncDisposable
                 break;
             }
 
-            case "433": // ERR_NICKNAMEINUSE
+            case "433" or "432" or "431" or "436": // ERR_NICKNAMEINUSE
             {
-                _nickname += Random.Shared.Next(999);
+                _nickname += Random.Shared.Next(9);
                 _ = SendRawAsync($"NICK {_nickname}");
                 break;
             }

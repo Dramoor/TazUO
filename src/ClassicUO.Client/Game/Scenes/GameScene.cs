@@ -231,8 +231,9 @@ namespace ClassicUO.Game.Scenes
             SpellBarManager.Load();
             if(ProfileManager.CurrentProfile.EnableCaveBorder)
                 StaticFilters.ApplyCaveTileBorder();
-            
-            TazUOChatManager.Instance.Init();
+
+            if(ProfileManager.CurrentProfile.ConnectToIrcOnLogin)
+                TazUOChatManager.Instance.Init();
         }
 
         private void ChatOnMessageReceived(object sender, MessageEventArgs e)

@@ -390,7 +390,7 @@ namespace ClassicUO.Game.UI.Gumps
 
                 first.Value.Update();
 
-                if (first.Value.IsDisposed)
+                if (first.Value.IsDisposed && first.List == _textEntries)
                 {
                     _textEntries.Remove(first);
                 }
@@ -507,7 +507,7 @@ namespace ClassicUO.Game.UI.Gumps
             {
                 LinkedListNode<ChatLineTime> prev = last.Previous;
 
-                if (last.Value.IsDisposed)
+                if (last.Value.IsDisposed && last.List == _textEntries)
                 {
                     _textEntries.Remove(last);
                 }

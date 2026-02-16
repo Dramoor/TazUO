@@ -26,3 +26,4 @@ All notable changes to TazUO will be recorded here.
 
 ### Bugs
 - Fixed healthbar collector occasionally becoming unresponsive to targeting/clicks
+- Fix rare crash when removing messages from system chat

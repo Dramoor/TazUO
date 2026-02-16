@@ -14,35 +14,35 @@ namespace ClassicUO.Game.UI.ImGuiControls
         // Search parameters
         private string _searchName = "";
         private string _searchProperties = "";
-        private int _searchGraphic = 0;
+        private int _searchGraphic;
         private int _searchHue = -1;
-        private int _searchContainer = 0;
+        private int _searchContainer;
         private int _searchLayer = -1;
-        private bool _onGroundOnly = false;
-        private bool _inContainersOnly = false;
+        private bool _onGroundOnly;
+        private bool _inContainersOnly;
         private int _maxResults = 100;
-        private bool _searchCurrentCharacterOnly = true;
+        private bool _searchCurrentCharacterOnly;
         private bool _enabled;
 
         // Results
-        private List<ItemInfo> _searchResults = new List<ItemInfo>();
-        private bool _searchInProgress = false;
+        private List<ItemInfo> _searchResults = new();
+        private bool _searchInProgress;
         private string _statusMessage = "Ready to search";
 
         // Cached strings for results display
-        private Dictionary<uint, string> _cachedGraphicTooltips = new Dictionary<uint, string>();
-        private Dictionary<uint, string> _cachedHueStrings = new Dictionary<uint, string>();
-        private Dictionary<Layer, string> _cachedLayerStrings = new Dictionary<Layer, string>();
-        private Dictionary<uint, string> _cachedLocationStrings = new Dictionary<uint, string>();
-        private Dictionary<uint, string> _cachedContainerStrings = new Dictionary<uint, string>();
-        private Dictionary<DateTime, string> _cachedTimeStrings = new Dictionary<DateTime, string>();
+        private Dictionary<uint, string> _cachedGraphicTooltips = new();
+        private Dictionary<uint, string> _cachedHueStrings = new();
+        private Dictionary<Layer, string> _cachedLayerStrings = new();
+        private Dictionary<uint, string> _cachedLocationStrings = new();
+        private Dictionary<uint, string> _cachedContainerStrings = new();
+        private Dictionary<DateTime, string> _cachedTimeStrings = new();
 
         // UI state
-        private bool _showAdvancedSearch = false;
+        private bool _showAdvancedSearch;
 
         // Clear old data
         private int _clearOlderThanDays = 120;
-        private bool _clearInProgress = false;
+        private bool _clearInProgress;
 
         public ItemDatabaseTabContent()
         {

@@ -860,6 +860,7 @@ class PyMobile(PyEntity):
     IsRenamable: bool = None
     IsHuman: bool = None
     IsYellowHits: bool = None
+    IsHidden: bool = None
     Notoriety: Notoriety = None
     InWarMode: bool = None
     Backpack: PyItem = None

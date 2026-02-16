@@ -77,6 +77,10 @@ description:  Represents a Python-accessible mobile (NPC, creature, or player ch
 
 **Type:** `bool`
 
+### `IsHidden`
+
+**Type:** `bool`
+
 ### `Notoriety`
 
 **Type:** `Notoriety`

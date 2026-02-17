@@ -401,7 +401,7 @@ namespace ClassicUO.LegionScripting
                             action.Parameters.TryGetValue("z", out object targZ))
                         {
                             if (action.Parameters.TryGetValue("graphic", out object graphic))
-                                script.AppendLine($"API.Target({targX}, {targY}, {targZ}, {graphic:X4})");
+                                script.AppendLine($"API.Target({targX}, {targY}, {targZ}, 0x{graphic:X4})");
                             else
                                 script.AppendLine($"API.Target({targX}, {targY}, {targZ})");
                         }
@@ -540,7 +540,7 @@ namespace ClassicUO.LegionScripting
                     case "waitforgump":
                         if (action.Parameters.TryGetValue("id", out object gumpid))
                         {
-                            script.AppendLine($"while not API.HasGump({gumpid:X8}):");
+                            script.AppendLine($"while not API.HasGump(0x{gumpid:X8}):");
                             script.AppendLine($"    API.Pause(0.1)");
                         }
                         break;

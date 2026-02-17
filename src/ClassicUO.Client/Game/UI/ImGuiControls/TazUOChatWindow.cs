@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using ClassicUO.Configuration;
 using ClassicUO.Game.Managers;
@@ -85,18 +86,18 @@ public class TazUOChatWindow : SingletonImGuiWindow<TazUOChatWindow>
         float msgWidth = available.X - CHANNEL_PANEL_WIDTH - USER_PANEL_WIDTH - spacing * 2;
         ImGui.BeginChild("##chat_messages", new Vector2(msgWidth, childHeight), ImGuiChildFlags.Borders);
         {
-            if (!string.IsNullOrEmpty(_selectedChannel) &&
-                manager.ReceivedMessages.TryGetValue(_selectedChannel, out List<string> messages))
+            if (!string.IsNullOrEmpty(_selectedChannel))
             {
-                for (int i = 0; i < messages.Count; i++)
+                string[] messages = manager.GetMessages(_selectedChannel);
+                for (int i = 0; i < messages.Length; i++)
                 {
                     ImGui.TextWrapped(messages[i]);
                 }
 
-                if (_lastKnownMessageCount != messages.Count)
+                if (_lastKnownMessageCount != messages.Length)
                 {
                     ImGui.SetScrollHereY(1.0f);
-                    _lastKnownMessageCount = messages.Count;
+                    _lastKnownMessageCount = messages.Length;
                 }
             }
             else if (!string.IsNullOrEmpty(_selectedChannel))
@@ -115,10 +116,10 @@ public class TazUOChatWindow : SingletonImGuiWindow<TazUOChatWindow>
         // Right: user list
         ImGui.BeginChild("##chat_users", new Vector2(USER_PANEL_WIDTH, childHeight), ImGuiChildFlags.Borders);
         {
-            if (!string.IsNullOrEmpty(_selectedChannel) &&
-                manager.ChannelUsers.TryGetValue(_selectedChannel, out HashSet<string> users))
+            if (!string.IsNullOrEmpty(_selectedChannel))
             {
-                ImGui.TextDisabled($"Users ({users.Count})");
+                string[] users = manager.GetUsers(_selectedChannel);
+                ImGui.TextDisabled($"Users ({users.Length})");
                 ImGui.Separator();
                 foreach (string user in users)
                     ImGui.TextUnformatted(user);
@@ -199,13 +200,12 @@ public class TazUOChatWindow : SingletonImGuiWindow<TazUOChatWindow>
 
     private void RefreshChannelList(TazUOChatManager manager)
     {
-        if (manager.ReceivedMessages.Count == _lastKnownChannelCount) return;
+        if (manager.TotalChannelCount == _lastKnownChannelCount) return;
 
         _channelSnapshot.Clear();
-        foreach (string key in manager.ReceivedMessages.Keys)
-            _channelSnapshot.Add(key);
+        _channelSnapshot.AddRange(manager.GetChannels());
 
-        _lastKnownChannelCount = manager.ReceivedMessages.Count;
+        _lastKnownChannelCount = manager.TotalChannelCount;
 
         // Auto-select first channel if none selected
         if (string.IsNullOrEmpty(_selectedChannel) && _channelSnapshot.Count > 0)

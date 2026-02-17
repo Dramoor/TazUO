@@ -1,8 +1,7 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Threading;
 using Async.IRC;
 using ClassicUO.Configuration;
 using ClassicUO.Utility.Logging;
@@ -15,14 +14,20 @@ public class TazUOChatManager
 
     private IrcClient _client;
 
+    private readonly Lock _messagesLock = new();
+    private readonly Lock _usersLock = new();
+
     /// <summary>Messages received, keyed by source (nick/channel).</summary>
-    public ConcurrentDictionary<string, List<string>> ReceivedMessages { get; } = [];
+    private Dictionary<string, List<string>> ReceivedMessages { get; } = [];
 
     /// <summary>Users present in each channel, keyed by channel name.</summary>
-    public ConcurrentDictionary<string, HashSet<string>> ChannelUsers { get; } = [];
+    private Dictionary<string, HashSet<string>> ChannelUsers { get; } = [];
 
     /// <summary>Incremented each time a message is stored. Used by the UI to detect new messages.</summary>
-    public int TotalMessageCount { get; private set; }
+    public volatile int TotalMessageCount = 0;
+
+    /// <summary>Incremented each time a channel is joined/left. Used by the UI to detect new channels.</summary>
+    public volatile int TotalChannelCount = 0;
 
     public bool IsConnected => _client != null && _client.IsConnected;
 
@@ -51,6 +56,32 @@ public class TazUOChatManager
 
         _ = _client.ConnectAsync("irc.tazuo.org", 6697, nick, useSsl: true);
         Log.TraceDebug($"Connecting to TazUO chat...");
+    }
+
+    public string[] GetMessages(string channel)
+    {
+        lock (_messagesLock)
+        {
+            if (ReceivedMessages.TryGetValue(channel, out List<string> msgs))
+                return msgs.ToArray();
+            return Array.Empty<string>();
+        }
+    }
+
+    public string[] GetChannels()
+    {
+        lock (_messagesLock)
+            return ReceivedMessages.Keys.ToArray();
+    }
+
+    public string[] GetUsers(string channel)
+    {
+        lock (_usersLock)
+        {
+            if (ChannelUsers.TryGetValue(channel, out HashSet<string> users))
+                return users.ToArray();
+            return Array.Empty<string>();
+        }
     }
 
     private void OnConnectionFailed(object sender, IrcConnectionFailedEventArgs e) => Log.TraceDebug($"TazUO chat connection failed: {e.Exception.Message}");
@@ -86,17 +117,18 @@ public class TazUOChatManager
 
     private void StoreMessage(string source, string message)
     {
-        if (!ReceivedMessages.TryGetValue(source, out List<string> list))
+        lock (_messagesLock)
         {
-            list = [];
-            ReceivedMessages[source] = list;
-        }
-        list.Add(message);
-        TotalMessageCount++;
+            if (!ReceivedMessages.TryGetValue(source, out List<string> list))
+            {
+                list = [];
+                ReceivedMessages[source] = list;
+            }
+            list.Add(message);
+            TotalMessageCount++;
 
-        while (list.Count > 200)
-        {
-            list.RemoveAt(0);
+            while (list.Count > 200)
+                list.RemoveAt(0);
         }
     }
 
@@ -122,45 +154,69 @@ public class TazUOChatManager
     private void ChannelJoined(object sender, IrcChannelJoinedEventArgs e)
     {
         Log.TraceDebug($"Joined channel: {e.Channel}");
-        if (!ReceivedMessages.ContainsKey(e.Channel))
-            ReceivedMessages[e.Channel] = [];
-        GetOrCreateUsers(e.Channel).Add(e.Nick);
+        lock (_messagesLock)
+        {
+            if (!ReceivedMessages.ContainsKey(e.Channel))
+                ReceivedMessages[e.Channel] = [];
+        }
+        lock (_usersLock)
+            GetOrCreateUsers(e.Channel).Add(e.Nick);
         StoreMessage(e.Channel, $"*** {e.Nick} has joined {e.Channel}");
+        TotalChannelCount++;
     }
 
     private void ChannelParted(object sender, IrcChannelPartedEventArgs e)
     {
-        GetOrCreateUsers(e.Channel).Remove(e.Nick);
+        lock (_usersLock)
+            GetOrCreateUsers(e.Channel).Remove(e.Nick);
 
         if (string.Equals(e.Nick, _client?.Nickname, StringComparison.OrdinalIgnoreCase))
-            ReceivedMessages.TryRemove(e.Channel, out _);
+        {
+            lock (_messagesLock)
+                ReceivedMessages.Remove(e.Channel);
+        }
         else
             StoreMessage(e.Channel, $"*** {e.Nick} has left {e.Channel}");
+
+        TotalChannelCount--;
     }
 
     private void UserQuit(object sender, IrcUserQuitEventArgs e)
     {
-        foreach (KeyValuePair<string, HashSet<string>> kvp in ChannelUsers)
+        // Collect affected channels under the users lock, then store messages outside it
+        // to avoid nesting _usersLock → _messagesLock.
+        List<string> affectedChannels = null;
+        lock (_usersLock)
         {
-            if (kvp.Value.Remove(e.Nick))
+            foreach (KeyValuePair<string, HashSet<string>> kvp in ChannelUsers)
             {
-                string msg = string.IsNullOrEmpty(e.Reason)
-                    ? $"*** {e.Nick} has quit"
-                    : $"*** {e.Nick} has quit ({e.Reason})";
-                StoreMessage(kvp.Key, msg);
+                if (kvp.Value.Remove(e.Nick))
+                    (affectedChannels ??= []).Add(kvp.Key);
             }
+        }
+
+        if (affectedChannels != null)
+        {
+            string msg = string.IsNullOrEmpty(e.Reason)
+                ? $"*** {e.Nick} has quit"
+                : $"*** {e.Nick} has quit ({e.Reason})";
+            foreach (string channel in affectedChannels)
+                StoreMessage(channel, msg);
         }
     }
 
     private void NamesReceived(object sender, IrcNamesEventArgs e)
     {
-        HashSet<string> users = GetOrCreateUsers(e.Channel);
-        foreach (string nick in e.Nicks)
+        lock (_usersLock)
         {
-            // Strip mode prefixes (@, +, %, ~, &)
-            string clean = nick.TrimStart('@', '+', '%', '~', '&');
-            if (!string.IsNullOrEmpty(clean))
-                users.Add(clean);
+            HashSet<string> users = GetOrCreateUsers(e.Channel);
+            foreach (string nick in e.Nicks)
+            {
+                // Strip mode prefixes (@, +, %, ~, &)
+                string clean = nick.TrimStart('@', '+', '%', '~', '&');
+                if (!string.IsNullOrEmpty(clean))
+                    users.Add(clean);
+            }
         }
     }
 
@@ -203,9 +259,13 @@ public class TazUOChatManager
 
     private void ClearMessages()
     {
-        ReceivedMessages.Clear();
-        ChannelUsers.Clear();
-        TotalMessageCount = 0;
+        lock (_messagesLock)
+        {
+            ReceivedMessages.Clear();
+            TotalMessageCount = 0;
+        }
+        lock (_usersLock)
+            ChannelUsers.Clear();
     }
 
     public void Dispose()
@@ -213,7 +273,7 @@ public class TazUOChatManager
         if (_client == null) return;
 
         UnSubEvents();
-        _client.DisposeAsync();
+        _ = _client.DisposeAsync();
         ClearMessages();
         _client = null;
     }

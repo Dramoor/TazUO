@@ -352,7 +352,7 @@ namespace ClassicUO.Game.UI.ImGuiControls
                     4 => sa.Cap.CompareTo(sb.Cap),       // Cap
                     5 => // +/-
                         (sa.Base - sa.BaseAtLogin)
-                        .CompareTo(sb.Base - sa.BaseAtLogin),
+                        .CompareTo(sb.Base - sb.BaseAtLogin),
                     6 => ((byte)sa.Lock).CompareTo((byte)sb.Lock), // Lock
                     _ => 0
                 };

@@ -849,7 +849,7 @@ internal static class GameActions
         Client.Game.UO.GameCursor.ItemHold.Set(item, (ushort)amount, offset);
         Client.Game.UO.GameCursor.ItemHold.IsGumpTexture = isGump;
 
-        if (!ProfileManager.CurrentProfile.QueueManualItemMoves && !skipQueue)
+        if (!ProfileManager.CurrentProfile.QueueManualItemMoves || skipQueue)
             Socket.Send_PickUpRequest(item, (ushort)amount);
 
         ScriptingInfoGump.AddOrUpdateInfo("Last Picked Up Item", $"0x{item.Serial:X}");

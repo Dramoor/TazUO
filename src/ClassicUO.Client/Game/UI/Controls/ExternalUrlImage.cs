@@ -3,10 +3,10 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using ClassicUO.Renderer;
+using ClassicUO.Utility;
 
 namespace ClassicUO.Game.UI.Controls
 {
@@ -48,7 +48,7 @@ namespace ClassicUO.Game.UI.Controls
 
             try
             {
-                using var client = new HttpClient();
+                using HttpClient client = new();
                 byte[] data = client.GetByteArrayAsync(new Uri(url)).Result;
 
                 using var ms = new MemoryStream(data);

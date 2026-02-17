@@ -373,7 +373,7 @@ namespace ClassicUO.Game.Managers
             {
                 _progressBarGump = new ProgressBarGump(_world, "Auto looting...", 0)
                 {
-                    Y = (ProfileManager.CurrentProfile.GameWindowPosition.Y + ProfileManager.CurrentProfile.GameWindowSize.Y) - 150,
+                    Y = ProfileManager.CurrentProfile.GameWindowPosition.Y + ProfileManager.CurrentProfile.GameWindowSize.Y - 150,
                     ForegrouneColor = Color.DarkOrange
                 };
                 _progressBarGump.CenterXInViewPort();
@@ -435,6 +435,10 @@ namespace ClassicUO.Game.Managers
         public void ClearActiveLootQueue()
         {
             while (_lootItems.TryDequeue(out _));
+            _currentLootTotalCount = 0;
+            _quickContainsLookup.Clear();
+            _progressBarGump?.Dispose();
+            _progressBarGump = null;
         }
 
         public void ImportFromOtherCharacter(string characterName, List<AutoLootConfigEntry> entries)

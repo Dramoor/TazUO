@@ -21,7 +21,7 @@ You can now type `-updateapi` in game to download the latest API.py file.
 
 [Additional notes](../notes/)  
 
-*This was generated on `2/19/26`.*
+*This was generated on `2/20/26`.*
 
 ## Properties
 ### `Events`
@@ -112,10 +112,6 @@ You can now type `-updateapi` in game to download the latest API.py file.
  The serial of the last item or mobile from the various findtype/mobile methods
 
 
-
-### `InstanceId`
-
-**Type:** `int`
 
 ### `Profile`
 
@@ -907,7 +903,7 @@ You can now type `-updateapi` in game to download the latest API.py file.
  ```
 
 
-**Return Type:** `Buff[]`
+**Return Type:** `ApiBuff[]`
 
 ---
 

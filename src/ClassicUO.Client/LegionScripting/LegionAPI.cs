@@ -2806,7 +2806,13 @@ namespace ClassicUO.LegionScripting
         /// The full list of known abilities can be obtained via the `KnownAbilityNames` API
         /// </summary>
         /// <returns>The returned array will be [PrimaryAbility, SecondaryAbility] or an empty array if no ability is available</returns>
-        public string[] CurrentAbilityNames() => World.Player != null?[Enum.GetName(World.Player.PrimaryAbility), Enum.GetName(World.Player.SecondaryAbility)] : [];
+        public string[] CurrentAbilityNames()
+        {
+            if (World?.Player == null)
+                return [];
+
+            return [World.Player.PrimaryAbility.GetName(), World.Player.SecondaryAbility.GetName()];
+        }
 
         /// <summary>
         /// Gets an array of all known ability names

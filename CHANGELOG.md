@@ -20,6 +20,7 @@ All notable changes to TazUO will be recorded here.
 
 ### Features
 
+* Began replacing Assistant(ImGui) with a new UI (Myra) - ([bittiez](https://github.com/bittiez))
 * Added support for *C#* scripting - [P.R 369](https://github.com/PlayTazUO/TazUO/pull/369) ([bittiez](https://github.com/bittiez) & [yuval-po](https://github.com/yuval-po))
 * Added an `Open Location` to the script manager window- [P.R 369](https://github.com/PlayTazUO/TazUO/pull/369) ([yuval-po](https://github.com/yuval-po))
 * Added built-in IRC support and channel - [P.R 366](https://github.com/PlayTazUO/TazUO/pull/366) ([bittiez](https://github.com/bittiez))
@@ -33,6 +34,7 @@ All notable changes to TazUO will be recorded here.
 * Added `IsHidden`, `IsGargoyle`, `IsMounted`, `IsDrivingBoat`, and `IsRunning` to `ApiMobile` - ([bittiez](https://github.com/bittiez))
 * Added `API.ScriptName` and `API.ScriptPath` - ([bittiez](https://github.com/bittiez))
 * Added missing API documentation types - [P.R 369](https://github.com/PlayTazUO/TazUO/pull/369), [P.R 370](https://github.com/PlayTazUO/TazUO/pull/370), [P.R 371](https://github.com/PlayTazUO/TazUO/pull/371) ([yuval-po](https://github.com/yuval-po))
+* Add `API.GetPartyLeader()` - ([bittiez](https://github.com/bittiez))
 
 ### Assistant
 

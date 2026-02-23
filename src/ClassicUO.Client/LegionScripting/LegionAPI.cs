@@ -3584,7 +3584,6 @@ namespace ClassicUO.LegionScripting
         /// <summary>
         /// Gets a list of serials for all current party members, excluding yourself.
         ///
-        ///
         /// Note that members may not always have an associated Mobile.
         /// </summary>
         /// <returns>A list of party member serials</returns>
@@ -3599,6 +3598,12 @@ namespace ClassicUO.LegionScripting
 
             return members;
         });
+
+        /// <summary>
+        /// Gets the party leader's serial, or 0 if not in a party.
+        /// </summary>
+        /// <returns></returns>
+        public uint GetPartyLeader() => MainThreadQueue.InvokeOnMainThread(() => World.Party?.Leader ?? 0);
 
         #endregion
 

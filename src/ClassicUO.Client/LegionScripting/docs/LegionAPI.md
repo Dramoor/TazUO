@@ -21,7 +21,7 @@ You can now type `-updateapi` in game to download the latest API.py file.
 
 [Additional notes](../notes/)  
 
-*This was generated on `2/21/26`.*
+*This was generated on `2/22/26`.*
 
 ## Properties
 ### `Events`
@@ -2181,7 +2181,7 @@ You can now type `-updateapi` in game to download the latest API.py file.
  Gets all currently open server-side gumps.
 
 
-**Return Type:** `IList<Gump>`
+**Return Type:** `IList<IGui>`
 
 ---
 
@@ -2873,11 +2873,19 @@ You can now type `-updateapi` in game to download the latest API.py file.
 
  Gets a list of serials for all current party members, excluding yourself.
 
-
  Note that members may not always have an associated Mobile.
 
 
 **Return Type:** `IList<uint>`
+
+---
+
+### GetPartyLeader
+
+ Gets the party leader's serial, or 0 if not in a party.
+
+
+**Return Type:** `uint`
 
 ---
 

@@ -288,7 +288,11 @@ namespace ClassicUO.LegionScripting
         /// <summary>
         /// The last target's position
         /// </summary>
-        public Vector3Int LastTargetPos => MainThreadQueue.InvokeOnMainThread(() => World.TargetManager.LastTargetInfo.Position);
+        public ApiPoint3D LastTargetPos => MainThreadQueue.InvokeOnMainThread(() =>
+        {
+            Vector3Int pos = World.TargetManager.LastTargetInfo.Position;
+            return new ApiPoint3D { X = pos.X, Y = pos.Y, Z = pos.Z };
+        });
 
         /// <summary>
         /// The graphic of the last targeting object

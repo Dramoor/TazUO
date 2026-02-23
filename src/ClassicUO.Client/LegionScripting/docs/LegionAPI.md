@@ -21,7 +21,7 @@ You can now type `-updateapi` in game to download the latest API.py file.
 
 [Additional notes](../notes/)  
 
-*This was generated on `2/20/26`.*
+*This was generated on `2/21/26`.*
 
 ## Properties
 ### `Events`
@@ -93,7 +93,7 @@ You can now type `-updateapi` in game to download the latest API.py file.
 
 ### `LastTargetPos`
 
-**Type:** `Vector3Int`
+**Type:** `ApiPoint3D`
 
  The last target's position
 

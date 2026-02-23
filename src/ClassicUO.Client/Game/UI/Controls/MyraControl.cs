@@ -173,7 +173,14 @@ public class MyraControl : IGui
         if (IsDisposed || !IsVisible || _desktop == null || _desktop.Root == null) return false;
 
         batcher.FlushBatch(); //Required to draw myra on top of already drawn gumps
-        _desktop.Render();
+
+        if (UIManager.TopMostControl == this)
+            _desktop.Render();
+        else
+        {
+            _desktop.UpdateLayout();
+            _desktop.RenderVisual();
+        }
 
         DrawDebug(batcher, x, y);
         return true;

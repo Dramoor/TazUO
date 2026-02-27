@@ -2,6 +2,7 @@ using ClassicUO.Assets;
 using Microsoft.Xna.Framework;
 using Myra.Graphics2D;
 using Myra.Graphics2D.Brushes;
+using Myra.Graphics2D.UI;
 using Myra.Graphics2D.UI.Styles;
 
 namespace ClassicUO.Game.UI.MyraWindows;
@@ -51,5 +52,17 @@ public static class MyraStyle
         s.MinWidth = 1;
         s.MinHeight = 1;
         s.Padding = new Thickness(5);
+    }
+
+    /// <summary>
+    /// Various properties that cannot be applied by default in Myra for grids.
+    /// </summary>
+    /// <param name="grid"></param>
+    public static void ApplyStandardGridStyling(Grid grid)
+    {
+        grid.Border = new SolidBrush(GridBorderColor);
+        grid.BorderThickness = new Thickness(1);
+        grid.GridLinesColor = GridBorderColor;
+        grid.ShowGridLines = true;
     }
 }

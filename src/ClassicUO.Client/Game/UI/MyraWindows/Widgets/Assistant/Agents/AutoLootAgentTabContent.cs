@@ -87,10 +87,7 @@ public static class AutoLootAgentTabContent
             // 7 columns: Art | Graphic | Hue | Regex | Priority | Destination | Actions
             var grid = new MyraGrid();
             grid.AddColumn(null, 7);
-            grid.Border = new SolidBrush(MyraStyle.GridBorderColor);
-            grid.BorderThickness = new Thickness(1);
-            grid.GridLinesColor = MyraStyle.GridBorderColor;
-            grid.ShowGridLines = true;
+            MyraStyle.ApplyStandardGridStyling(grid);
 
             // Header row
             grid.AddWidget(new MyraLabel("Art", MyraLabel.Style.H3), 0, 0);
@@ -339,7 +336,7 @@ public static class AutoLootAgentTabContent
         root.Widgets.Add(addRow);
         root.Widgets.Add(addEntryPanel);
         root.Widgets.Add(importCharPanel);
-        root.Widgets.Add(new ScrollViewer { Height = 300, Content = entriesPanel });
+        root.Widgets.Add(new ScrollViewer { MaxHeight = 300, Content = entriesPanel });
 
         return root;
     }

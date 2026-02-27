@@ -34,7 +34,8 @@ All notable changes to TazUO will be recorded here.
 * Added `IsHidden`, `IsGargoyle`, `IsMounted`, `IsDrivingBoat`, and `IsRunning` to `ApiMobile` - ([bittiez](https://github.com/bittiez))
 * Added `API.ScriptName` and `API.ScriptPath` - ([bittiez](https://github.com/bittiez))
 * Added missing API documentation types - [P.R 369](https://github.com/PlayTazUO/TazUO/pull/369), [P.R 370](https://github.com/PlayTazUO/TazUO/pull/370), [P.R 371](https://github.com/PlayTazUO/TazUO/pull/371) ([yuval-po](https://github.com/yuval-po))
-* Add `API.GetPartyLeader()` - ([bittiez](https://github.com/bittiez))
+* Added `API.GetPartyLeader()` - ([bittiez](https://github.com/bittiez))
+* Added optional entries tuple to `ReplyGump` - ([bittiez](https://github.com/bittiez))
 
 ### Assistant
 

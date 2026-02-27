@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -2462,13 +2463,15 @@ namespace ClassicUO.LegionScripting
         /// ```py
         /// API.ReplyGump(21)
         /// API.ReplyGump(1, 0x555, [100])
+        /// API.ReplyGump(1, 0x555, [100], [(0, "text input")])
         /// ```
         /// </summary>
         /// <param name="button">Button ID</param>
         /// <param name="gump">Gump ID, leave blank to reply to last gump</param>
         /// <param name="switches">Optional for some gump responses</param>
+        /// <param name="entries">Optional list of (index, text) tuples for text entry fields</param>
         /// <returns>True if gump was found, false if not</returns>
-        public bool ReplyGump(int button, uint gump = uint.MaxValue, IEnumerable<int> switches = null) => MainThreadQueue.InvokeOnMainThread
+        public bool ReplyGump(int button, uint gump = uint.MaxValue, IEnumerable<int> switches = null, IEnumerable<object> entries = null) => MainThreadQueue.InvokeOnMainThread
         (() =>
             {
                 if (World.Player == null)
@@ -2478,7 +2481,23 @@ namespace ClassicUO.LegionScripting
 
                 if (g == null) return false;
 
-                GameActions.ReplyGump(World, g.LocalSerial, g.ServerSerial, button, switches == null ? [] : switches.ToUint().ToArray(), []);
+                Tuple<ushort, string>[] entryArray = [];
+                if (entries != null)
+                {
+                    var entryList = new List<Tuple<ushort, string>>();
+                    foreach (var entry in entries)
+                    {
+                        if (entry is IList entryPair && entryPair.Count >= 2)
+                        {
+                            ushort index = Convert.ToUInt16(entryPair[0]);
+                            string text = entryPair[1]?.ToString() ?? "";
+                            entryList.Add(Tuple.Create(index, text));
+                        }
+                    }
+                    entryArray = entryList.ToArray();
+                }
+
+                GameActions.ReplyGump(World, g.LocalSerial, g.ServerSerial, button, switches == null ? [] : switches.ToUint().ToArray(), entryArray);
                 g.Dispose();
 
                 return true;

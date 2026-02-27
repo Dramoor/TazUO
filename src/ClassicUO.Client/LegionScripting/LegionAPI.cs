@@ -3096,18 +3096,8 @@ namespace ClassicUO.LegionScripting
         /// API.Stop()
         /// ```
         /// </summary>
-        public void Stop()
-        {
-            int t = Thread.CurrentThread.ManagedThreadId;
-
-            MainThreadQueue.InvokeOnMainThread
-            (() =>
-                {
-                    if (LegionScripting.PyThreads.TryGetValue(t, out ScriptFile s))
-                        LegionScripting.StopScript(s);
-                }
-            );
-        }
+        public void Stop() =>
+            MainThreadQueue.InvokeOnMainThread(() => { LegionScripting.StopScript(_scriptFile); });
 
         /// <summary>
         /// Toggle autolooting on or off.

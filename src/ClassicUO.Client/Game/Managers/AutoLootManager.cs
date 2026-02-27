@@ -39,7 +39,7 @@ namespace ClassicUO.Game.Managers
 
         private readonly HashSet<uint> _quickContainsLookup = new ();
         private readonly HashSet<uint> _recentlyLooted = new();
-        private static readonly Queue<(uint item, AutoLootConfigEntry entry)> _lootItems = new ();
+        private static readonly PriorityQueue<(uint item, AutoLootConfigEntry entry), AutoLootPriority> _lootItems = new ();
         private List<AutoLootConfigEntry> _autoLootItems = new ();
         private bool _loaded = false;
         private readonly string _savePath;
@@ -65,11 +65,13 @@ namespace ClassicUO.Game.Managers
             if (item != null) LootItem(item, null);
         }
 
-        public void LootItem(Item item, AutoLootConfigEntry entry = null)
+        public void LootItem(Item item, AutoLootConfigEntry entry = null, AutoLootPriority priority = AutoLootPriority.Normal)
         {
             if (item == null || !_recentlyLooted.Add(item.Serial) || !_quickContainsLookup.Add(item.Serial)) return;
 
-            _lootItems.Enqueue((item, entry));
+            if (entry != null)
+                priority = entry.Priority;
+            _lootItems.Enqueue((item, entry), priority);
             _currentLootTotalCount++;
             _nextClearRecents = Time.Ticks + 5000;
         }
@@ -434,7 +436,7 @@ namespace ClassicUO.Game.Managers
 
         public void ClearActiveLootQueue()
         {
-            while (_lootItems.TryDequeue(out _));
+            while (_lootItems.TryDequeue(out _, out _));
             _currentLootTotalCount = 0;
             _quickContainsLookup.Clear();
             _progressBarGump?.Dispose();

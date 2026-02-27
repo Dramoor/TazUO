@@ -36,6 +36,7 @@ All notable changes to TazUO will be recorded here.
 * Added missing API documentation types - [P.R 369](https://github.com/PlayTazUO/TazUO/pull/369), [P.R 370](https://github.com/PlayTazUO/TazUO/pull/370), [P.R 371](https://github.com/PlayTazUO/TazUO/pull/371) ([yuval-po](https://github.com/yuval-po))
 * Added `API.GetPartyLeader()` - ([bittiez](https://github.com/bittiez))
 * Added optional entries tuple to `ReplyGump` - ([bittiez](https://github.com/bittiez))
+* Fixed QueueMoveItem* methods defaulting to 1 item from the stack instead of the entire stack - ([bittiez](https://github.com/bittiez))
 
 ### Assistant
 

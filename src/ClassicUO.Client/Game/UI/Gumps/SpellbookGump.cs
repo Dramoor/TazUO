@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: BSD-2-Clause
+// SPDX-License-Identifier: BSD-2-Clause
 
 
 using ClassicUO.Assets;
@@ -309,7 +309,7 @@ namespace ClassicUO.Game.UI.Gumps
             {
                 for (int j = 0; j < 2; j++)
                 {
-                    if (page == 1 && _spellBookType == SpellBookType.Chivalry)
+                    if (page == 1 && Settings.IsUOEventine ?  (_spellBookType == SpellBookType.Chivalry || _spellBookType == SpellBookType.Cleric) : _spellBookType == SpellBookType.Chivalry)
                     {
                         var label = new Label(
                             ResGumps.TithingPointsAvailable + World.Player.TithingPoints,
@@ -885,49 +885,106 @@ namespace ClassicUO.Game.UI.Gumps
         {
             SpellDefinition def = null;
 
-            switch (_spellBookType)
+            if (Settings.IsUOEventine)
             {
-                case SpellBookType.Magery:
-                    def = SpellsMagery.GetSpell(idx);
+                switch (_spellBookType)
+                {
+                    case SpellBookType.Magery:
+                        def = SpellsMagery.GetSpell(idx);
 
-                    break;
+                        break;
 
-                case SpellBookType.Necromancy:
-                    def = SpellsNecromancy.GetSpell(idx);
+                    case SpellBookType.Necromancy:
+                        def = SpellsNecromancy.GetSpell(idx);
 
-                    break;
+                        break;
 
-                case SpellBookType.Chivalry:
-                    def = SpellsChivalry.GetSpell(idx);
+                    case SpellBookType.Chivalry:
+                        def = SpellsChivalry.GetSpell(idx);
 
-                    break;
+                        break;
 
-                case SpellBookType.Bushido:
-                    def = SpellsBushido.GetSpell(idx);
+                    case SpellBookType.Bushido:
+                        def = SpellsBushido.GetSpell(idx);
 
-                    break;
+                        break;
 
-                case SpellBookType.Ninjitsu:
-                    def = SpellsNinjitsu.GetSpell(idx);
+                    case SpellBookType.Ninjitsu:
+                        def = SpellsNinjitsu.GetSpell(idx);
 
-                    break;
+                        break;
 
-                case SpellBookType.Spellweaving:
-                    def = SpellsSpellweaving.GetSpell(idx);
+                    case SpellBookType.Spellweaving:
+                        def = SpellsSpellweaving.GetSpell(idx);
 
-                    break;
+                        break;
 
-                case SpellBookType.Mysticism:
-                    def = SpellsMysticism.GetSpell(idx);
+                    case SpellBookType.Mysticism:
+                        def = SpellsMysticism.GetSpell(idx);
 
-                    break;
+                        break;
 
-                case SpellBookType.Mastery:
-                    def = SpellsMastery.GetSpell(idx);
+                    case SpellBookType.Mastery:
+                        def = SpellsMastery.GetSpell(idx);
 
-                    break;
+                        break;
+
+                    case SpellBookType.Druidic:
+                        def = SpellsDruid.GetSpell(idx);
+
+                        break;
+                    case SpellBookType.Cleric:
+                        def = SpellsCleric.GetSpell(idx);
+
+                        break;
+                }
+
             }
+            else
+            {
+                switch (_spellBookType)
+                {
+                    case SpellBookType.Magery:
+                        def = SpellsMagery.GetSpell(idx);
 
+                        break;
+
+                    case SpellBookType.Necromancy:
+                        def = SpellsNecromancy.GetSpell(idx);
+
+                        break;
+
+                    case SpellBookType.Chivalry:
+                        def = SpellsChivalry.GetSpell(idx);
+
+                        break;
+
+                    case SpellBookType.Bushido:
+                        def = SpellsBushido.GetSpell(idx);
+
+                        break;
+
+                    case SpellBookType.Ninjitsu:
+                        def = SpellsNinjitsu.GetSpell(idx);
+
+                        break;
+
+                    case SpellBookType.Spellweaving:
+                        def = SpellsSpellweaving.GetSpell(idx);
+
+                        break;
+
+                    case SpellBookType.Mysticism:
+                        def = SpellsMysticism.GetSpell(idx);
+
+                        break;
+
+                    case SpellBookType.Mastery:
+                        def = SpellsMastery.GetSpell(idx);
+
+                        break;
+                }
+            }
             return def;
         }
 
@@ -941,72 +998,160 @@ namespace ClassicUO.Game.UI.Gumps
             out int dictionaryPagesCount
         )
         {
-            switch (type)
+            if (Settings.IsUOEventine)
             {
-                default:
-                case SpellBookType.Magery:
-                    maxSpellsCount = SpellsMagery.MaxSpellCount;
-                    bookGraphic = 0x08AC;
-                    minimizedGraphic = 0x08BA;
-                    iconStartGraphic = 0x08C0;
 
-                    break;
+                switch (type)
+                {
+                    default:
+                    case SpellBookType.Magery:
+                        maxSpellsCount = SpellsMagery.MaxSpellCount;
+                        bookGraphic = 0x08AC;
+                        minimizedGraphic = 0x08BA;
+                        iconStartGraphic = 0x08C0;
 
-                case SpellBookType.Necromancy:
-                    maxSpellsCount = SpellsNecromancy.MaxSpellCount;
-                    bookGraphic = 0x2B00;
-                    minimizedGraphic = 0x2B03;
-                    iconStartGraphic = 0x5000;
+                        break;
 
-                    break;
+                    case SpellBookType.Necromancy:
+                        maxSpellsCount = SpellsNecromancy.MaxSpellCount;
+                        bookGraphic = 0x2B00;
+                        minimizedGraphic = 0x2B03;
+                        iconStartGraphic = 0x5000;
 
-                case SpellBookType.Chivalry:
-                    maxSpellsCount = SpellsChivalry.MaxSpellCount;
-                    bookGraphic = 0x2B01;
-                    minimizedGraphic = 0x2B04;
-                    iconStartGraphic = 0x5100;
+                        break;
 
-                    break;
+                    case SpellBookType.Chivalry:
+                        maxSpellsCount = SpellsChivalry.MaxSpellCount;
+                        bookGraphic = 0x2B01;
+                        minimizedGraphic = 0x2B04;
+                        iconStartGraphic = 0x5100;
 
-                case SpellBookType.Bushido:
-                    maxSpellsCount = SpellsBushido.MaxSpellCount;
-                    bookGraphic = 0x2B07;
-                    minimizedGraphic = 0x2B09;
-                    iconStartGraphic = 0x5400;
+                        break;
 
-                    break;
+                    case SpellBookType.Bushido:
+                        maxSpellsCount = SpellsBushido.MaxSpellCount;
+                        bookGraphic = 0x2B07;
+                        minimizedGraphic = 0x2B09;
+                        iconStartGraphic = 0x5400;
 
-                case SpellBookType.Ninjitsu:
-                    maxSpellsCount = SpellsNinjitsu.MaxSpellCount;
-                    bookGraphic = 0x2B06;
-                    minimizedGraphic = 0x2B08;
-                    iconStartGraphic = 0x5300;
+                        break;
 
-                    break;
+                    case SpellBookType.Ninjitsu:
+                        maxSpellsCount = SpellsNinjitsu.MaxSpellCount;
+                        bookGraphic = 0x2B06;
+                        minimizedGraphic = 0x2B08;
+                        iconStartGraphic = 0x5300;
 
-                case SpellBookType.Spellweaving:
-                    maxSpellsCount = SpellsSpellweaving.MaxSpellCount;
-                    bookGraphic = 0x2B2F;
-                    minimizedGraphic = 0x2B2D;
-                    iconStartGraphic = 0x59D8;
+                        break;
 
-                    break;
+                    case SpellBookType.Spellweaving:
+                        maxSpellsCount = SpellsSpellweaving.MaxSpellCount;
+                        bookGraphic = 0x2B2F;
+                        minimizedGraphic = 0x2B2D;
+                        iconStartGraphic = 0x59D8;
 
-                case SpellBookType.Mysticism:
-                    maxSpellsCount = SpellsMysticism.MaxSpellCount;
-                    bookGraphic = 0x2B32;
-                    minimizedGraphic = 0x2B30;
-                    iconStartGraphic = 0x5DC0;
+                        break;
 
-                    break;
+                    case SpellBookType.Mysticism:
+                        maxSpellsCount = SpellsMysticism.MaxSpellCount;
+                        bookGraphic = 0x2B32;
+                        minimizedGraphic = 0x2B30;
+                        iconStartGraphic = 0x5DC0;
 
-                case SpellBookType.Mastery:
-                    maxSpellsCount = SpellsMastery.MaxSpellCount;
-                    bookGraphic = 0x8AC;
-                    minimizedGraphic = 0x08BA;
-                    iconStartGraphic = 0x945;
+                        break;
 
-                    break;
+                    case SpellBookType.Mastery:
+                        maxSpellsCount = SpellsMastery.MaxSpellCount;
+                        bookGraphic = 0x8AC;
+                        minimizedGraphic = 0x08BA;
+                        iconStartGraphic = 0x945;
+
+                        break;
+
+                    case SpellBookType.Druidic:
+                        maxSpellsCount = SpellsDruid.MaxSpellCount;
+                        bookGraphic = 0x2B18;
+                        minimizedGraphic = 0x2B2D;
+                        iconStartGraphic = 0x5A2A;
+                        break;
+
+                    case SpellBookType.Cleric:
+                        maxSpellsCount = SpellsCleric.MaxSpellCount;
+                        bookGraphic = 0x2B0E;
+                        minimizedGraphic = 0x2B0C;
+                        iconStartGraphic = 0x59EC;
+                        break;
+                }
+            }
+            else
+            {
+                switch (type)
+                {
+                    default:
+                    case SpellBookType.Magery:
+                        maxSpellsCount = SpellsMagery.MaxSpellCount;
+                        bookGraphic = 0x08AC;
+                        minimizedGraphic = 0x08BA;
+                        iconStartGraphic = 0x08C0;
+
+                        break;
+
+                    case SpellBookType.Necromancy:
+                        maxSpellsCount = SpellsNecromancy.MaxSpellCount;
+                        bookGraphic = 0x2B00;
+                        minimizedGraphic = 0x2B03;
+                        iconStartGraphic = 0x5000;
+
+                        break;
+
+                    case SpellBookType.Chivalry:
+                        maxSpellsCount = SpellsChivalry.MaxSpellCount;
+                        bookGraphic = 0x2B01;
+                        minimizedGraphic = 0x2B04;
+                        iconStartGraphic = 0x5100;
+
+                        break;
+
+                    case SpellBookType.Bushido:
+                        maxSpellsCount = SpellsBushido.MaxSpellCount;
+                        bookGraphic = 0x2B07;
+                        minimizedGraphic = 0x2B09;
+                        iconStartGraphic = 0x5400;
+
+                        break;
+
+                    case SpellBookType.Ninjitsu:
+                        maxSpellsCount = SpellsNinjitsu.MaxSpellCount;
+                        bookGraphic = 0x2B06;
+                        minimizedGraphic = 0x2B08;
+                        iconStartGraphic = 0x5300;
+
+                        break;
+
+                    case SpellBookType.Spellweaving:
+                        maxSpellsCount = SpellsSpellweaving.MaxSpellCount;
+                        bookGraphic = 0x2B2F;
+                        minimizedGraphic = 0x2B2D;
+                        iconStartGraphic = 0x59D8;
+
+                        break;
+
+                    case SpellBookType.Mysticism:
+                        maxSpellsCount = SpellsMysticism.MaxSpellCount;
+                        bookGraphic = 0x2B32;
+                        minimizedGraphic = 0x2B30;
+                        iconStartGraphic = 0x5DC0;
+
+                        break;
+
+                    case SpellBookType.Mastery:
+                        maxSpellsCount = SpellsMastery.MaxSpellCount;
+                        bookGraphic = 0x8AC;
+                        minimizedGraphic = 0x08BA;
+                        iconStartGraphic = 0x945;
+
+                        break;
+                }
             }
 
             spellsOnPage = Math.Min(maxSpellsCount >> 1, 8);
@@ -1020,53 +1165,116 @@ namespace ClassicUO.Game.UI.Gumps
 
         private void GetSpellToolTip(out int offset)
         {
-            switch (_spellBookType)
+            if (Settings.IsUOEventine)
             {
-                case SpellBookType.Magery:
-                    offset = 1061290;
+                switch (_spellBookType)
+                {
+                    case SpellBookType.Magery:
+                        offset = 1061290;
 
-                    break;
+                        break;
 
-                case SpellBookType.Necromancy:
-                    offset = 1061390;
+                    case SpellBookType.Necromancy:
+                        offset = 1061390;
 
-                    break;
+                        break;
 
-                case SpellBookType.Chivalry:
-                    offset = 1061490;
+                    case SpellBookType.Chivalry:
+                        offset = 1061490;
 
-                    break;
+                        break;
 
-                case SpellBookType.Bushido:
-                    offset = 1063263;
+                    case SpellBookType.Bushido:
+                        offset = 1063263;
 
-                    break;
+                        break;
 
-                case SpellBookType.Ninjitsu:
-                    offset = 1063279;
+                    case SpellBookType.Ninjitsu:
+                        offset = 1063279;
 
-                    break;
+                        break;
 
-                case SpellBookType.Spellweaving:
-                    offset = 1072042;
+                    case SpellBookType.Spellweaving:
+                        offset = 1072042;
 
-                    break;
+                        break;
 
-                case SpellBookType.Mysticism:
-                    offset = 1095193;
+                    case SpellBookType.Mysticism:
+                        offset = 1095193;
 
-                    break;
+                        break;
 
-                case SpellBookType.Mastery:
-                    offset = 0;
+                    case SpellBookType.Mastery:
+                        offset = 0;
 
-                    break;
+                        break;
 
-                default:
-                    offset = 0;
+                    case SpellBookType.Druidic:
+                        offset = 1136632;
 
-                    break;
+                        break;
+
+                    case SpellBookType.Cleric:
+                        offset = 1136654;
+
+                        break;
+
+                    default:
+                        offset = 0;
+
+                        break;
+                }
             }
+            else
+            {
+                switch (_spellBookType)
+                {
+                    case SpellBookType.Magery:
+                        offset = 1061290;
+
+                        break;
+
+                    case SpellBookType.Necromancy:
+                        offset = 1061390;
+
+                        break;
+
+                    case SpellBookType.Chivalry:
+                        offset = 1061490;
+
+                        break;
+
+                    case SpellBookType.Bushido:
+                        offset = 1063263;
+
+                        break;
+
+                    case SpellBookType.Ninjitsu:
+                        offset = 1063279;
+
+                        break;
+
+                    case SpellBookType.Spellweaving:
+                        offset = 1072042;
+
+                        break;
+
+                    case SpellBookType.Mysticism:
+                        offset = 1095193;
+
+                        break;
+
+                    case SpellBookType.Mastery:
+                        offset = 0;
+
+                        break;
+
+                    default:
+                        offset = 0;
+
+                        break;
+                }
+            } 
         }
 
         private void GetSpellNames(
@@ -1076,72 +1284,161 @@ namespace ClassicUO.Game.UI.Gumps
             out string reagents
         )
         {
-            switch (_spellBookType)
+            if (Settings.IsUOEventine)
             {
-                default:
-                case SpellBookType.Magery:
-                    SpellDefinition def = SpellsMagery.GetSpell(offset + 1);
-                    name = def.Name;
-                    abbreviature = SpellsMagery.SpecialReagentsChars[offset];
-                    reagents = def.CreateReagentListString("\n");
+                switch (_spellBookType)
+                {
+                    default:
+                    case SpellBookType.Magery:
+                        SpellDefinition def = SpellsMagery.GetSpell(offset + 1);
+                        name = def.Name;
+                        abbreviature = SpellsMagery.SpecialReagentsChars[offset];
+                        reagents = def.CreateReagentListString("\n");
 
-                    break;
+                        break;
 
-                case SpellBookType.Necromancy:
-                    def = SpellsNecromancy.GetSpell(offset + 1);
-                    name = def.Name;
-                    abbreviature = def.PowerWords;
-                    reagents = def.CreateReagentListString("\n");
+                    case SpellBookType.Necromancy:
+                        def = SpellsNecromancy.GetSpell(offset + 1);
+                        name = def.Name;
+                        abbreviature = def.PowerWords;
+                        reagents = def.CreateReagentListString("\n");
 
-                    break;
+                        break;
 
-                case SpellBookType.Chivalry:
-                    def = SpellsChivalry.GetSpell(offset + 1);
-                    name = def.Name;
-                    abbreviature = def.PowerWords;
-                    reagents = string.Empty;
+                    case SpellBookType.Chivalry:
+                        def = SpellsChivalry.GetSpell(offset + 1);
+                        name = def.Name;
+                        abbreviature = def.PowerWords;
+                        reagents = string.Empty;
 
-                    break;
+                        break;
 
-                case SpellBookType.Bushido:
-                    def = SpellsBushido.GetSpell(offset + 1);
-                    name = def.Name;
-                    abbreviature = def.PowerWords;
-                    reagents = string.Empty;
+                    case SpellBookType.Bushido:
+                        def = SpellsBushido.GetSpell(offset + 1);
+                        name = def.Name;
+                        abbreviature = def.PowerWords;
+                        reagents = string.Empty;
 
-                    break;
+                        break;
 
-                case SpellBookType.Ninjitsu:
-                    def = SpellsNinjitsu.GetSpell(offset + 1);
-                    name = def.Name;
-                    abbreviature = def.PowerWords;
-                    reagents = string.Empty;
+                    case SpellBookType.Ninjitsu:
+                        def = SpellsNinjitsu.GetSpell(offset + 1);
+                        name = def.Name;
+                        abbreviature = def.PowerWords;
+                        reagents = string.Empty;
 
-                    break;
+                        break;
 
-                case SpellBookType.Spellweaving:
-                    def = SpellsSpellweaving.GetSpell(offset + 1);
-                    name = def.Name;
-                    abbreviature = def.PowerWords;
-                    reagents = string.Empty;
+                    case SpellBookType.Spellweaving:
+                        def = SpellsSpellweaving.GetSpell(offset + 1);
+                        name = def.Name;
+                        abbreviature = def.PowerWords;
+                        reagents = string.Empty;
 
-                    break;
+                        break;
 
-                case SpellBookType.Mysticism:
-                    def = SpellsMysticism.GetSpell(offset + 1);
-                    name = def.Name;
-                    abbreviature = def.PowerWords;
-                    reagents = def.CreateReagentListString("\n");
+                    case SpellBookType.Mysticism:
+                        def = SpellsMysticism.GetSpell(offset + 1);
+                        name = def.Name;
+                        abbreviature = def.PowerWords;
+                        reagents = def.CreateReagentListString("\n");
 
-                    break;
+                        break;
 
-                case SpellBookType.Mastery:
-                    def = SpellsMastery.GetSpell(offset + 1);
-                    name = def.Name;
-                    abbreviature = def.PowerWords;
-                    reagents = def.CreateReagentListString("\n");
+                    case SpellBookType.Mastery:
+                        def = SpellsMastery.GetSpell(offset + 1);
+                        name = def.Name;
+                        abbreviature = def.PowerWords;
+                        reagents = def.CreateReagentListString("\n");
 
-                    break;
+                        break;
+
+                    case SpellBookType.Druidic:
+                        def = SpellsDruid.GetSpell(offset + 1);
+                        name = def.Name;
+                        abbreviature = def.PowerWords;
+                        reagents = def.CreateReagentListString("\n");
+
+                        break;
+
+                    case SpellBookType.Cleric:
+                        def = SpellsCleric.GetSpell(offset + 1);
+                        name = def.Name;
+                        abbreviature = def.PowerWords;
+                        reagents = string.Empty;
+
+                        break;
+                }
+            }
+            else
+            {
+                switch (_spellBookType)
+                {
+                    default:
+                    case SpellBookType.Magery:
+                        SpellDefinition def = SpellsMagery.GetSpell(offset + 1);
+                        name = def.Name;
+                        abbreviature = SpellsMagery.SpecialReagentsChars[offset];
+                        reagents = def.CreateReagentListString("\n");
+
+                        break;
+
+                    case SpellBookType.Necromancy:
+                        def = SpellsNecromancy.GetSpell(offset + 1);
+                        name = def.Name;
+                        abbreviature = def.PowerWords;
+                        reagents = def.CreateReagentListString("\n");
+
+                        break;
+
+                    case SpellBookType.Chivalry:
+                        def = SpellsChivalry.GetSpell(offset + 1);
+                        name = def.Name;
+                        abbreviature = def.PowerWords;
+                        reagents = string.Empty;
+
+                        break;
+
+                    case SpellBookType.Bushido:
+                        def = SpellsBushido.GetSpell(offset + 1);
+                        name = def.Name;
+                        abbreviature = def.PowerWords;
+                        reagents = string.Empty;
+
+                        break;
+
+                    case SpellBookType.Ninjitsu:
+                        def = SpellsNinjitsu.GetSpell(offset + 1);
+                        name = def.Name;
+                        abbreviature = def.PowerWords;
+                        reagents = string.Empty;
+
+                        break;
+
+                    case SpellBookType.Spellweaving:
+                        def = SpellsSpellweaving.GetSpell(offset + 1);
+                        name = def.Name;
+                        abbreviature = def.PowerWords;
+                        reagents = string.Empty;
+
+                        break;
+
+                    case SpellBookType.Mysticism:
+                        def = SpellsMysticism.GetSpell(offset + 1);
+                        name = def.Name;
+                        abbreviature = def.PowerWords;
+                        reagents = def.CreateReagentListString("\n");
+
+                        break;
+
+                    case SpellBookType.Mastery:
+                        def = SpellsMastery.GetSpell(offset + 1);
+                        name = def.Name;
+                        abbreviature = def.PowerWords;
+                        reagents = def.CreateReagentListString("\n");
+
+                        break;
+                }
             }
         }
 
@@ -1171,73 +1468,158 @@ namespace ClassicUO.Game.UI.Gumps
             int manaCost = 0;
             int minSkill = 0;
 
-            switch (_spellBookType)
+            if (Settings.IsUOEventine)
             {
-                case SpellBookType.Necromancy:
-                    SpellDefinition def = SpellsNecromancy.GetSpell(offset + 1);
-                    manaCost = def.ManaCost;
-                    minSkill = def.MinSkill;
+                switch (_spellBookType)
+                {
+                    case SpellBookType.Necromancy:
+                        SpellDefinition def = SpellsNecromancy.GetSpell(offset + 1);
+                        manaCost = def.ManaCost;
+                        minSkill = def.MinSkill;
 
-                    break;
+                        break;
 
-                case SpellBookType.Chivalry:
-                    def = SpellsChivalry.GetSpell(offset + 1);
-                    manaCost = def.ManaCost;
-                    minSkill = def.MinSkill;
+                    case SpellBookType.Chivalry:
+                        def = SpellsChivalry.GetSpell(offset + 1);
+                        manaCost = def.ManaCost;
+                        minSkill = def.MinSkill;
 
-                    break;
+                        break;
 
-                case SpellBookType.Bushido:
-                    def = SpellsBushido.GetSpell(offset + 1);
-                    manaCost = def.ManaCost;
-                    minSkill = def.MinSkill;
+                    case SpellBookType.Bushido:
+                        def = SpellsBushido.GetSpell(offset + 1);
+                        manaCost = def.ManaCost;
+                        minSkill = def.MinSkill;
 
-                    break;
+                        break;
 
-                case SpellBookType.Ninjitsu:
-                    def = SpellsNinjitsu.GetSpell(offset + 1);
-                    manaCost = def.ManaCost;
-                    minSkill = def.MinSkill;
+                    case SpellBookType.Ninjitsu:
+                        def = SpellsNinjitsu.GetSpell(offset + 1);
+                        manaCost = def.ManaCost;
+                        minSkill = def.MinSkill;
 
-                    break;
+                        break;
 
-                case SpellBookType.Spellweaving:
-                    def = SpellsSpellweaving.GetSpell(offset + 1);
-                    manaCost = def.ManaCost;
-                    minSkill = def.MinSkill;
+                    case SpellBookType.Spellweaving:
+                        def = SpellsSpellweaving.GetSpell(offset + 1);
+                        manaCost = def.ManaCost;
+                        minSkill = def.MinSkill;
 
-                    break;
+                        break;
 
-                case SpellBookType.Mysticism:
-                    def = SpellsMysticism.GetSpell(offset + 1);
-                    manaCost = def.ManaCost;
-                    minSkill = def.MinSkill;
+                    case SpellBookType.Mysticism:
+                        def = SpellsMysticism.GetSpell(offset + 1);
+                        manaCost = def.ManaCost;
+                        minSkill = def.MinSkill;
 
-                    break;
+                        break;
 
-                case SpellBookType.Mastery:
-                    def = SpellsMastery.GetSpell(offset + 1);
-                    manaCost = def.ManaCost;
-                    minSkill = def.MinSkill;
+                    case SpellBookType.Mastery:
+                        def = SpellsMastery.GetSpell(offset + 1);
+                        manaCost = def.ManaCost;
+                        minSkill = def.MinSkill;
 
-                    if (def.TithingCost > 0)
-                    {
-                        y = 148;
-                        text = string.Format(
-                            ResGumps.Upkeep0Mana1MinSkill2,
-                            def.TithingCost,
-                            manaCost,
-                            minSkill
-                        );
-                    }
-                    else
-                    {
-                        text = string.Format(ResGumps.ManaCost0MinSkill1, manaCost, minSkill);
-                    }
+                        if (def.TithingCost > 0)
+                        {
+                            y = 148;
+                            text = string.Format(
+                                ResGumps.Upkeep0Mana1MinSkill2,
+                                def.TithingCost,
+                                manaCost,
+                                minSkill
+                            );
+                        }
+                        else
+                        {
+                            text = string.Format(ResGumps.ManaCost0MinSkill1, manaCost, minSkill);
+                        }
 
-                    return;
+                        return;
+
+                    case SpellBookType.Druidic:
+                        def = SpellsDruid.GetSpell(offset + 1);
+                        manaCost = def.ManaCost;
+                        minSkill = def.MinSkill;
+
+                        break;
+
+                    case SpellBookType.Cleric:
+                        def = SpellsCleric.GetSpell(offset + 1);
+                        manaCost = def.ManaCost;
+                        minSkill = def.MinSkill;
+
+                        break;
+                }
             }
+            else
+            {
+                switch (_spellBookType)
+                {
+                    case SpellBookType.Necromancy:
+                        SpellDefinition def = SpellsNecromancy.GetSpell(offset + 1);
+                        manaCost = def.ManaCost;
+                        minSkill = def.MinSkill;
 
+                        break;
+
+                    case SpellBookType.Chivalry:
+                        def = SpellsChivalry.GetSpell(offset + 1);
+                        manaCost = def.ManaCost;
+                        minSkill = def.MinSkill;
+
+                        break;
+
+                    case SpellBookType.Bushido:
+                        def = SpellsBushido.GetSpell(offset + 1);
+                        manaCost = def.ManaCost;
+                        minSkill = def.MinSkill;
+
+                        break;
+
+                    case SpellBookType.Ninjitsu:
+                        def = SpellsNinjitsu.GetSpell(offset + 1);
+                        manaCost = def.ManaCost;
+                        minSkill = def.MinSkill;
+
+                        break;
+
+                    case SpellBookType.Spellweaving:
+                        def = SpellsSpellweaving.GetSpell(offset + 1);
+                        manaCost = def.ManaCost;
+                        minSkill = def.MinSkill;
+
+                        break;
+
+                    case SpellBookType.Mysticism:
+                        def = SpellsMysticism.GetSpell(offset + 1);
+                        manaCost = def.ManaCost;
+                        minSkill = def.MinSkill;
+
+                        break;
+
+                    case SpellBookType.Mastery:
+                        def = SpellsMastery.GetSpell(offset + 1);
+                        manaCost = def.ManaCost;
+                        minSkill = def.MinSkill;
+
+                        if (def.TithingCost > 0)
+                        {
+                            y = 148;
+                            text = string.Format(
+                                ResGumps.Upkeep0Mana1MinSkill2,
+                                def.TithingCost,
+                                manaCost,
+                                minSkill
+                            );
+                        }
+                        else
+                        {
+                            text = string.Format(ResGumps.ManaCost0MinSkill1, manaCost, minSkill);
+                        }
+
+                        return;
+                }
+            }
             text = string.Format(ResGumps.ManaCost0MinSkill1, manaCost, minSkill);
         }
 
@@ -1320,57 +1702,128 @@ namespace ClassicUO.Game.UI.Gumps
 
         private void AssignGraphic(Item item)
         {
-            switch (item.Graphic)
+            if (Settings.IsUOEventine)
             {
-                default:
-                case 0x0EFA:
-                    _spellBookType = SpellBookType.Magery;
+                switch (item.Graphic)
+                {
+                    default:
+                    case 0x0EFA:
+                        _spellBookType = SpellBookType.Magery;
 
-                    break;
+                        break;
 
-                case 0x2253:
-                    _spellBookType = SpellBookType.Necromancy;
+                    case 0x2253:
+                        _spellBookType = SpellBookType.Necromancy;
 
-                    break;
+                        break;
 
-                case 0x2252:
-                    _spellBookType = SpellBookType.Chivalry;
+                    case 0x2252:
+                        _spellBookType = SpellBookType.Chivalry;
 
-                    break;
+                        break;
 
-                case 0x238C:
+                    case 0x238C:
 
-                    if ((World.ClientFeatures.Flags & CharacterListFlags.CLF_SAMURAI_NINJA) != 0)
-                    {
-                        _spellBookType = SpellBookType.Bushido;
-                    }
+                        if ((World.ClientFeatures.Flags & CharacterListFlags.CLF_SAMURAI_NINJA) != 0)
+                        {
+                            _spellBookType = SpellBookType.Bushido;
+                        }
 
-                    break;
+                        break;
 
-                case 0x23A0:
+                    case 0x23A0:
 
-                    if ((World.ClientFeatures.Flags & CharacterListFlags.CLF_SAMURAI_NINJA) != 0)
-                    {
-                        _spellBookType = SpellBookType.Ninjitsu;
-                    }
+                        if ((World.ClientFeatures.Flags & CharacterListFlags.CLF_SAMURAI_NINJA) != 0)
+                        {
+                            _spellBookType = SpellBookType.Ninjitsu;
+                        }
 
-                    break;
+                        break;
 
-                case 0x2D50:
-                    _spellBookType = SpellBookType.Spellweaving;
+                    case 0x2D50:
+                        _spellBookType = SpellBookType.Spellweaving;
 
-                    break;
+                        break;
 
-                case 0x2D9D:
-                    _spellBookType = SpellBookType.Mysticism;
+                    case 0x2D9D:
+                        _spellBookType = SpellBookType.Mysticism;
 
-                    break;
+                        break;
 
-                case 0x225A:
-                case 0x225B:
-                    _spellBookType = SpellBookType.Mastery;
+                    case 0x225A:
+                    case 0x225B:
+                        _spellBookType = SpellBookType.Mastery;
 
-                    break;
+                        break;
+                    case 0xCE3A:
+                        _spellBookType = SpellBookType.Druidic;
+
+                        break;
+                    case 0xCE3B:
+                        _spellBookType = SpellBookType.Cleric;
+
+                        break;
+
+
+
+                }
+            }
+            else
+            {
+                switch (item.Graphic)
+                {
+                    default:
+                    case 0x0EFA:
+                        _spellBookType = SpellBookType.Magery;
+
+                        break;
+
+                    case 0x2253:
+                        _spellBookType = SpellBookType.Necromancy;
+
+                        break;
+
+                    case 0x2252:
+                        _spellBookType = SpellBookType.Chivalry;
+
+                        break;
+
+                    case 0x238C:
+
+                        if ((World.ClientFeatures.Flags & CharacterListFlags.CLF_SAMURAI_NINJA) != 0)
+                        {
+                            _spellBookType = SpellBookType.Bushido;
+                        }
+
+                        break;
+
+                    case 0x23A0:
+
+                        if ((World.ClientFeatures.Flags & CharacterListFlags.CLF_SAMURAI_NINJA) != 0)
+                        {
+                            _spellBookType = SpellBookType.Ninjitsu;
+                        }
+
+                        break;
+
+                    case 0x2D50:
+                        _spellBookType = SpellBookType.Spellweaving;
+
+                        break;
+
+                    case 0x2D9D:
+                        _spellBookType = SpellBookType.Mysticism;
+
+                        break;
+
+                    case 0x225A:
+                    case 0x225B:
+                        _spellBookType = SpellBookType.Mastery;
+
+                        break;
+
+
+                }
             }
         }
 

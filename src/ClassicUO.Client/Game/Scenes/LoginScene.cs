@@ -409,15 +409,16 @@ namespace ClassicUO.Game.Scenes
         {
             if (CurrentLoginStep == LoginSteps.CharacterSelection)
             {
+
                 LastCharacterManager.Save(Account, _world.ServerName, Characters[index]);
 
                 LoginHandshake.Instance.SendSelectCharacter(index);
 
                 if (ClassicUO.Assets.CustomServerSettings.EventineGraphicsFound)
                 {
-                    ClassicUO.Utility.Logging.Log.Debug("SENDING TAZ UO VERSION TO CLIENT MOTHER BITCHES");
                     AsyncNetClient.Socket.Send_TazUO();
                 }
+
             }
         }
 

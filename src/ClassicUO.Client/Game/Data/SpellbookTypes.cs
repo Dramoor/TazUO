@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: BSD-2-Clause
+// SPDX-License-Identifier: BSD-2-Clause
 
 namespace ClassicUO.Game.Data
 {
@@ -12,6 +12,8 @@ namespace ClassicUO.Game.Data
         Spellweaving,
         Mysticism,
         Mastery,
+        Druidic, //custom for uo eventine could be used for others implementing it
+        Cleric, //custom for uo eventine could be used for others implementing it
         Unknown = 0xFF
     }
 

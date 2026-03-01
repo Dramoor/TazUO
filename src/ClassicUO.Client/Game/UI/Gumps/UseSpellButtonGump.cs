@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: BSD-2-Clause
+// SPDX-License-Identifier: BSD-2-Clause
 
 using System;
 using System.Xml;
@@ -164,6 +164,16 @@ namespace ClassicUO.Game.UI.Gumps
             if (id >= 201 && id <= 210)
             {
                 return 1060585 + (id - 201);
+            }
+
+            if (id >= 301 && id <= 322 && Settings.IsUOEventine)
+            {
+                return 1063816 + (id - 302);
+            }
+
+            if (id >= 341 && id <= 354 && Settings.IsUOEventine)
+            {
+                return 1063580 + (id - 342);
             }
 
             if (id >= 401 && id <= 406)

@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: BSD-2-Clause
+// SPDX-License-Identifier: BSD-2-Clause
 
 using ClassicUO.Configuration;
 using ClassicUO.Game.Managers;
@@ -461,6 +461,16 @@ namespace ClassicUO.Game.Data
                 return SpellsChivalry.GetSpell(fullidx % 100);
             }
 
+            if (fullidx < 340 && Settings.IsUOEventine)
+            {
+                return SpellsDruid.GetSpell((fullidx - 1) % 100);
+            }
+
+            if (fullidx < 400 && Settings.IsUOEventine)
+            {
+                return SpellsCleric.GetSpell((fullidx - 41) % 100);
+            }
+
             if (fullidx < 500)
             {
                 return SpellsBushido.GetSpell(fullidx % 100);
@@ -662,6 +672,14 @@ namespace ClassicUO.Game.Data
             else if (fullidx < 300)
             {
                 SpellsChivalry.SetSpell(id, in sd);
+            }
+            else if (fullidx < 340 && Settings.IsUOEventine)
+            {
+                SpellsDruid.SetSpell(id - 1, in sd);
+            }
+            else if (fullidx < 400 && Settings.IsUOEventine)
+            {
+                SpellsCleric.SetSpell(id - 41, in sd);
             }
             else if (fullidx < 500)
             {

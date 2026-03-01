@@ -37,7 +37,7 @@ namespace ClassicUO.Configuration
         //[JsonPropertyName("ip")] public string IP { get; set; } = "";
 
         private string _ip = "";
-        private static readonly string[] EventineIPs = { "shard.uoeventine.net", "shard.uoeventine.com" }; // Replace with your actual IPs
+        private static readonly string[] EventineIPs = { "shard.uoeventine.net", "shard.uoeventine.com", "192.168.0.72" }; // Replace with your actual IPs
         [JsonPropertyName("ip")]
         public string IP
         {

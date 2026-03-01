@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: BSD-2-Clause
+// SPDX-License-Identifier: BSD-2-Clause
 
 namespace ClassicUO.Game.Data
 {
@@ -32,6 +32,13 @@ namespace ClassicUO.Game.Data
         Bloodspawn,
         DeadWood,
         WyrmHeart,
+
+        // druid reagents for uo eventine could be used for others implementing it
+        Pumice,
+        PetrifiedWood,
+        SpringWater,
+        FenMoss,
+        DestroyingAngel,
 
         // None
         None

@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: BSD-2-Clause
+// SPDX-License-Identifier: BSD-2-Clause
 
 using ClassicUO.IO;
 using ClassicUO.Utility;
@@ -14,8 +14,15 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
+
 namespace ClassicUO.Assets
 {
+    public static class CustomServerSettings
+    {
+        public static bool IsUOEventine { get; set; }
+        public static bool EventineGraphicsFound { get; set; }
+    }
+
     public unsafe sealed class AnimationsLoader : UOFileLoader
     {
         public const int MAX_ACTIONS = 80; // gargoyle is like 78
@@ -55,12 +62,40 @@ namespace ClassicUO.Assets
         {
             for (int i = 0; i < _files.Length; i++)
             {
-                string pathmul = FileManager.GetUOFilePath("anim" + (i == 0 ? string.Empty : (i + 1).ToString()) + ".mul");
-                string pathidx = FileManager.GetUOFilePath("anim" + (i == 0 ? string.Empty : (i + 1).ToString()) + ".idx");
 
-                if (File.Exists(pathmul) && File.Exists(pathidx))
+                if (CustomServerSettings.IsUOEventine)
                 {
-                    _files[i] = new UOFileMul(pathmul, pathidx);
+                    string muullocation = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "Anims");
+
+                    string pathmul = Path.Combine(muullocation, "anim" + (i == 0 ? string.Empty : (i + 1).ToString()) + ".mul");
+                    string pathidx = Path.Combine(muullocation, "anim" + (i == 0 ? string.Empty : (i + 1).ToString()) + ".idx");
+
+
+                    if (File.Exists(pathmul) && File.Exists(pathidx))
+                    {
+                        CustomServerSettings.EventineGraphicsFound = true;
+                        _files[i] = new UOFileMul(pathmul, pathidx);
+                    }
+                    else
+                    {
+                        pathmul = FileManager.GetUOFilePath("anim" + (i == 0 ? string.Empty : (i + 1).ToString()) + ".mul");
+                        pathidx = FileManager.GetUOFilePath("anim" + (i == 0 ? string.Empty : (i + 1).ToString()) + ".idx");
+
+                        if (File.Exists(pathmul) && File.Exists(pathidx))
+                        {
+                            _files[i] = new UOFileMul(pathmul, pathidx);
+                        }
+                    }
+                }
+                else
+                {
+                    string pathmul = FileManager.GetUOFilePath("anim" + (i == 0 ? string.Empty : (i + 1).ToString()) + ".mul");
+                    string pathidx = FileManager.GetUOFilePath("anim" + (i == 0 ? string.Empty : (i + 1).ToString()) + ".idx");
+
+                    if (File.Exists(pathmul) && File.Exists(pathidx))
+                    {
+                        _files[i] = new UOFileMul(pathmul, pathidx);
+                    }
                 }
             }
 
@@ -210,6 +245,7 @@ namespace ClassicUO.Assets
             ProcessBodyDef();
             ProcessCorpseDef();
         }
+
 
         public bool ReplaceBody(ref ushort body, ref ushort hue)
         {

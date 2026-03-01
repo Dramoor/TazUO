@@ -266,6 +266,29 @@ namespace ClassicUO.Network
             writer.Dispose();
         }
 
+        public static void Send_TazUO(this AsyncNetClient socket)
+        {
+            const byte ID = 0xC7;
+
+            int length = AsyncNetClient.PacketsTable.GetPacketLength(ID);
+
+            var writer = new StackDataWriter(length < 0 ? 64 : length);
+            writer.WriteUInt8(ID);
+
+            if (length < 0)
+            {
+                writer.WriteZero(2);
+            }
+
+            writer.WriteASCII(CUOEnviroment.Version);
+
+            socket.Send(writer.BufferWritten);
+
+            writer.Dispose();
+        }
+
+
+
         public static void Send_SecondLogin(this AsyncNetClient socket, string user, string psw, uint seed)
         {
             const byte ID = 0x91;
@@ -4720,5 +4743,7 @@ namespace ClassicUO.Network
             writer.WriteUInt32BE(serial); // Tools
             writer.WriteUInt16BE((ushort)resourceType); // Resource type
         }
+
+
     }
 }

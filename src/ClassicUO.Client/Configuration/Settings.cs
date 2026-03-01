@@ -1,5 +1,6 @@
-﻿// SPDX-License-Identifier: BSD-2-Clause
+// SPDX-License-Identifier: BSD-2-Clause
 
+using System;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -27,13 +28,26 @@ namespace ClassicUO.Configuration
         public const string SETTINGS_FILENAME = "settings.json";
         public static Settings GlobalSettings = new Settings();
         public static string CustomSettingsFilepath = null;
-
+        public static bool IsUOEventine { get; set; }
 
         [JsonPropertyName("username")] public string Username { get; set; } = string.Empty;
 
         [JsonPropertyName("password")] public string Password { get; set; } = string.Empty;
 
-        [JsonPropertyName("ip")] public string IP { get; set; } = "";
+        //[JsonPropertyName("ip")] public string IP { get; set; } = "";
+
+        private string _ip = "";
+        private static readonly string[] EventineIPs = { "shard.uoeventine.net", "shard.uoeventine.com" }; // Replace with your actual IPs
+        [JsonPropertyName("ip")]
+        public string IP
+        {
+            get => _ip;
+            set
+            {
+                _ip = value;
+                ClassicUO.Assets.CustomServerSettings.IsUOEventine = IsUOEventine = Array.Exists(EventineIPs, ip => string.Equals(ip, value, StringComparison.OrdinalIgnoreCase));
+            }
+        }
 
         [JsonPropertyName("port"), JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)] public ushort Port { get; set; } = 2593;
 

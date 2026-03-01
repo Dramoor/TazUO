@@ -1,6 +1,5 @@
-﻿// SPDX-License-Identifier: BSD-2-Clause
+// SPDX-License-Identifier: BSD-2-Clause
 
-using System;
 using ClassicUO.Configuration;
 using ClassicUO.Game.Data;
 using ClassicUO.Game.GameObjects;
@@ -12,6 +11,8 @@ using ClassicUO.Network;
 using ClassicUO.Resources;
 using ClassicUO.Utility;
 using ClassicUO.Utility.Logging;
+using System;
+using System.Net;
 
 namespace ClassicUO.Game.Scenes
 {
@@ -411,6 +412,12 @@ namespace ClassicUO.Game.Scenes
                 LastCharacterManager.Save(Account, _world.ServerName, Characters[index]);
 
                 LoginHandshake.Instance.SendSelectCharacter(index);
+
+                if (ClassicUO.Assets.CustomServerSettings.EventineGraphicsFound)
+                {
+                    ClassicUO.Utility.Logging.Log.Debug("SENDING TAZ UO VERSION TO CLIENT MOTHER BITCHES");
+                    AsyncNetClient.Socket.Send_TazUO();
+                }
             }
         }
 

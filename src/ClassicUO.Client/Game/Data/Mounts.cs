@@ -1,4 +1,7 @@
+using ClassicUO.Assets;
+using ClassicUO.IO;
 using System.Collections.Generic;
+using System.IO;
 
 namespace ClassicUO;
 
@@ -81,6 +84,29 @@ internal static class Mounts
         _mounts[0x3EE0] = new(0x0675, 0x3EE0, 0); // Horse_Elemental_Fire
         _mounts[0x3EE1] = new(0x0678, 0x3EE1, 0); // Horse_Elemental_Water
         _mounts[0x3EE2] = new(0x0679, 0x3EE2, 0); // Horse_Elemental_Air
+
+        if(ClassicUO.Configuration.Settings.IsUOEventine)
+            LoadMountsDef();
+    }
+
+    public static void LoadMountsDef()
+    {
+        string file = Client.Game.UO.FileManager.GetUOFilePath("Mounts.def");
+
+        if (File.Exists(file))
+        {
+            using (var defReader = new DefReader(file, 2))
+            {
+                while (defReader.Next())
+                {
+                    ushort bodyId = (ushort)defReader.ReadInt();
+                    ushort animationId = (ushort)defReader.ReadInt();
+                    sbyte replacementMountedHeight = (sbyte)defReader.ReadInt();
+
+                    _mounts[bodyId] = new(animationId, bodyId, replacementMountedHeight);
+                }
+            }
+        }
     }
 
     public static bool TryGet(ushort animId, out MountInfo mountInfo) => _mounts.TryGetValue(animId, out mountInfo);

@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using ClassicUO.Configuration;
 using ClassicUO.Game;
 using ClassicUO.Game.Data;
@@ -7,8 +6,10 @@ using ClassicUO.Game.Managers;
 using ClassicUO.Game.UI;
 using ClassicUO.Game.UI.Gumps;
 using ClassicUO.IO;
+using ClassicUO.Resources;
 using ClassicUO.Utility.Logging;
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using Gump = ClassicUO.Renderer.Gumps.Gump;
 
 namespace ClassicUO.Network.PacketHandlers;
@@ -139,6 +140,9 @@ internal static class OpenContainer
                         if (ProfileManager.CurrentProfile.GridLootType == 1)
                             return;
                     }
+                    bool canuse = graphic == 1009 || graphic == 1081 || graphic == 1278 || graphic == 2417 || (graphic >= 1060 && graphic <= 1068) || (graphic >= 1071 && graphic <= 1079) || (graphic >= 1258 && graphic <= 1270) || (graphic >= 1282 && graphic <= 1291) || (graphic >= 1071 && graphic <= 1079);
+
+                    bool isvendor = graphic == 10009 || graphic == 2330 || (graphic >= 10060 && graphic <= 10081) || (graphic >= 10258 && graphic <= 10291) || graphic == 11000 || graphic == 11156 || graphic == 11415 || graphic == 11417 || graphic == 11422 || (graphic >= 11747 && graphic <= 11750) || (graphic >= 11765 && graphic <= 11770) || (graphic >= 19800 && graphic <= 19835) || graphic == 29724 || graphic == 40558 || graphic == 40560 || graphic == 40562 || graphic == 40586 || graphic == 49922 || graphic == 49934 || graphic == 50138 || (graphic >= 50153 && graphic <= 50167) || (graphic >= 50246 && graphic == 50250) || (graphic >= 50298 && graphic == 50300);
 
                     // TODO: check client version ?
                     if (
@@ -149,102 +153,251 @@ internal static class OpenContainer
                     {
                         Gump gumps = Client.Game.UO.Gumps;
 
-                        switch (graphic)
+                        if (graphic == 10009 || (graphic >= 10060 && graphic <= 10081) || (graphic >= 10258 && graphic <= 10291) || graphic == 11000 || graphic == 11156 || graphic == 11415 || graphic == 11417 || graphic == 11422 || (graphic >= 11747 && graphic <= 11750) || (graphic >= 11765 && graphic <= 11770) || (graphic >= 19800 && graphic <= 19835) || graphic == 29724 || graphic == 40558 || graphic == 40560 || graphic == 40562 || graphic == 40586 || graphic == 49922 || graphic == 49934 || graphic == 50138 || (graphic >= 50153 && graphic <= 50167) || (graphic >= 50246 && graphic == 50250) || (graphic >= 50298 && graphic == 50300))
+                            graphic -= 10000;
+
+                        if (Settings.IsUOEventine)
                         {
-                            case 0x0048:
-                                if (gumps.GetGump(0x06E8).Texture != null)
-                                    graphic = 0x06E8;
+                            switch (graphic)
+                            {
+                                case 0x0048:
+                                    if (gumps.GetGump(0x06E8).Texture != null)
+                                        graphic = 0x06E8;
 
-                                break;
+                                    break;
 
-                            case 0x0049:
-                                if (gumps.GetGump(0x9CDF).Texture != null)
-                                    graphic = 0x9CDF;
+                                case 0x0049:
+                                    if (gumps.GetGump(0x9CDF).Texture != null)
+                                        graphic = 0x9CDF;
 
-                                break;
+                                    break;
 
-                            case 0x0051:
-                                if (gumps.GetGump(0x06E7).Texture != null)
-                                    graphic = 0x06E7;
+                                case 0x0051:
+                                    if (gumps.GetGump(0x06E7).Texture != null)
+                                        graphic = 0x06E7;
 
-                                break;
+                                    break;
 
-                            case 0x003E:
-                                if (gumps.GetGump(0x06E9).Texture != null)
-                                    graphic = 0x06E9;
+                                case 0x003E:
+                                    if (gumps.GetGump(0x06E9).Texture != null)
+                                        graphic = 0x06E9;
 
-                                break;
+                                    break;
 
-                            case 0x004D:
-                                if (gumps.GetGump(0x06EA).Texture != null)
-                                    graphic = 0x06EA;
+                                case 0x004D:
+                                    if (gumps.GetGump(0x06EA).Texture != null)
+                                        graphic = 0x06EA;
 
-                                break;
+                                    break;
 
-                            case 0x004E:
-                                if (gumps.GetGump(0x06E6).Texture != null)
-                                    graphic = 0x06E6;
+                                case 0x004E:
+                                    if (gumps.GetGump(0x06E6).Texture != null)
+                                        graphic = 0x06E6;
 
-                                break;
+                                    break;
 
-                            case 0x004F:
-                                if (gumps.GetGump(0x06E5).Texture != null)
-                                    graphic = 0x06E5;
+                                case 0x004F:
+                                    if (gumps.GetGump(0x06E5).Texture != null)
+                                        graphic = 0x06E5;
 
-                                break;
+                                    break;
 
-                            case 0x004A:
-                                if (gumps.GetGump(0x9CDD).Texture != null)
-                                    graphic = 0x9CDD;
+                                case 0x004A:
+                                    if (gumps.GetGump(0x9CDD).Texture != null)
+                                        graphic = 0x9CDD;
 
-                                break;
+                                    break;
 
-                            case 0x0044:
-                                if (gumps.GetGump(0x9CE3).Texture != null)
-                                    graphic = 0x9CE3;
+                                case 0x0044:
+                                    if (gumps.GetGump(0x9CE3).Texture != null)
+                                        graphic = 0x9CE3;
 
-                                break;
+                                    break;
+
+                                case 0x0042:
+                                    if (gumps.GetGump(0x9D6C).Texture != null)
+                                        graphic = 0x9D6C;
+
+                                    break;
+
+                                case 19724:
+                                    if (gumps.GetGump(0x9D6C).Texture != null)
+                                        graphic = 0x9D6C;
+
+                                    break;
+
+                                case 75:
+                                    if (gumps.GetGump(0x9D6B).Texture != null)
+                                        graphic = 0x9D6B;
+
+                                    break;
+
+                                case 67:
+                                    if (gumps.GetGump(0x9D6A).Texture != null)
+                                        graphic = 0x9D6A;
+
+                                    break;
+                            }
+
                         }
+                        else
+                        {
+                            switch (graphic)
+                            {
+                                case 0x0048:
+                                    if (gumps.GetGump(0x06E8).Texture != null)
+                                        graphic = 0x06E8;
+
+                                    break;
+
+                                case 0x0049:
+                                    if (gumps.GetGump(0x9CDF).Texture != null)
+                                        graphic = 0x9CDF;
+
+                                    break;
+
+                                case 0x0051:
+                                    if (gumps.GetGump(0x06E7).Texture != null)
+                                        graphic = 0x06E7;
+
+                                    break;
+
+                                case 0x003E:
+                                    if (gumps.GetGump(0x06E9).Texture != null)
+                                        graphic = 0x06E9;
+
+                                    break;
+
+                                case 0x004D:
+                                    if (gumps.GetGump(0x06EA).Texture != null)
+                                        graphic = 0x06EA;
+
+                                    break;
+
+                                case 0x004E:
+                                    if (gumps.GetGump(0x06E6).Texture != null)
+                                        graphic = 0x06E6;
+
+                                    break;
+
+                                case 0x004F:
+                                    if (gumps.GetGump(0x06E5).Texture != null)
+                                        graphic = 0x06E5;
+
+                                    break;
+
+                                case 0x004A:
+                                    if (gumps.GetGump(0x9CDD).Texture != null)
+                                        graphic = 0x9CDD;
+
+                                    break;
+
+                                case 0x0044:
+                                    if (gumps.GetGump(0x9CE3).Texture != null)
+                                        graphic = 0x9CE3;
+
+                                    break;
+                            }
+                        }
+
+                        if (graphic == 1009 || graphic == 20724 || graphic == 1081 || graphic == 1278 || graphic == 2417 || (graphic >= 1060 && graphic <= 1068) || (graphic >= 1071 && graphic <= 1079) || (graphic >= 1258 && graphic <= 1270) || (graphic >= 1282 && graphic <= 1291) || (graphic >= 1071 && graphic <= 1079))
+                            graphic -= 1000;
+
                     }
 
-
-                    if (ProfileManager.CurrentProfile.UseGridLayoutContainerGumps && graphic != 0x091A)
+                    if (Settings.IsUOEventine)
                     {
-                        GridContainer gridContainer = UIManager.GetGump<GridContainer>(serial);
-                        if (gridContainer != null)
-                            gridContainer.RequestUpdateContents();
+
+                        if (ProfileManager.CurrentProfile.UseGridLayoutContainerGumps && !canuse && !isvendor && graphic != 0x091A)
+                        {
+                            GridContainer gridContainer = UIManager.GetGump<GridContainer>(serial);
+                            if (gridContainer != null)
+                                gridContainer.RequestUpdateContents();
+                            else
+                                UIManager.Add(new GridContainer(world, serial, graphic));
+                        }
                         else
-                            UIManager.Add(new GridContainer(world, serial, graphic));
+                        {
+                            if (graphic == 10009 || (graphic >= 10060 && graphic <= 10081) || (graphic >= 10258 && graphic <= 10291) || graphic == 11000 || graphic == 11156 || graphic == 11415 || graphic == 11417 || graphic == 11422 || (graphic >= 11747 && graphic <= 11750) || (graphic >= 11765 && graphic <= 11770) || (graphic >= 19800 && graphic <= 19835) || graphic == 29724 || graphic == 40558 || graphic == 40560 || graphic == 40562 || graphic == 40586 || graphic == 49922 || graphic == 49934 || graphic == 50138 || (graphic >= 50153 && graphic <= 50167) || (graphic >= 50246 && graphic == 50250) || (graphic >= 50298 && graphic == 50300))
+                                graphic -= 10000;
+
+                            if (graphic == 1009 || graphic == 20724 || graphic == 1081 || graphic == 1278 || graphic == 2417 || (graphic >= 1060 && graphic <= 1068) || (graphic >= 1071 && graphic <= 1079) || (graphic >= 1258 && graphic <= 1270) || (graphic >= 1282 && graphic <= 1291) || (graphic >= 1071 && graphic <= 1079))
+                                graphic -= 1000;
+
+                            ContainerGump container = UIManager.GetGump<ContainerGump>(serial);
+                            bool playsound = false;
+                            int x, y;
+
+
+                            if (container != null)
+                            {
+                                x = container.ScreenCoordinateX;
+                                y = container.ScreenCoordinateY;
+                                container.Dispose();
+                            }
+                            else
+                            {
+                                world.ContainerManager.CalculateContainerPosition(serial, graphic);
+                                x = world.ContainerManager.X;
+                                y = world.ContainerManager.Y;
+                                playsound = true;
+                            }
+
+                            UIManager.Add
+                            (
+                                new ContainerGump(world, item, graphic, playsound)
+                                {
+                                    X = x,
+                                    Y = y,
+                                    InvalidateContents = true
+                                }
+                            );
+                        }
+
                     }
                     else
                     {
-                        ContainerGump container = UIManager.GetGump<ContainerGump>(serial);
-                        bool playsound = false;
-                        int x, y;
-
-
-                        if (container != null)
+                        if (ProfileManager.CurrentProfile.UseGridLayoutContainerGumps && graphic != 0x091A)
                         {
-                            x = container.ScreenCoordinateX;
-                            y = container.ScreenCoordinateY;
-                            container.Dispose();
+                            GridContainer gridContainer = UIManager.GetGump<GridContainer>(serial);
+                            if (gridContainer != null)
+                                gridContainer.RequestUpdateContents();
+                            else
+                                UIManager.Add(new GridContainer(world, serial, graphic));
                         }
                         else
                         {
-                            world.ContainerManager.CalculateContainerPosition(serial, graphic);
-                            x = world.ContainerManager.X;
-                            y = world.ContainerManager.Y;
-                            playsound = true;
-                        }
+                            ContainerGump container = UIManager.GetGump<ContainerGump>(serial);
+                            bool playsound = false;
+                            int x, y;
 
-                        UIManager.Add
-                        (
-                            new ContainerGump(world, item, graphic, playsound)
+
+                            if (container != null)
                             {
-                                X = x, Y = y, InvalidateContents = true
+                                x = container.ScreenCoordinateX;
+                                y = container.ScreenCoordinateY;
+                                container.Dispose();
                             }
-                        );
+                            else
+                            {
+                                world.ContainerManager.CalculateContainerPosition(serial, graphic);
+                                x = world.ContainerManager.X;
+                                y = world.ContainerManager.Y;
+                                playsound = true;
+                            }
+
+                            UIManager.Add
+                            (
+                                new ContainerGump(world, item, graphic, playsound)
+                                {
+                                    X = x,
+                                    Y = y,
+                                    InvalidateContents = true
+                                }
+                            );
+                        }
                     }
+
                 }
 
                 EventSink.InvokeOnOpenContainer(item, serial);

@@ -1,11 +1,12 @@
-﻿// SPDX-License-Identifier: BSD-2-Clause
+// SPDX-License-Identifier: BSD-2-Clause
 
+using ClassicUO.Assets;
 using ClassicUO.Configuration;
 using ClassicUO.Game.Managers;
 using ClassicUO.Game.Scenes;
 using ClassicUO.Game.UI.Controls;
 using ClassicUO.Input;
-using ClassicUO.Assets;
+using ClassicUO.Network;
 using ClassicUO.Renderer;
 using ClassicUO.Resources;
 using ClassicUO.Utility;
@@ -157,6 +158,7 @@ namespace ClassicUO.Game.UI.Gumps.Login
                 );
 
 
+
                 Add
                 (
                     _checkboxAutologin = new Checkbox
@@ -256,6 +258,27 @@ namespace ClassicUO.Game.UI.Gumps.Login
                         Y = 465
                     }
                 );
+
+                if (Settings.IsUOEventine)
+                {
+                    Add
+                    (
+                        new Label(string.Format("Eventine Shard Detected!"), false, 0xFFFF, font: 9)
+                        {
+                            X = 242,
+                            Y = 5
+                        }
+                    );
+
+                    Add
+                    (
+                        new Label(string.Format(ClassicUO.Assets.CustomServerSettings.EventineGraphicsFound ? "Custom Animation Files Loaded!" : "Normal Animation Files Loaded!"), false, 0xFFFF, font: 9)
+                        {
+                            X = 212,
+                            Y = 27
+                        }
+                    );
+                }
 
 
                 Add

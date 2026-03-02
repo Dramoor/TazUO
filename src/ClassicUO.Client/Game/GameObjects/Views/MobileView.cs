@@ -353,46 +353,23 @@ namespace ClassicUO.Game.GameObjects
                 for (int i = 0; i < Constants.USED_LAYER_COUNT; i++)
                 {
                     Layer layer = LayerOrder.UsedLayers[layerDir, i];
-
                     Item item = FindItemByLayer(layer);
-
                     if (item == null)
-                    {
                         continue;
-                    }
-
                     if (IsDead && (layer == Layer.Hair || layer == Layer.Beard))
-                    {
                         continue;
-                    }
-
                     if (isHuman)
                     {
                         if (hiddenLayersEnabled && profile.HiddenLayers.Contains((int)layer) && ((hideLayersForSelf && IsPlayer) || !hideLayersForSelf))
-                        {
                             continue;
-                        }
-
                         if (IsCovered(this, layer))
-                        {
                             continue;
-                        }
-
                         if (item.ItemData.AnimID != 0)
                         {
                             graphic = item.ItemData.AnimID;
-
                             if (isGargoyle)
-                            {
                                 FixGargoyleEquipments(ref graphic);
-                            }
-
-                            if (
-                                Client.Game.UO.FileManager.Animations.EquipConversions.TryGetValue(
-                                    Graphic,
-                                    out Dictionary<ushort, EquipConvData> map
-                                )
-                            )
+                            if (Client.Game.UO.FileManager.Animations.EquipConversions.TryGetValue(Graphic, out Dictionary<ushort, EquipConvData> map))
                             {
                                 if (map.TryGetValue(item.ItemData.AnimID, out EquipConvData data))
                                 {
@@ -400,12 +377,7 @@ namespace ClassicUO.Game.GameObjects
                                     graphic = data.Graphic;
                                 }
                             }
-
-                            byte group = isGargoyle /*&& item.ItemData.IsWeapon*/
-                                        && seatData.Graphic == 0
-                                ? GetGroupForAnimation(this, graphic, true)
-                                : animGroup;
-
+                            byte group = isGargoyle /*&& item.ItemData.IsWeapon*/ && seatData.Graphic == 0 ? GetGroupForAnimation(this, graphic, true) : animGroup;
                             DrawInternal(
                                 batcher,
                                 this,
@@ -429,23 +401,64 @@ namespace ClassicUO.Game.GameObjects
                                 charSitting,
                                 OutlineColor
                             );
+                            // Draw 0xA413 directly after robe
+                            if (layer == Layer.Robe)
+                            {
+                                Item aboveRobe = null;
+                                // Search for item with graphic 0xA413
+                                for (int j = 0; j < Constants.USED_LAYER_COUNT; j++)
+                                {
+                                    Layer l = LayerOrder.UsedLayers[layerDir, j];
+                                    Item it = FindItemByLayer(l);
+                                    if (it != null && it.Graphic == 0xA413)
+                                    {
+                                        aboveRobe = it;
+                                        break;
+                                    }
+                                }
+                                if (aboveRobe != null)
+                                {
+                                    ushort specialGraphic = aboveRobe.ItemData.AnimID != 0 ? aboveRobe.ItemData.AnimID : aboveRobe.Graphic;
+                                    if (isGargoyle)
+                                        FixGargoyleEquipments(ref specialGraphic);
+                                    byte specialGroup = isGargoyle ? GetGroupForAnimation(this, specialGraphic, true) : animGroup;
+                                    DrawInternal(
+                                        batcher,
+                                        this,
+                                        aboveRobe,
+                                        drawX,
+                                        drawY,
+                                        hueVec,
+                                        IsFlipped,
+                                        animIndex,
+                                        false,
+                                        specialGraphic,
+                                        specialGroup,
+                                        dir,
+                                        isHuman,
+                                        true,
+                                        false,
+                                        isGargoyle,
+                                        depth,
+                                        mountOffsetY,
+                                        overridenHue,
+                                        charSitting,
+                                        OutlineColor
+                                    );
+                                }
+                            }
                         }
                         else
                         {
                             if (item.ItemData.IsLight)
-                            {
                                 GameScene.Instance?.AddLight(this, item, drawX, drawY);
-                            }
                         }
-
                         _equipConvData = null;
                     }
                     else
                     {
                         if (item.ItemData.IsLight)
-                        {
                             GameScene.Instance?.AddLight(this, item, drawX, drawY);
-                        }
                     }
                 }
             }

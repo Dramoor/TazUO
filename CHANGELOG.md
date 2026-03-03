@@ -69,6 +69,7 @@ All notable changes to TazUO will be recorded here.
 * Move automatic py doc gen to tool usage - ([bittiez](https://github.com/bittiez))
 * Added ibm-plex font to embedded fonts - ([bittiez](https://github.com/bittiez))
 * Cleaned up a bunch of compile-time warnings - ([bittiez](https://github.com/bittiez))
+* Only send metrics login once per session(Swapping chars won't count as additional logins) - ([bittiez](https://github.com/bittiez))
 
 
 ---

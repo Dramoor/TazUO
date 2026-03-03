@@ -14,6 +14,8 @@ public class AnonMetrics
     /// </summary>
     public static bool MetricsEnabled { get; set; } = true;
 
+    private static bool _metricsSent = false;
+
     /// <summary>
     /// Track a login metric using fire-and-forget approach.
     /// Does not wait for server response - recommended for production use.
@@ -22,8 +24,9 @@ public class AnonMetrics
     /// <param name="serverName">The name of the server (e.g., "Atlantic", "Pacific")</param>
     public static void TrackLoginFireAndForget(string serverName) => _ = Task.Run(async () =>
         {
-            if (!MetricsEnabled)
+            if (!MetricsEnabled || _metricsSent)
                 return;
+
             using var _httpClient = new HttpClient
             {
                 BaseAddress = new Uri("http://metrics.tazuo.org:5000"),
@@ -42,5 +45,7 @@ public class AnonMetrics
                 // Silently fail - metrics shouldn't break the app
                 // For production, you might want to log this to your application's logging system
             }
+
+            _metricsSent = true;
         });
 }

@@ -13,6 +13,8 @@ public class AnonMetrics
     /// </summary>
     public static bool MetricsEnabled { get; set; } = true;
 
+    private static bool _metricsSent = false;
+
     /// <summary>
     /// Track a login metric using fire-and-forget approach.
     /// Does not wait for server response - recommended for production use.
@@ -21,8 +23,10 @@ public class AnonMetrics
     /// <param name="serverName">The name of the server (e.g., "Atlantic", "Pacific")</param>
     public static async void TrackLoginFireAndForget(string serverName) 
     {
-        if (!MetricsEnabled)
+        if (!MetricsEnabled || _metricsSent)
             return;
+
+        _metricsSent = true;
 
         await Task.Factory.StartNew(() =>
         {          

@@ -3249,6 +3249,8 @@ namespace ClassicUO.LegionScripting
         public void DisplayRange(ushort distance, ushort hue = 22) => MainThreadQueue.InvokeOnMainThread
         (() =>
             {
+                if (ProfileManager.CurrentProfile == null) return;
+
                 if (distance == 0)
                 {
                     ProfileManager.CurrentProfile.DisplayRadius = false;

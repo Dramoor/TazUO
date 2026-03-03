@@ -167,6 +167,7 @@ namespace ClassicUO
 
             MyraEnvironment.Game = this;
             MyraEnvironment.SetMouseCursorFromWidget = false;
+            MyraEnvironment.MouseInfoGetter = Mouse.GetMyraMouseInfo;
             MyraStyle.SetDefault();
 
             Fonts.Initialize(GraphicsDevice);

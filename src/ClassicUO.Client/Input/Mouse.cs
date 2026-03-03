@@ -3,6 +3,8 @@
 using ClassicUO.Configuration;
 using ClassicUO.Game;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
+using Myra.Graphics2D.UI;
 using SDL3;
 
 namespace ClassicUO.Input
@@ -10,6 +12,22 @@ namespace ClassicUO.Input
     internal static class Mouse
     {
         public const int MOUSE_DELAY_DOUBLE_CLICK = 350;
+
+        public static MouseInfo GetMyraMouseInfo()
+        {
+            var info = new MouseInfo();
+
+            info.IsLeftButtonDown = LButtonPressed;
+            info.IsRightButtonDown = RButtonPressed;
+            info.IsMiddleButtonDown = MButtonPressed;
+            info.Position = Position;
+
+            MouseState fnaMouseState = Microsoft.Xna.Framework.Input.Mouse.GetState();
+
+            info.Wheel = fnaMouseState.ScrollWheelValue;
+
+            return info;
+        }
 
         /* Log a button press event at the given time. */
         public static void ButtonPress(MouseButtonType type)
@@ -119,8 +137,8 @@ namespace ClassicUO.Input
 
         public static void Update()
         {
-            if (_isWarpingMouse)            
-                return;            
+            if (_isWarpingMouse)
+                return;
 
             if (!MouseInWindow)
             {

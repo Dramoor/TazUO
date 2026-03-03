@@ -1,5 +1,10 @@
 #nullable enable
 using System;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Myra.Graphics2D;
+using Myra.Graphics2D.Brushes;
+using Myra.Graphics2D.TextureAtlases;
 using Myra.Graphics2D.UI;
 
 namespace ClassicUO.Game.UI.MyraWindows.Widgets;
@@ -15,10 +20,19 @@ public class MyraCheckButton : CheckButton
     {
         IsChecked = isChecked;
         Content = new MyraLabel(text, MyraLabel.Style.P);
+        Build();
     }
+
     public MyraCheckButton(bool isChecked = false)
     {
         IsChecked = isChecked;
+        Build();
+    }
+
+    private void Build()
+    {
+        CheckContentSpacing = 2;
+        Padding = new Thickness(1);
     }
 
     /// <summary>

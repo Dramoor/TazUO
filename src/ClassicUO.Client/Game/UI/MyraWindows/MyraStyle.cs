@@ -9,6 +9,8 @@ namespace ClassicUO.Game.UI.MyraWindows;
 
 public static class MyraStyle
 {
+    public static SolidBrush CheckedBackground = new(new Color(0, 105, 0, 155));
+    public static SolidBrush UncheckedBackground = new(new Color(105, 0, 0, 155));
     public static Color GridBorderColor { get; } = Color.Gray;
 
     private static Color TazUO_Orange = new(0.667f, 0.412f, 0.051f, 1f);
@@ -18,10 +20,11 @@ public static class MyraStyle
         //Window style
         WindowStyle style = Stylesheet.Current.WindowStyle;
 
-        style.Background = new SolidBrush(new Color(30, 29, 36, 200));
+        style.Background = new SolidBrush(new Color(12, 12, 12, 220));
         style.Border = new SolidBrush(TazUO_Orange);
         style.Padding = new Thickness(0);
         style.BorderThickness = new Thickness(2);
+        style.TitleStyle.Padding = new Thickness(2);
 
         //Labels
         Stylesheet.Current.LabelStyle.Font = TrueTypeLoader.Instance.GetFont(TrueTypeLoader.EMBEDDED_FONT, 16);

@@ -26,7 +26,7 @@ public static class SoundFilterTabContent
         void BuildFilterList()
         {
             filtersPanel.Widgets.Clear();
-            List<int> filterList = SoundFilterManager.Instance.FilteredSounds.OrderBy(x => x).ToList();
+            var filterList = SoundFilterManager.Instance.FilteredSounds.OrderBy(x => x).ToList();
 
             if (filterList.Count == 0)
             {

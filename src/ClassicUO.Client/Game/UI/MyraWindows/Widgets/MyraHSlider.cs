@@ -34,7 +34,7 @@ public class MyraHSlider : Grid
         get => _slider.Value;
         set
         {
-            var val = ValidateValues(value);
+            float val = ValidateValues(value);
             _slider.Value = val;
             _valueLabel.Text = FormatValue(val);
         }
@@ -51,11 +51,24 @@ public class MyraHSlider : Grid
         Build();
     }
 
+    protected override bool AcceptsMouseWheel => true;
+
+    public override void OnMouseWheel(float delta)
+    {
+        base.OnMouseWheel(delta);
+
+        if (delta < 0)
+            Value -= 1;
+        else
+            Value += 1;
+    }
+
     private float ValidateValues(float value)
     {
+        value = Math.Clamp(value, Minimum, Maximum);
+
         if (!RoundValues) return value;
 
-        value = Math.Clamp(value, Minimum, Maximum);
         value = (float)Math.Round(value, DecimalPlaces);
         return value;
     }

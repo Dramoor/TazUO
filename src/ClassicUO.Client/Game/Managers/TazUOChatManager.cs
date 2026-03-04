@@ -5,12 +5,16 @@ using System.Threading;
 using Async.IRC;
 using ClassicUO.Configuration;
 using ClassicUO.Utility.Logging;
+using FontStashSharp.RichText;
+using Microsoft.Xna.Framework;
 
 namespace ClassicUO.Game.Managers;
 
 public class TazUOChatManager
 {
     public static TazUOChatManager Instance { get; private set; } = new();
+
+    public string CurrentNick => _client?.Nickname ?? "User";
 
     private IrcClient _client;
 
@@ -51,7 +55,7 @@ public class TazUOChatManager
         _client.Disconnected += OnDisconnected;
         _client.ConnectionFailed += OnConnectionFailed;
 
-        string nick = new(ProfileManager.CurrentProfile.CharacterName.Where(c => char.IsLetterOrDigit(c) || c == '_' || c == '-').ToArray());
+        string nick = new(ProfileManager.CurrentProfile.TazUOChatNick.Where(c => char.IsLetterOrDigit(c) || c == '_' || c == '-').ToArray());
         if (string.IsNullOrEmpty(nick)) nick = "User";
 
         _ = _client.ConnectAsync("irc.tazuo.org", 6697, nick, useSsl: true);
@@ -112,7 +116,7 @@ public class TazUOChatManager
             return $"* {nick} {action}";
         }
 
-        return $"{nick}: {message}";
+        return $"{FormatNickname(nick)}: {message}";
     }
 
     private void StoreMessage(string source, string message)
@@ -148,8 +152,27 @@ public class TazUOChatManager
     public void SendMessage(string target, string message)
     {
         if (_client == null || string.IsNullOrEmpty(target) || string.IsNullOrEmpty(message)) return;
+
+        if (message.StartsWith('/') && message.Length > 1)
+        {
+            string[] args = message.Substring(1).Split(' ');
+
+            if(args.Length > 0)
+            {
+                string cmd = args[0]?.ToLower();
+
+                if (cmd == "nick" && args.Length > 1)
+                {
+                    _ = _client.SetNicknameAsync(args[1]);
+                    StoreMessage(target, $"*** Changing nick to {args[1]} ***");
+                    ProfileManager.CurrentProfile.TazUOChatNick = args[1];
+                    return;
+                }
+            }
+        }
+
         _ = _client.SendMessageAsync(target, message);
-        StoreMessage(target, $"<You>: {message}");
+        StoreMessage(target, $"/c[green]{_client.Nickname}/cd: {message}");
     }
 
     private void ChannelJoined(object sender, IrcChannelJoinedEventArgs e)
@@ -217,7 +240,7 @@ public class TazUOChatManager
                 // Strip mode prefixes (@, +, %, ~, &)
                 string clean = nick.TrimStart('@', '+', '%', '~', '&');
                 if (!string.IsNullOrEmpty(clean))
-                    users.Add(clean);
+                    users.Add(FormatNickname(clean));
             }
         }
     }
@@ -249,7 +272,7 @@ public class TazUOChatManager
     private void UnSubEvents()
     {
         if (_client is null) return;
-        
+
         _client.Connected -= OnConnected;
         _client.ChannelJoined -= ChannelJoined;
         _client.ChannelParted -= ChannelParted;
@@ -281,5 +304,46 @@ public class TazUOChatManager
         _ = _client.DisposeAsync();
         ClearMessages();
         _client = null;
+    }
+
+    private static Dictionary<string, string> _nickFormats = new();
+    private static string FormatNickname(string nick)
+    {
+        if(_nickFormats.Count > 1000)
+            _nickFormats.Clear();
+
+        if(_nickFormats.TryGetValue(nick, out string nickFormat))
+            return nickFormat;
+
+        string htmlColor = new Color(Random.Shared.Next(254),  Random.Shared.Next(254), Random.Shared.Next(254)).ToHexString();
+
+        string formattedNick = $"/c[{htmlColor}]{nick}/cd";
+        _nickFormats[nick] = formattedNick;
+
+        return formattedNick;
+    }
+
+    /// <summary>
+    /// Generates a random name by combining syllables.
+    /// </summary>
+    /// <param name="minSyllables">Minimum length of the name.</param>
+    /// <param name="maxSyllables">Maximum length of the name.</param>
+    public static string GenerateFantasyName(int minSyllables, int maxSyllables)
+    {
+        string[] consonants = { "b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "r", "s", "t", "v", "z", "th", "sh" };
+        string[] vowels = { "a", "e", "i", "o", "u", "ae", "ou" };
+
+        int length = Random.Shared.Next(minSyllables, maxSyllables + 1);
+        string name = "";
+
+        for (int i = 0; i < length; i++)
+        {
+            // Build a syllable: Consonant + Vowel
+            string syllable = consonants[Random.Shared.Next(consonants.Length)] + vowels[Random.Shared.Next(vowels.Length)];
+            name += syllable;
+        }
+
+        // Capitalize the first letter and return
+        return char.ToUpper(name[0]) + name.Substring(1);
     }
 }

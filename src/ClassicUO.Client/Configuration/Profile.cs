@@ -677,6 +677,18 @@ namespace ClassicUO.Configuration
         public bool DisableDismountInWarMode { get; set; }
         public bool EnableASyncMapLoading { get; set; } = true;
 
+        public string TazUOChatNick
+        {
+            get
+            {
+                if (field == null)
+                    field = TazUOChatManager.GenerateFantasyName(2, 3);
+
+                return field;
+            }
+            set;
+        }
+
         [JsonIgnore]
         public bool DisableWeather
         {
@@ -809,7 +821,7 @@ namespace ClassicUO.Configuration
         }
 
         [JsonIgnore]
-        public bool ConnectToIrcOnLogin
+        public bool DisableConnectToIrcOnLogin
         {
             get;
             set
@@ -856,7 +868,7 @@ namespace ClassicUO.Configuration
                         HueCorpseAfterAutoloot = b;
 
                     if (kvp.TryGetValue(Constants.SqlSettings.IRC_AUTO_CONNECT, out val) && bool.TryParse(val, out b))
-                        ConnectToIrcOnLogin = b;
+                        DisableConnectToIrcOnLogin = b;
                 });
             });
 

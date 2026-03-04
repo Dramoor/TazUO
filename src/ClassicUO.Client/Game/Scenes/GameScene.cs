@@ -232,7 +232,7 @@ namespace ClassicUO.Game.Scenes
             if(ProfileManager.CurrentProfile.EnableCaveBorder)
                 StaticFilters.ApplyCaveTileBorder();
 
-            if(ProfileManager.CurrentProfile.ConnectToIrcOnLogin)
+            if(!ProfileManager.CurrentProfile.DisableConnectToIrcOnLogin)
                 TazUOChatManager.Instance.Init();
         }
 

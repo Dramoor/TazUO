@@ -132,7 +132,7 @@ namespace ClassicUO.Game
             public const string QUEUE_MANUAL_ITEM_USES = "queue_manual_item_uses";
             public const string HUE_CORPSE_AFTER_AUTOLOOT = "hue_corpse_after_autoloot";
             public const string OUTLINE_NOTORIETIES = "outline_notorieties";
-            public const string IRC_AUTO_CONNECT = "irc_auto_connect";
+            public const string IRC_AUTO_CONNECT = "irc_disable_auto_connect";
         }
     }
 }

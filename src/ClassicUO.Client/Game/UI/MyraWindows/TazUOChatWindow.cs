@@ -244,7 +244,7 @@ public class TazUOChatWindow : MyraControl
             string[] users = _manager.GetUsers(_selectedChannel);
             _usersPanel.Widgets.Add(new MyraLabel($"Users ({users.Length})", MyraLabel.Style.P));
             foreach (string user in users)
-                _usersPanel.Widgets.Add(new MyraLabel(user, MyraLabel.Style.P));
+                _usersPanel.Widgets.Add(new MyraLabel(user == _manager.CurrentNick ? $"/c[green]{user}" : user, MyraLabel.Style.P));
         }
         else
         {

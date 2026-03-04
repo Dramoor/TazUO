@@ -519,9 +519,7 @@ namespace ClassicUO.LegionScripting
                 }
 
                 if (errorLocations.Count > 0)
-                {
-                    new ScriptErrorWindow(new ScriptErrorDetails(e.Message, errorLocations, script));
-                }
+                    MainThreadQueue.InvokeOnMainThread(() => new ScriptErrorWindow(new ScriptErrorDetails(e.Message, errorLocations, script)));
                 else
                     GameActions.Print(_world, formattedEx, Constants.HUE_ERROR);
             }
@@ -705,6 +703,20 @@ namespace ClassicUO.LegionScripting
                         MainThreadQueue.EnqueueAction(() => { GameActions.Print(_world, "Failed to update the API..", 32); });
                         Log.Error(ex.ToString());
                     }
+
+                    string pybuiltins = Path.Combine(CUOEnviroment.ExecutablePath, "LegionScripts", "__builtins__.py");
+                    if (!File.Exists(pybuiltins))
+                    {
+                        try
+                        {
+                            File.WriteAllText(pybuiltins, "import API");
+                        }
+                        catch
+                        {
+                            Log.ErrorDebug("Unable to create builtins file.");
+                        }
+                    }
+
                     CreateCSScriptingProjFiles();
                 }
             );
@@ -712,7 +724,7 @@ namespace ClassicUO.LegionScripting
         /// <summary>
         /// Solution for providing a ready-to-go project for players scripting with CS
         /// </summary>
-        public static void CreateCSScriptingProjFiles()
+        private static void CreateCSScriptingProjFiles()
         {
             const string scriptContext = """
                                    global using static ScriptContext;

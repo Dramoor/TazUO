@@ -38,6 +38,7 @@ All notable changes to TazUO will be recorded here.
 * Added optional entries tuple to `ReplyGump` - ([bittiez](https://github.com/bittiez))
 * Fixed QueueMoveItem* methods defaulting to 1 item from the stack instead of the entire stack - ([bittiez](https://github.com/bittiez))
 * Added `ApiItem.OnGround` to see if an item is on the ground or not - ([bittiez](https://github.com/bittiez))
+* Generate py builtins file when updating API to negate the need for import API - ([bittiez](https://github.com/bittiez))
 
 ### Assistant
 
@@ -47,7 +48,6 @@ All notable changes to TazUO will be recorded here.
 * Added TazUO chat (Top menu -> More -> TazUO Chat) - ([bittiez](https://github.com/bittiez))
 * ItemDatabase search now defaults to not only "this character" - ([bittiez](https://github.com/bittiez))
 * Allow bandage agent threshold to range from 1-99(Previously 10-95) - ([bittiez](https://github.com/bittiez))
-
 
 ### Fixes
 

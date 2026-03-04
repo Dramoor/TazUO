@@ -13,6 +13,7 @@ public class AssistantWindow : MyraControl
 {
     public AssistantWindow() : base("Legion Assistant")
     {
+        CanBeSaved = true;
         #if DEBUG
         MyraStyle.SetDefault();
         #endif

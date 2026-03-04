@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Xml;
 using ClassicUO.Game.Managers;
 using ClassicUO.Input;
 using ClassicUO.Renderer;
@@ -94,6 +95,8 @@ public class MyraControl : IGui
             if (value) BringOnTop();
         }
     }
+
+    public bool CanBeSaved { get; set; } = false;
     public bool AcceptKeyboardInput { get; set; } = true;
     public bool AcceptMouseInput { get; set; } = true;
     public bool HandlesKeyboardFocus { get; set; }
@@ -214,6 +217,21 @@ public class MyraControl : IGui
                 hueVector
             );
         }
+    }
+
+    public virtual void Save(XmlTextWriter xml)
+    {
+        xml.WriteAttributeString("type", GetType().FullName);
+        xml.WriteAttributeString("x", X.ToString());
+        xml.WriteAttributeString("y", Y.ToString());
+    }
+
+    public virtual void Load(XmlElement xml)
+    {
+        if (xml.GetAttribute("x") is { } x && xml.GetAttribute("y") is { } y)
+            if (int.TryParse(xml.GetAttribute("x"), out int xInt) && xInt > 0)
+                if(int.TryParse(xml.GetAttribute("y"), out int yInt))
+                    SetPosition(xInt, yInt);
     }
 
     public virtual void Dispose()

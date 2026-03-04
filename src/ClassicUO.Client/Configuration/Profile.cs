@@ -18,6 +18,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Xml;
 using ClassicUO.Game.UI;
+using ClassicUO.Game.UI.Controls;
 using ClassicUO.Game.UI.Gumps.GridHighLight;
 using ClassicUO.Game.UI.Gumps.SpellBar;
 using ClassicUO.Game.UI.ImGuiControls;
@@ -966,10 +967,17 @@ namespace ClassicUO.Configuration
                 UIManager.AnchorManager.Save(xml);
 
                 var gumps = new LinkedList<Gump>();
+                var myraWindows = new List<MyraControl>();
 
                 foreach (IGui igui in UIManager.Gumps)
                 {
-                    if (igui is not Gump gump) continue;//Skip myra for now
+                    if (igui is MyraControl mc)
+                    {
+                        myraWindows.Add(mc);
+                        continue;
+                    }
+
+                    if (igui is not Gump gump) continue;
 
                     if (!gump.IsDisposed && gump.CanBeSaved && !(gump is AnchorableGump anchored && UIManager.AnchorManager[anchored] != null))
                     {
@@ -1048,6 +1056,18 @@ namespace ClassicUO.Configuration
                     {
                         Log.Error($"Failed to save ImGui windows: {ex.Message}");
                     }
+                }
+                #endregion
+
+                #region Myra
+
+                foreach (MyraControl mc in myraWindows)
+                {
+                    if (!mc.CanBeSaved || mc.IsDisposed) continue;
+
+                    xml.WriteStartElement("myra");
+                    mc.Save(xml);
+                    xml.WriteEndElement();
                 }
                 #endregion
 
@@ -1142,6 +1162,12 @@ namespace ClassicUO.Configuration
                         if (xml.Name == "window")
                         {
                             LoadWindow(xml);
+                            continue;
+                        }
+
+                        if (xml.Name == "myra")
+                        {
+                            LoadMyraControl(xml);
                             continue;
                         }
 
@@ -1514,6 +1540,25 @@ namespace ClassicUO.Configuration
             }
 
             return gumps;
+        }
+
+        private void LoadMyraControl(XmlElement xml)
+        {
+            string type = xml.GetAttribute("type");
+
+            if (string.IsNullOrEmpty(type)) return;
+
+            switch (type)
+            {
+                default:
+                    Log.Error($"No type setup in [Profile.cs] for {type}");
+                    break;
+                case "ClassicUO.Game.UI.MyraWindows.AssistantWindow":
+                    var assistant = new Game.UI.MyraWindows.AssistantWindow();
+                    assistant.Load(xml);
+                    UIManager.Add(assistant);
+                    break;
+            }
         }
 
         private void LoadWindow(XmlElement xml)

@@ -671,6 +671,11 @@ namespace ClassicUO.Game.GameObjects
 
             if (frames.Length == 0)
             {
+                if (entity != null && entity.ItemData.IsLight)
+                {
+                    Client.Game.GetScene<GameScene>().AddLight(owner, owner, x, y);
+                }
+
                 return;
             }
 

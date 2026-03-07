@@ -441,6 +441,9 @@ namespace ClassicUO.Game.Managers
                 {
                     Gumps.Remove(first);
                     UnregisterGump(g);
+                    // Unset if this was the top gump
+                    if (TopMostControl == g)
+                        TopMostControl = null;
                 }
 
                 first = next;
@@ -468,6 +471,9 @@ namespace ClassicUO.Game.Managers
                 {
                     Gumps.Remove(first);
                     UnregisterGump(g);
+                    // Unset if this was the top gump
+                    if (TopMostControl == g)
+                        TopMostControl = null;
                 }
 
                 first = next;
@@ -495,6 +501,7 @@ namespace ClassicUO.Game.Managers
                 if (front)
                 {
                     Gumps.AddFirst(gump);
+                    TopMostControl = gump; // Set the gump as the top-most so Myra's aware of it
                 }
                 else
                 {

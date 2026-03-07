@@ -836,6 +836,19 @@ namespace ClassicUO.Configuration
             }
         }
 
+        [JsonIgnore]
+        public int PathfindingZLevelDiff
+        {
+            get;
+            set
+            {
+                if (field != value)
+                    _ = Client.Settings.SetAsync(SettingsScope.Global, Constants.SqlSettings.PATH_Z_LEVEL, value);
+
+                field = value;
+            }
+        } = 10;
+
         private long lastSave;
 
         internal void AfterLoad()
@@ -869,6 +882,9 @@ namespace ClassicUO.Configuration
 
                     if (kvp.TryGetValue(Constants.SqlSettings.IRC_AUTO_CONNECT, out val) && bool.TryParse(val, out b))
                         DisableConnectToIrcOnLogin = b;
+
+                    if (kvp.TryGetValue(Constants.SqlSettings.PATH_Z_LEVEL, out val) && int.TryParse(val, out v))
+                        PathfindingZLevelDiff = v;
                 });
             });
 

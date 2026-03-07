@@ -48,6 +48,7 @@ All notable changes to TazUO will be recorded here.
 * Added TazUO chat (Top menu -> More -> TazUO Chat) - ([bittiez](https://github.com/bittiez))
 * ItemDatabase search now defaults to not only "this character" - ([bittiez](https://github.com/bittiez))
 * Allow bandage agent threshold to range from 1-99(Previously 10-95) - ([bittiez](https://github.com/bittiez))
+* Add adjustment for pathfinding max z level difference  - ([bittiez](https://github.com/bittiez))
 
 ### Fixes
 

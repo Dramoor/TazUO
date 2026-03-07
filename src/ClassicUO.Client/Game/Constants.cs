@@ -12,8 +12,6 @@ namespace ClassicUO.Game
         public const int CHARACTER_ANIMATION_DELAY = 80;
         public const int ITEM_EFFECT_ANIMATION_DELAY = 50;
 
-        public const int ALLOWED_Z_DIFFERENCE = 10;
-
         public const int MAX_STEP_COUNT = 5;
         public const int WALKING_DELAY = 150; // 750
         public const int PLAYER_WALKING_DELAY = 150;
@@ -90,7 +88,6 @@ namespace ClassicUO.Game
         public const int PREDICTABLE_CHUNKS = 300;
         public const float MAX_GAME_SCALE = 1.5f;
         public const float MIN_GAME_SCALE = 0.7f;
-        public static Color SELECTED_COLOR = Color.DarkRed;
 
         public static readonly bool[] BAD_CONTAINER_LAYERS =
         {
@@ -133,6 +130,7 @@ namespace ClassicUO.Game
             public const string HUE_CORPSE_AFTER_AUTOLOOT = "hue_corpse_after_autoloot";
             public const string OUTLINE_NOTORIETIES = "outline_notorieties";
             public const string IRC_AUTO_CONNECT = "irc_disable_auto_connect";
+            public const string PATH_Z_LEVEL = "path_z_level";
         }
     }
 }

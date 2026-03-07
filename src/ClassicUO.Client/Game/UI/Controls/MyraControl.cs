@@ -72,6 +72,12 @@ public class MyraControl : IGui
 
         Point mSize = _rootWindow.Measure(new Point(2000, 2000));
 
+        if(_rootWindow.Left < 0)
+            _rootWindow.Left = 0;
+
+        if(_rootWindow.Top < 0)
+            _rootWindow.Top = 0;
+
         Bounds.Width = mSize.X;
         Bounds.Height = mSize.Y;
         Bounds.X = _rootWindow.Left;
@@ -157,6 +163,12 @@ public class MyraControl : IGui
         Camera camera = Client.Game.Scene.Camera;
         X = camera.Bounds.X + (camera.Bounds.Width - Width) / 2;
         Y = camera.Bounds.Y + (camera.Bounds.Height - Height) / 2;
+
+        if(X < 0)
+            X = 0;
+
+        if(X < 0)
+            X = 0;
 
         SetPosition(X, Y);
 

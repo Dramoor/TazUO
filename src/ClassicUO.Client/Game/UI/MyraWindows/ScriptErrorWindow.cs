@@ -16,6 +16,7 @@ public class ScriptErrorWindow : MyraControl
     public ScriptErrorWindow(ScriptErrorDetails errorDetails) : base("Script Error " + _id++)
     {
         Build(errorDetails);
+        _rootWindow.UpdateArrange();
         CenterInViewPort();
         UIManager.Add(this);
         BringOnTop();

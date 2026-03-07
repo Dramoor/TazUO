@@ -1,3 +1,4 @@
+using ClassicUO.Game.Managers;
 using ClassicUO.Game.UI.Controls;
 using ClassicUO.Game.UI.MyraWindows.Widgets;
 using ClassicUO.Game.UI.MyraWindows.Widgets.Assistant;
@@ -13,6 +14,8 @@ public class AssistantWindow : MyraControl
 {
     public AssistantWindow() : base("Legion Assistant")
     {
+        UIManager.ForEach<AssistantWindow>(w => { if(w != this) w.Dispose(); });
+
         CanBeSaved = true;
         #if DEBUG
         MyraStyle.SetDefault();

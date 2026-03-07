@@ -2,10 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Xml;
 using ClassicUO.Game.Managers;
+using ClassicUO.Game.UI.MyraWindows;
 using ClassicUO.Input;
 using ClassicUO.Renderer;
 using Microsoft.Xna.Framework;
 using Myra.Events;
+using Myra.Graphics2D;
+using Myra.Graphics2D.Brushes;
 using Myra.Graphics2D.UI;
 using SDL3;
 
@@ -30,6 +33,9 @@ public class MyraControl : IGui
         {
             _rootWindow.Content?.Visible = !_rootWindow.Content.Visible;
         };
+        _rootWindow.TitlePanel.Background = new SolidBrush(new Color(0, 0, 0, 75));
+        _rootWindow.TitlePanel.Border = new SolidBrush(new Color(0, 0, 0, MyraStyle.STANDARD_BORDER_ALPHA));
+        _rootWindow.TitlePanel.BorderThickness = new Thickness(1);
         _desktop.Root = _rootWindow;
 
         _desktop.WidgetGotKeyboardFocus += DesktopOnWidgetGotKeyboardFocus;
@@ -40,9 +46,13 @@ public class MyraControl : IGui
         _rootWindow.ArrangeUpdated += RootWindowOnSizeChanged;
 
         _rootWindow.CloseKey = null;
+
+        UIManager.TopMostChanged += UIManagerOnTopMostChanged;
     }
 
 #region Event Handlers
+    private void UIManagerOnTopMostChanged(object sender, EventArgs e) => _desktop.Opacity = UIManager.TopMostControl == this ? 1f : 0.8f;
+
     private void OnRootWindowOnClosed(object s, EventArgs a)
     {
         if (IsDisposed) return;
@@ -86,16 +96,7 @@ public class MyraControl : IGui
 #endregion
 
 #region Properties
-    public bool IsFocused
-    {
-        get;
-        set
-        {
-            field = value;
-            if (value) BringOnTop();
-        }
-    }
-
+    public bool IsFocused { get; set; }
     public bool CanBeSaved { get; set; } = false;
     public bool AcceptKeyboardInput { get; set; } = true;
     public bool AcceptMouseInput { get; set; } = true;
@@ -250,6 +251,7 @@ public class MyraControl : IGui
         if (_desktop is null) return;
 
         _desktop.WidgetGotKeyboardFocus -= DesktopOnWidgetGotKeyboardFocus;
+        UIManager.TopMostChanged -= UIManagerOnTopMostChanged;
 
         if(_rootWindow is not null)
         {
@@ -258,17 +260,18 @@ public class MyraControl : IGui
             _rootWindow.TouchUp -= DesktopOnTouchUp;
             _rootWindow.LocationChanged -= DesktopWindowOnLocationChanged;
             _rootWindow.SizeChanged -= RootWindowOnSizeChanged;
-            _rootWindow.ArrangeUpdated += RootWindowOnSizeChanged;
+            _rootWindow.ArrangeUpdated -= RootWindowOnSizeChanged;
         }
 
         _desktop.Widgets.Clear();
         _desktop.Dispose();
     }
 
-    public virtual void OnFocusEnter() { }
-    public virtual void OnFocusLost() { }
+    public virtual void OnFocusEnter() => IsFocused = true;
 
-#region Invokations
+    public virtual void OnFocusLost() => IsFocused = false;
+
+    #region Invokations
     /// <summary>This is not in use here. Use _rootWindow events instead.</summary>
     public void InvokeKeyUp(SDL.SDL_Keycode key, SDL.SDL_Keymod mod) { }
     /// <summary>This is not in use here. Use _rootWindow events instead.</summary>

@@ -17,9 +17,6 @@ public class AssistantWindow : MyraControl
         UIManager.ForEach<AssistantWindow>(w => { if(w != this) w.Dispose(); });
 
         CanBeSaved = true;
-        #if DEBUG
-        MyraStyle.SetDefault();
-        #endif
         Build();
         CenterInViewPort();
     }

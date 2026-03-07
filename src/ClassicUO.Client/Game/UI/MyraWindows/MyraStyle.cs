@@ -1,7 +1,10 @@
 using ClassicUO.Assets;
+using ClassicUO.Game.Data;
+using Microsoft.Scripting.Hosting.Shell;
 using Microsoft.Xna.Framework;
 using Myra.Graphics2D;
 using Myra.Graphics2D.Brushes;
+using Myra.Graphics2D.TextureAtlases;
 using Myra.Graphics2D.UI;
 using Myra.Graphics2D.UI.Styles;
 
@@ -10,19 +13,34 @@ namespace ClassicUO.Game.UI.MyraWindows;
 public static class MyraStyle
 {
     public const int STANDARD_SPACING = 3;
-    public static Color GridBorderColor { get; } = Color.Gray;
+    public const int STANDARD_BORDER_ALPHA = 125;
+    public static Color GridBorderColor { get; } = new Color(0, 0, 0, STANDARD_BORDER_ALPHA);
 
     private static Color TazUO_Orange = new(0.667f, 0.412f, 0.051f, 1f);
 
+    private static NinePatchRegion _ninePatchPanel;
+    private static NinePatchRegion _ninePatchButtonUp;
+    private static NinePatchRegion _ninePatchButtonDown;
+
     public static void SetDefault()
     {
+        _ninePatchPanel = new NinePatchRegion(ModernUIConstants.ModernUIPanel, ModernUIConstants.ModernUIPanel.Bounds, new Thickness(ModernUIConstants.ModernUIPanel_BoderSize));
+        _ninePatchButtonUp = new NinePatchRegion(ModernUIConstants.ModernUIButtonUp,
+            ModernUIConstants.ModernUIButtonUp.Bounds, new Thickness(ModernUIConstants.ModernUIButton_BorderSize));
+        _ninePatchButtonDown = new NinePatchRegion(ModernUIConstants.ModernUIButtonDown,
+            ModernUIConstants.ModernUIButtonUp.Bounds, new Thickness(ModernUIConstants.ModernUIButton_BorderSize));
+
         //Window style
         WindowStyle style = Stylesheet.Current.WindowStyle;
 
-        style.Background = new SolidBrush(new Color(12, 12, 12, 220));
-        style.Border = new SolidBrush(TazUO_Orange);
-        style.Padding = new Thickness(0);
-        style.BorderThickness = new Thickness(2);
+        style.Background = _ninePatchPanel;
+        //style.Border = _ninePatchRegion;
+        //style.BorderThickness = new Thickness(ModernUIConstants.ModernUIPanel_BoderSize);
+        //style.Background = new SolidBrush(new Color(12, 12, 12, 220));
+        //style.Border = new SolidBrush(TazUO_Orange);
+        //style.BorderThickness = new Thickness(2);
+
+        style.Padding = new Thickness(6);
         style.TitleStyle.Padding = new Thickness(2);
 
         //Labels
@@ -31,7 +49,7 @@ public static class MyraStyle
         //Tabs
         TabControlStyle tabControlStyle = Stylesheet.Current.TabControlStyle;
         tabControlStyle.Background = new SolidBrush(Color.Transparent);
-        tabControlStyle.Border = new SolidBrush(TazUO_Orange);
+        tabControlStyle.Border = new SolidBrush(new Color(0, 0, 0, STANDARD_BORDER_ALPHA));
         tabControlStyle.BorderThickness = new Thickness(1);
 
         tabControlStyle.ContentStyle ??= new WidgetStyle();
@@ -41,7 +59,7 @@ public static class MyraStyle
         tabItemStyle.Background = new SolidBrush(Color.Transparent);
         tabItemStyle.OverBackground = new SolidBrush(new Color(170, 105, 13, 80));
         tabItemStyle.PressedBackground = new SolidBrush(new Color(170, 105, 13, 160));
-        tabItemStyle.Border = new SolidBrush(TazUO_Orange);
+        tabItemStyle.Border = new SolidBrush(new Color(0, 0, 0, STANDARD_BORDER_ALPHA));
         tabItemStyle.BorderThickness = new Thickness(1);
 
         //HSlider
@@ -59,13 +77,28 @@ public static class MyraStyle
 
         //Button
         ButtonStyle s = Stylesheet.Current.ButtonStyle;
-        s.Background = new SolidBrush(TazUO_Orange);
+        //s.Background = new SolidBrush(TazUO_Orange);
+        s.Background = _ninePatchButtonUp;
+        s.OverBackground = _ninePatchButtonDown;
+        s.PressedBackground = _ninePatchButtonDown;
         s.MinWidth = 1;
         s.MinHeight = 1;
         s.Padding = new Thickness(5);
 
         TextBoxStyle inputS = Stylesheet.Current.TextBoxStyle;
         inputS.Padding = new Thickness(3);
+
+
+        //Checkbox style
+        ImageTextButtonStyle cbStyle = Stylesheet.Current.CheckBoxStyle;
+        cbStyle.ImageStyle.PressedImage = new TextureRegion(ModernUIConstants.ModernUICheckBoxChecked);
+        cbStyle.ImageStyle.Image = new TextureRegion(ModernUIConstants.ModernUICheckBoxUnChecked);
+        cbStyle.ImageStyle.Background = null;
+
+        TextBoxStyle inputStyle = Stylesheet.Current.TextBoxStyle;
+        inputStyle.Background = new SolidBrush(new Color(21, 21, 21, 75));
+        inputStyle.Border = new SolidBrush(new Color(21, 21, 21, STANDARD_BORDER_ALPHA));
+        inputStyle.BorderThickness = new Thickness(1);
     }
 
     /// <summary>

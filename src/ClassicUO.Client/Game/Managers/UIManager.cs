@@ -59,7 +59,17 @@ namespace ClassicUO.Game.Managers
         public static LinkedList<IGui> Gumps { get; } = new();
 
         public static IGui MouseOverControl { get; private set; }
-        public static IGui TopMostControl { get; set; }
+
+        public static event EventHandler TopMostChanged;
+        public static IGui TopMostControl
+        {
+            get => field;
+            set
+            {
+                field = value;
+                TopMostChanged?.Invoke(null, EventArgs.Empty);
+            }
+        }
 
         public static bool IsModalOpen { get; private set; }
 

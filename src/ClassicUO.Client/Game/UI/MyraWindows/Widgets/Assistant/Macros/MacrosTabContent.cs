@@ -200,10 +200,12 @@ public static class MacrosTabContent
             };
             nameRow.Widgets.Add(nameBox);
             editorPanel.Widgets.Add(nameRow);
+            editorPanel.Widgets.Add(new MyraSpacer(10, 2));
 
             // Hotkey row (rebuilt dynamically)
             BuildHotkeyRow();
             editorPanel.Widgets.Add(hotkeyRow);
+            editorPanel.Widgets.Add(new MyraSpacer(10, 2));
 
             // Create Macro Button
             editorPanel.Widgets.Add(new MyraButton("Create Macro Button", () =>
@@ -220,10 +222,14 @@ public static class MacrosTabContent
                 UIManager.Add(macroButtonGump);
             }) { Tooltip = "Create a draggable macro button for this macro" });
 
-            editorPanel.Widgets.Add(new MyraLabel("Actions:", MyraLabel.Style.H3));
+            editorPanel.Widgets.Add(new MyraSpacer(10, 2));
+
+            editorPanel.Widgets.Add(new MyraLabel("Actions:", MyraLabel.Style.H2));
 
             BuildActionsPanel();
             editorPanel.Widgets.Add(new ScrollViewer { MaxHeight = 250, Content = actionsPanel });
+
+            editorPanel.Widgets.Add(new MyraSpacer(10, 1));
 
             var bottomRow = new HorizontalStackPanel { Spacing = 4 };
             bottomRow.Widgets.Add(new MyraButton("Add Action", () =>
@@ -541,7 +547,7 @@ public static class MacrosTabContent
         // ── Main layout ───────────────────────────────────────────────────────
         var mainArea = new HorizontalStackPanel { Spacing = 8 };
 
-        var listScroll = new ScrollViewer { MaxHeight = 450, Width = 270, Content = macroListPanel };
+        var listScroll = new ScrollViewer { MaxHeight = 450, Content = macroListPanel };
         mainArea.Widgets.Add(listScroll);
         mainArea.Widgets.Add(editorPanel);
 

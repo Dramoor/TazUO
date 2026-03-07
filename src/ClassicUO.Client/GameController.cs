@@ -164,12 +164,6 @@ namespace ClassicUO
         protected override void LoadContent()
         {
             base.LoadContent();
-
-            MyraEnvironment.Game = this;
-            MyraEnvironment.SetMouseCursorFromWidget = false;
-            MyraEnvironment.MouseInfoGetter = Mouse.GetMyraMouseInfo;
-            MyraStyle.SetDefault();
-
             Fonts.Initialize(GraphicsDevice);
             SolidColorTextureCache.Initialize(GraphicsDevice);
 
@@ -187,6 +181,11 @@ namespace ClassicUO
 
             PNGLoader.Instance.GraphicsDevice = GraphicsDevice;
             PNGLoader.Instance.LoadResourceAssets(Client.Game.UO.Gumps.GetGumpsLoader);
+
+            MyraEnvironment.Game = this;
+            MyraEnvironment.SetMouseCursorFromWidget = false;
+            MyraEnvironment.MouseInfoGetter = Mouse.GetMyraMouseInfo;
+            MyraStyle.SetDefault(); //Must occur after png loading
 
             Audio.Initialize();
 

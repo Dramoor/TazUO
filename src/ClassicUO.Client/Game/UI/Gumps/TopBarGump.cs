@@ -172,7 +172,7 @@ namespace ClassicUO.Game.UI.Gumps
                 FontCenter = true
             }, 1);
             lscript.MouseUp += (s, e) => {
-                ScriptManagerWindow.Show();
+                MyraWindows.ScriptManagerWindow.Show();
             };
             startX += largeWidth + 1;
 

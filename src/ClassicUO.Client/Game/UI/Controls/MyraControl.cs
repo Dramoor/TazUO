@@ -412,4 +412,20 @@ public class MyraControl : IGui
     public void Insert(int index, IGui c, int page = 0) { }
 
     public void BringOnTop() => UIManager.MakeTopMostGump(this);
+
+    public void ShowContextMenu(params (string Label, Action Action)[] items)
+    {
+        var menu = new VerticalMenu();
+        foreach (var (label, action) in items)
+        {
+            var item = new MenuItem { Text = label };
+            if (action != null)
+            {
+                Action captured = action;
+                item.Selected += (_, _) => captured();
+            }
+            menu.Items.Add(item);
+        }
+        _desktop.ShowContextMenu(menu, Mouse.Position);
+    }
 }

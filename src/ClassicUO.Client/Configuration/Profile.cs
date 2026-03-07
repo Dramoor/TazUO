@@ -1591,6 +1591,11 @@ namespace ClassicUO.Configuration
                     rsw.Load(xml);
                     UIManager.Add(rsw);
                     break;
+                case "ClassicUO.Game.UI.MyraWindows.ScriptManagerWindow":
+                    var smw = new Game.UI.MyraWindows.ScriptManagerWindow();
+                    smw.Load(xml);
+                    UIManager.Add(smw);
+                    break;
             }
         }
 
@@ -1606,9 +1611,8 @@ namespace ClassicUO.Configuration
                     Log.Error($"No type setup in [Profile.cs] for {type}");
                     break;
                 case "ClassicUO.Game.UI.ImGuiControls.ScriptManagerWindow":
-                    SingletonImGuiWindow<ScriptManagerWindow> w = ScriptManagerWindow.GetInstance();
-                    w.Load(xml);
-                    ImGuiManager.AddWindow(w);
+                    var smwCompat = new Game.UI.MyraWindows.ScriptManagerWindow();
+                    UIManager.Add(smwCompat);
                     break;
                 case "ClassicUO.Game.UI.ImGuiControls.AssistantWindow":
                     SingletonImGuiWindow<AssistantWindow> w2 = AssistantWindow.GetInstance();

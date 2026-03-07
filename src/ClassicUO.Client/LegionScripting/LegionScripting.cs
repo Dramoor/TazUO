@@ -663,7 +663,6 @@ namespace ClassicUO.LegionScripting
             if (script == null) return;
 
             RunningScripts.Remove(script);
-            ScriptStopped?.Invoke(null, script);
 
             if (script.ScriptThread is { IsAlive: true })
             {
@@ -690,6 +689,7 @@ namespace ClassicUO.LegionScripting
                     script.PythonScriptStopped();
 
                 script.ScriptThread = null;
+                ScriptStopped?.Invoke(null, script);
             }
         }
 

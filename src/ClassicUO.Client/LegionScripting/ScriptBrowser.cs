@@ -8,13 +8,13 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using ClassicUO.Game;
-using ClassicUO.Game.UI.ImGuiControls;
 using ClassicUO.Game.UI.MyraWindows;
 using ImGuiNET;
 using System.Numerics;
 using System.Threading;
 using ClassicUO.Game.UI;
 using System.Text.Json.Serialization;
+using ClassicUO.Game.UI.ImGuiControls;
 using ClassicUO.Utility.Platforms;
 
 namespace ClassicUO.LegionScripting;

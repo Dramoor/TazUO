@@ -38,6 +38,9 @@ namespace ClassicUO.LegionScripting
         public static List<ScriptFile> RunningScripts { get; } = [];
         public static readonly Dictionary<int, ScriptFile> PyThreads = new();
 
+        public static event EventHandler<ScriptFile> ScriptStarted;
+        public static event EventHandler<ScriptFile> ScriptStopped;
+
         private static bool _enabled, _loaded;
         private static World _world;
 
@@ -414,6 +417,7 @@ namespace ClassicUO.LegionScripting
             }
 
             RunningScripts.Add(script);
+            ScriptStarted?.Invoke(null, script);
         }
 
         private static void ExecutePythonScript(ScriptFile script)
@@ -659,6 +663,7 @@ namespace ClassicUO.LegionScripting
             if (script == null) return;
 
             RunningScripts.Remove(script);
+            ScriptStopped?.Invoke(null, script);
 
             if (script.ScriptThread is { IsAlive: true })
             {

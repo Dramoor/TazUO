@@ -1586,6 +1586,11 @@ namespace ClassicUO.Configuration
                     assistant.Load(xml);
                     UIManager.Add(assistant);
                     break;
+                case "ClassicUO.Game.UI.MyraWindows.RunningScriptsWindow":
+                    var rsw = new Game.UI.MyraWindows.RunningScriptsWindow();
+                    rsw.Load(xml);
+                    UIManager.Add(rsw);
+                    break;
             }
         }
 
@@ -1611,9 +1616,8 @@ namespace ClassicUO.Configuration
                     ImGuiManager.AddWindow(w2);
                     break;
                 case "ClassicUO.Game.UI.ImGuiControls.RunningScriptsWindow":
-                    SingletonImGuiWindow<RunningScriptsWindow> w3 = RunningScriptsWindow.GetInstance();
-                    w3.Load(xml);
-                    ImGuiManager.AddWindow(w3);
+                    var rsw = new Game.UI.MyraWindows.RunningScriptsWindow();
+                    UIManager.Add(rsw);
                     break;
             }
         }

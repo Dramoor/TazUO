@@ -1,4 +1,5 @@
 #nullable enable
+using ClassicUO.Configuration;
 using ClassicUO.Game.Managers;
 using ClassicUO.Game.UI.Controls;
 using ClassicUO.Game.UI.MyraWindows.Widgets;
@@ -168,7 +169,13 @@ public class TazUOChatWindow : MyraControl
         var row = new HorizontalStackPanel { Spacing = 4 };
         row.Widgets.Add(_chatInput);
         row.Widgets.Add(new MyraButton("Send", TrySend));
-        //row.Widgets.Add(checkbox);
+        row.Widgets.Add(new MyraButton("Options", () =>
+        {
+            ShowContextMenu((ContextMenuLabelToggle(!ProfileManager.CurrentProfile.DisableConnectToIrcOnLogin, "Auto connect"), () =>
+            {
+                ProfileManager.CurrentProfile.DisableConnectToIrcOnLogin = !ProfileManager.CurrentProfile.DisableConnectToIrcOnLogin;
+            }));
+        }));
         return row;
     }
 

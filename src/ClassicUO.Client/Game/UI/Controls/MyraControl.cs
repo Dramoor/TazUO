@@ -459,4 +459,6 @@ public class MyraControl : IGui
         }
         _desktop.ShowContextMenu(menu, Mouse.Position);
     }
+
+    public string ContextMenuLabelToggle(bool status, string label) => $"{(status ? "[/c[green]Enabled/cd]" : "[/c[red]Disabled/cd]")} {label}";
 }

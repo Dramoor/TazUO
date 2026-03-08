@@ -99,6 +99,7 @@ namespace ClassicUO.Game.GameObjects
         private bool _isSA_Poisoned;
         private long _lastAnimationIdleDelay;
         private bool _isAnimationForwardDirection;
+        private uint _lastEnqueueTime;
         private byte _animationGroup = 0xFF;
         private byte _animationInterval;
         private bool _animationRepeat;
@@ -277,6 +278,7 @@ namespace ClassicUO.Game.GameObjects
         {
             Steps.Clear();
             Offset = Vector3.Zero;
+            _lastEnqueueTime = 0;
         }
 
         public bool EnqueueStep(int x, int y, sbyte z, Direction direction, bool run)
@@ -293,6 +295,8 @@ namespace ClassicUO.Game.GameObjects
                 return true;
             }
 
+            int timeDiff = _lastEnqueueTime == 0 ? MovementSpeed.TimeToCompleteMovement(run, IsMounted || IsFlying) : (int)(Time.Ticks - _lastEnqueueTime);
+
             if (Steps.Count == 0)
             {
                 if (!IsWalking)
@@ -302,6 +306,8 @@ namespace ClassicUO.Game.GameObjects
 
                 LastStepTime = Time.Ticks;
             }
+
+            _lastEnqueueTime = Time.Ticks;
 
             Direction moveDir = DirectionHelper.CalculateDirection(endX, endY, x, y);
             var step = new Step();
@@ -315,6 +321,7 @@ namespace ClassicUO.Game.GameObjects
                     step.Z = endZ;
                     step.Direction = (byte)moveDir;
                     step.Run = run;
+                    step.TimeDiff = timeDiff;
                     Steps.AddToBack(step);
                 }
 
@@ -323,6 +330,7 @@ namespace ClassicUO.Game.GameObjects
                 step.Z = z;
                 step.Direction = (byte)moveDir;
                 step.Run = run;
+                step.TimeDiff = timeDiff;
                 Steps.AddToBack(step);
             }
 
@@ -333,6 +341,7 @@ namespace ClassicUO.Game.GameObjects
                 step.Z = z;
                 step.Direction = (byte)direction;
                 step.Run = run;
+                step.TimeDiff = timeDiff;
                 Steps.AddToBack(step);
             }
 
@@ -724,31 +733,7 @@ namespace ClassicUO.Game.GameObjects
                     }
 
                     int delay = (int)Time.Ticks - (int)LastStepTime;
-                    bool mounted =
-                        IsMounted
-                        || SpeedMode == CharacterSpeedType.FastUnmount
-                        || SpeedMode == CharacterSpeedType.FastUnmountAndCantRun
-                        || IsFlying;
-                    bool run = step.Run;
-
-                    // Client auto movements sync.
-                    // When server sends more than 1 packet in an amount of time less than 100ms if mounted (or 200ms if walking mount)
-                    // we need to remove the "teleport" effect.
-                    // When delay == 0 means that we received multiple movement packets in a single frame, so the patch becomes quite useless.
-                    if (!mounted && Serial != World.Player && Steps.Count > 1 && delay > 0)
-                    {
-                        mounted =
-                            delay
-                            <= (
-                                run
-                                    ? MovementSpeed.STEP_DELAY_MOUNT_RUN
-                                    : MovementSpeed.STEP_DELAY_MOUNT_WALK
-                            );
-                    }
-
-                    int maxDelay =
-                        MovementSpeed.TimeToCompleteMovement(run, mounted)
-                        - (int)Client.Game.FrameDelay[1];
+                    int maxDelay = (step.TimeDiff > 0 ? step.TimeDiff : MovementSpeed.TimeToCompleteMovement(step.Run, IsMounted || IsFlying)) - (int)Client.Game.FrameDelay[1];
 
                     bool removeStep = delay >= maxDelay;
                     bool directionChange = false;
@@ -843,7 +828,6 @@ namespace ClassicUO.Game.GameObjects
                         X = (ushort)step.X;
                         Y = (ushort)step.Y;
                         Z = step.Z;
-                        UpdateScreenPosition();
 
                         if (World.InGame && Serial == World.Player)
                         {
@@ -856,6 +840,12 @@ namespace ClassicUO.Game.GameObjects
                         Offset.Y = 0;
                         Offset.Z = 0;
                         Steps.RemoveFromFront();
+
+                        if (Steps.Count == 0)
+                        {
+                            _lastEnqueueTime = 0;
+                        }
+
                         CalculateRandomIdleTime();
 
                         if (directionChange)
@@ -864,6 +854,8 @@ namespace ClassicUO.Game.GameObjects
 
                             return;
                         }
+
+                        UpdateScreenPosition();
 
                         if (TNext != null || TPrevious != null)
                         {
@@ -1107,6 +1099,7 @@ namespace ClassicUO.Game.GameObjects
             public sbyte Z;
             public byte Direction;
             public bool Run;
+            public int TimeDiff;
         }
     }
 }

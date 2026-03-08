@@ -73,6 +73,6 @@ All notable changes to TazUO will be recorded here.
 * Added ibm-plex font to embedded fonts - ([bittiez](https://github.com/bittiez))
 * Cleaned up a bunch of compile-time warnings - ([bittiez](https://github.com/bittiez))
 * Only send metrics login once per session(Swapping chars won't count as additional logins) - ([bittiez](https://github.com/bittiez))
-
+* Changed mobile movement to use packet receive time to determine mobile speed instead of fixed values - ([bittiez](https://github.com/bittiez))
 
 ---

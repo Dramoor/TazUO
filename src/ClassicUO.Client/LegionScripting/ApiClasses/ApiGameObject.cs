@@ -40,17 +40,17 @@ public class ApiGameObject
     /// <summary>
     /// The X-coordinate of the object in the game world.
     /// </summary>
-    public virtual ushort X { get; }
+    public virtual ushort X => _gameObject?.X ?? 0;
 
     /// <summary>
     /// The Y-coordinate of the object in the game world.
     /// </summary>
-    public virtual ushort Y { get; }
+    public virtual ushort Y => _gameObject?.Y ?? 0;
 
     /// <summary>
     /// The Z-coordinate (elevation) of the object in the game world.
     /// </summary>
-    public virtual sbyte Z { get; }
+    public virtual sbyte Z => _gameObject?.Z ?? 0;
 
     /// <summary>
     /// The graphic ID of the object, representing its visual appearance.
@@ -135,10 +135,6 @@ public class ApiGameObject
         if (gameObject == null) return; //Prevent crashes for invalid objects.
 
         _gameObject = gameObject;
-
-        X = gameObject.X;
-        Y = gameObject.Y;
-        Z = gameObject.Z;
         Graphic = gameObject.OriginalGraphic;
         Hue = gameObject.Hue;
     }

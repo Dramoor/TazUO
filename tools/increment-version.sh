@@ -62,8 +62,3 @@ sed -i "s|<FileVersion>$CURRENT_VERSION</FileVersion>|<FileVersion>$NEW_VERSION<
 
 echo "Version updated successfully!"
 echo "New version: $NEW_VERSION"
-echo ""
-read -p "Generate scripting API docs now? (y/n): " gendocs
-if [[ "$gendocs" =~ ^[Yy]$ ]]; then
-    "$(dirname "$0")/generate-docs.sh"
-fi

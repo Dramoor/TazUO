@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Linq;
 using ClassicUO.Game.GameObjects;
 using ClassicUO.Game.Managers;
-using ClassicUO.Game.UI.MyraWindows.Widgets;
 using ClassicUO.Utility;
 using Myra.Graphics2D.UI;
 using TextBox = Myra.Graphics2D.UI.TextBox;

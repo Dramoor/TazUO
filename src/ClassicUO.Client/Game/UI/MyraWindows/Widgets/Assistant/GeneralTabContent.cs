@@ -6,8 +6,6 @@ using ClassicUO.Game.GameObjects;
 using ClassicUO.Game.Managers;
 using ClassicUO.Game.Processes;
 using ClassicUO.Game.UI.Gumps.SpellBar;
-using Microsoft.Xna.Framework;
-using Myra.Graphics2D.Brushes;
 using Myra.Graphics2D.UI;
 
 namespace ClassicUO.Game.UI.MyraWindows.Widgets.Assistant;

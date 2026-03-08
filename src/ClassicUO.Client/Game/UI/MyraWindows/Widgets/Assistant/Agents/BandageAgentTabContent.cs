@@ -2,7 +2,6 @@
 using System;
 using System.Globalization;
 using ClassicUO.Configuration;
-using ClassicUO.Game.UI.MyraWindows.Widgets;
 using Myra.Graphics2D.UI;
 using TextBox = Myra.Graphics2D.UI.TextBox;
 

@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Xml;
 using ClassicUO.Configuration;
-using ClassicUO.Game;
 using ClassicUO.Game.Managers;
 using ClassicUO.Game.UI.Controls;
 using ClassicUO.Game.UI.Gumps;
@@ -14,9 +12,9 @@ using ClassicUO.LegionScripting;
 using ClassicUO.Utility;
 using ClassicUO.Utility.Logging;
 using Microsoft.Xna.Framework;
+using Myra.Graphics2D;
 using Myra.Graphics2D.Brushes;
 using Myra.Graphics2D.UI;
-using Label = Myra.Graphics2D.UI.Label;
 using TextBox = Myra.Graphics2D.UI.TextBox;
 
 namespace ClassicUO.Game.UI.MyraWindows;
@@ -33,7 +31,7 @@ public class ScriptManagerWindow : MyraControl
 
     public static ScriptManagerWindow Instance { get; private set; }
 
-    private const int MIN_WIDTH  = 280;
+    private const int MIN_WIDTH  = 200;
     private const int MIN_HEIGHT = 200;
 
     private readonly HashSet<string> _collapsedGroups = new();
@@ -50,6 +48,7 @@ public class ScriptManagerWindow : MyraControl
     private Point _resizeStartMouse;
     private int _resizeStartWidth;
     private int _resizeStartHeight;
+    private MyraGrid _mainGrid;
 
     public ScriptManagerWindow() : base("Script Manager")
     {
@@ -87,17 +86,17 @@ public class ScriptManagerWindow : MyraControl
 
     public void Refresh() => _pendingReload = true;
 
-    public override void Update()
+    public override void PreDraw()
     {
-        base.Update();
+        base.PreDraw();
 
         if (_isResizing)
         {
             if (Mouse.LButtonPressed)
             {
                 Point delta = Mouse.Position - _resizeStartMouse;
-                _rootWindow.Width  = Math.Max(MIN_WIDTH,  _resizeStartWidth  + delta.X);
-                _rootWindow.Height = Math.Max(MIN_HEIGHT, _resizeStartHeight + delta.Y);
+                _mainGrid.Width  = Math.Clamp(_resizeStartWidth  + delta.X, MIN_WIDTH, 600);
+                _mainGrid.Height = Math.Clamp(_resizeStartHeight + delta.Y, MIN_HEIGHT, 600);
             }
             else
             {
@@ -123,25 +122,27 @@ public class ScriptManagerWindow : MyraControl
     public override void Load(XmlElement xml)
     {
         base.Load(xml);
-        if (int.TryParse(xml.GetAttribute("width"),  out int w) && w >= MIN_WIDTH)  _rootWindow.Width  = w;
-        if (int.TryParse(xml.GetAttribute("height"), out int h) && h >= MIN_HEIGHT) _rootWindow.Height = h;
+        if (int.TryParse(xml.GetAttribute("width"),  out int w) && w >= MIN_WIDTH)  _mainGrid.Width  = w;
+        if (int.TryParse(xml.GetAttribute("height"), out int h) && h >= MIN_HEIGHT) _mainGrid.Height = h;
     }
 
     private void Build()
     {
-        var grid = new MyraGrid();
-        grid.AddRow();                                           // Row 0: menu bar (Auto)
-        grid.AddRow(new Proportion(ProportionType.Fill));        // Row 1: script list (Fill)
-        grid.AddRow();                                         // Row 2: resize handle (Auto)
-        grid.AddColumn(new Proportion(ProportionType.Fill));     // single Fill column
+        _mainGrid = new MyraGrid();
+        _rootWindow.MaxHeight = _mainGrid.MaxHeight = 600;
+        _mainGrid.AddRow();                                           // Row 0: menu bar (Auto)
+        _mainGrid.AddRow(new Proportion(ProportionType.Fill));        // Row 1: script list (Fill)
+        _mainGrid.AddRow();                                           // Row 2: resize handle (Auto)
+        _mainGrid.AddColumn(new Proportion(ProportionType.Fill));     // single Fill column
 
-        grid.AddWidget(BuildMenuBar(), 0, 0);
+        _mainGrid.AddWidget(BuildMenuBar(), 0, 0);
 
-        grid.AddWidget(new ScrollViewer
+        _mainGrid.AddWidget(new ScrollViewer
         {
             HorizontalAlignment = HorizontalAlignment.Stretch,
             VerticalAlignment   = VerticalAlignment.Stretch,
-            Content = _scriptListPanel
+            Content = _scriptListPanel,
+            MaxHeight = 600
         }, 1, 0);
 
         var handle = new MyraLabel("<>", 20)
@@ -153,12 +154,12 @@ public class ScriptManagerWindow : MyraControl
         {
             _isResizing        = true;
             _resizeStartMouse  = Mouse.Position;
-            _resizeStartWidth  = Width;
-            _resizeStartHeight = Height;
+            _resizeStartWidth  = _mainGrid.Width  ?? Width;
+            _resizeStartHeight = _mainGrid.Height ?? Height;
         };
-        grid.AddWidget(handle, 2, 0);
+        _mainGrid.AddWidget(handle, 2, 0);
 
-        SetRootContent(grid);
+        SetRootContent(_mainGrid);
     }
 
     private Widget BuildMenuBar()
@@ -308,9 +309,6 @@ public class ScriptManagerWindow : MyraControl
             RebuildScriptList();
         });
 
-        if (isPlaying)
-            playStopBtn.Background = new SolidBrush(new Color(51, 153, 51, 255));
-
         row.Widgets.Add(playStopBtn);
 
         bool hasGlobal = LegionScripting.LegionScripting.AutoLoadEnabled(script, true);
@@ -329,7 +327,14 @@ public class ScriptManagerWindow : MyraControl
         int dot = displayName.LastIndexOf('.');
         if (dot != -1) displayName = displayName.Substring(0, dot);
 
-        row.Widgets.Add(new MyraLabel(displayName, MyraLabel.Style.P) { Tooltip = script.FileName });
+        MyraLabel displayLabel;
+        row.Widgets.Add(displayLabel = new MyraLabel(displayName, MyraLabel.Style.P) { Tooltip = script.FileName });
+
+        if (isPlaying)
+        {
+            displayLabel.Background = new SolidBrush(new Color(51, 153, 51, 255));
+            displayLabel.Padding = new Thickness(2);
+        }
 
         _scriptListPanel.Widgets.Add(row);
     }

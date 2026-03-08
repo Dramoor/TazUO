@@ -214,6 +214,7 @@ class ApiPlayer(ApiMobile):
     X: int = None
     Y: int = None
     Z: int = None
+    Position: ApiPoint3D = None
     Strength: int = None
     Dexterity: int = None
     Intelligence: int = None
@@ -270,15 +271,6 @@ class ApiPlayer(ApiMobile):
     IsWalking: bool = None
     InWarMode: bool = None
     __class__: str = None
-
-class ApiPoint3D:
-    ""
-    X: int = None
-    Y: int = None
-    Z: int = None
-
-    def ToString(self) -> "str":
-        pass
 
 class ApiSoundEntry:
     ""

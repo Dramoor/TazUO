@@ -21,6 +21,14 @@ description:  Represents a Python-accessible player character with full stat and
 
 **Type:** `sbyte`
 
+### `Position`
+
+**Type:** `ApiPoint3D`
+
+ Retrieves the player's current position in the game world.
+ This API is most useful in combination with the Legion API's `GetPath`.
+
+
 ### `Strength`
 
 **Type:** `ushort`

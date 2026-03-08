@@ -445,9 +445,14 @@ namespace ClassicUO.Game.Scenes
                         || _world.CustomHouseManager.SeekTile
                     )
                     && SelectedObject.Object is GameObject obj
+                    && (
+                        obj.X != _lastSelectedMultiPositionInHouseCustomization.X
+                        || obj.Y != _lastSelectedMultiPositionInHouseCustomization.Y
+                    )
                 )
                 {
                     _world.CustomHouseManager.OnTargetWorld(obj);
+                    _timeToPlaceMultiInHouseCustomization = Time.Ticks + 50;
                     _lastSelectedMultiPositionInHouseCustomization.X = obj.X;
                     _lastSelectedMultiPositionInHouseCustomization.Y = obj.Y;
                 }

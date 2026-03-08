@@ -61,6 +61,7 @@ All notable changes to TazUO will be recorded here.
 * Fixed a race condition crash when attacking a mobile during logout - ([bittiez](https://github.com/bittiez))
 * Added a few missing keys to imgui assistant hotkey listener - ([bittiez](https://github.com/bittiez))
 * Fixed a crash when resetting map cache before folder exists - ([bittiez](https://github.com/bittiez))
+* Fixed a bug in housing customization that places two tiles - ([bittiez](https://github.com/bittiez))
 
 ### Misc
 

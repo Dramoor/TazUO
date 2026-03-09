@@ -69,6 +69,12 @@ namespace ClassicUO.Game.Managers
             BuyConfigs?.Remove(config);
         }
 
+        public bool TryGetSellConfig(ushort graphic, ushort hue, out BuySellItemConfig config)
+        {
+            config = sellItems?.FirstOrDefault(c => c.Graphic == graphic && c.Hue == hue);
+            return config != null;
+        }
+
         public BuySellItemConfig NewSellConfig()
         {
             var r = new BuySellItemConfig();

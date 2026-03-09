@@ -50,6 +50,7 @@ All notable changes to TazUO will be recorded here.
 * ItemDatabase search now defaults to not only "this character" - ([bittiez](https://github.com/bittiez))
 * Allow bandage agent threshold to range from 1-99(Previously 10-95) - ([bittiez](https://github.com/bittiez))
 * Add adjustment for pathfinding max z level difference  - ([bittiez](https://github.com/bittiez))
+* Auto sell now has Add from container and Clear all buttons  - ([bittiez](https://github.com/bittiez))
 
 ### Fixes
 

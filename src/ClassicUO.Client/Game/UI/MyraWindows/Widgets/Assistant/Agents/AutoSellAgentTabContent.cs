@@ -1,6 +1,7 @@
 #nullable enable
 using System.Collections.Generic;
 using ClassicUO.Configuration;
+using ClassicUO.Game;
 using ClassicUO.Game.GameObjects;
 using ClassicUO.Game.Managers;
 using ClassicUO.Utility;
@@ -207,6 +208,8 @@ public static class AutoSellAgentTabContent
             {
                 if (targeted is Entity entity && SerialHelper.IsItem(entity))
                 {
+                    if (BuySellAgent.Instance.TryGetSellConfig(entity.Graphic, entity.Hue, out _))
+                        return;
                     BuySellItemConfig newConfig = BuySellAgent.Instance.NewSellConfig();
                     newConfig.Graphic = entity.Graphic;
                     newConfig.Hue = entity.Hue;
@@ -214,6 +217,36 @@ public static class AutoSellAgentTabContent
                 }
             });
         }) { Tooltip = "Target an item to add it to the sell list." });
+        actionRow.Widgets.Add(new MyraButton("Add from Container", () =>
+        {
+            GameActions.Print(Client.Game.UO.World, "Target a container to add all its items");
+            World.Instance.TargetManager.SetTargeting(targeted =>
+            {
+                if (targeted is Item container)
+                {
+                    int added = 0;
+                    for (LinkedObject i = container.Items; i != null; i = i.Next)
+                    {
+                        if (i is Item item)
+                        {
+                            if (BuySellAgent.Instance.TryGetSellConfig(item.Graphic, item.Hue, out _))
+                                continue;
+                            BuySellItemConfig newConfig = BuySellAgent.Instance.NewSellConfig();
+                            newConfig.Graphic = item.Graphic;
+                            newConfig.Hue = item.Hue;
+                            added++;
+                        }
+                    }
+                    GameActions.Print(Client.Game.UO.World, $"Added {added} item(s) from container.");
+                    BuildEntriesList();
+                }
+            });
+        }) { Tooltip = "Target a container to add all its items to the sell list." });
+        actionRow.Widgets.Add(MyraStyle.ApplyButtonDangerStyle(new MyraButton("Clear All", () =>
+        {
+            BuySellAgent.Instance.SellConfigs?.Clear();
+            BuildEntriesList();
+        }) { Tooltip = "Remove all entries from the sell list." }));
         actionRow.Widgets.Add(new MyraButton("Import", () =>
         {
             string? json = Clipboard.GetClipboardText();

@@ -1714,7 +1714,16 @@ namespace ClassicUO.Game.Managers
 
                 case MacroType.TargetSystemOnOff:
 
-                    GameActions.Print(_world, ResGeneral.TargetSystemNotImplemented);
+                    if (ProfileManager.CurrentProfile.UseNewTargetSystem)
+                    {
+                        ProfileManager.CurrentProfile.UseNewTargetSystem = false;
+                        GameActions.Print(_world, "Target System: Off");
+                    }
+                    else
+                    {
+                        ProfileManager.CurrentProfile.UseNewTargetSystem = true;
+                        GameActions.Print(_world, "Target System: On");
+                    }
 
                     break;
 

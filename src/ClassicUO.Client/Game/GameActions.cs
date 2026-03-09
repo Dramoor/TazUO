@@ -657,6 +657,10 @@ internal static class GameActions
 
         if (isItem || (isMobile && (world.Mobiles.Get(serial)?.IsHuman ?? false)))
         {
+            if (SerialHelper.IsMobile(serial))
+            {
+                world.TargetManager.NewTargetSystemSerial = serial;
+            }
             world.LastObject = serial;
         }
         else

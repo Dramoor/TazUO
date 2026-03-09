@@ -111,8 +111,10 @@ public class MyraControl : IGui
     private void DesktopOnTouchDown(object sender, EventArgs e) => OnMouseDown(Mouse.Position.X, Mouse.Position.Y, MouseButtonType.Left);
     private void DesktopOnWidgetGotKeyboardFocus(object sender, GenericEventArgs<Widget> e)
     {
-        if(e.Data.AcceptsKeyboardFocus)
+        if(e.Data.AcceptsKeyboardFocus && e.Data is Myra.Graphics2D.UI.TextBox)
             SetKeyboardFocus();
+        else
+            UIManager.KeyboardFocusControl = null;
     }
 
     #endregion
@@ -173,10 +175,7 @@ public class MyraControl : IGui
 
     public void SetKeyboardFocus()
     {
-        if (AcceptKeyboardInput && !HasKeyboardFocus)
-        {
-            UIManager.KeyboardFocusControl = this;
-        }
+        if (AcceptKeyboardInput && !HasKeyboardFocus) UIManager.KeyboardFocusControl = this;
     }
 
     public MyraControl CenterInViewPort()

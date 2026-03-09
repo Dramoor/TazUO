@@ -1103,6 +1103,15 @@ namespace ClassicUO.Game.UI.Gumps
             return base.Draw(batcher, x, y);
         }
 
+        public static void OpenOrUpdate(uint serial, ushort graphic)
+        {
+            GridContainer gridContainer = UIManager.GetGump<GridContainer>(serial);
+            if (gridContainer != null)
+                gridContainer.RequestUpdateContents();
+            else
+                UIManager.Add(new GridContainer(World.Instance, serial, graphic));
+        }
+
         public enum GridSortMode
         {
             GraphicAndHue = 0,

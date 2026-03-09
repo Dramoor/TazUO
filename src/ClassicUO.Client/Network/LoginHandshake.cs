@@ -2,6 +2,7 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Numerics;
+using ClassicUO.Configuration;
 using ClassicUO.Game.Scenes;
 using ClassicUO.IO;
 using ClassicUO.Network.Encryption;
@@ -402,6 +403,9 @@ namespace ClassicUO.Network
 
                 AsyncNetClient.Socket.Send_SecondLogin(Account, Password, seed);
                 Log.TraceDebug($"[HandShake] Sent second login.");
+
+                if (Settings.GlobalSettings.CustomServer == Settings.CustomServers.Eventine || Settings.GlobalSettings.CustomServer == Settings.CustomServers.LOCAL_SERVER)
+                    AsyncNetClient.Socket.Send_TazUO();
             }
             else
             {

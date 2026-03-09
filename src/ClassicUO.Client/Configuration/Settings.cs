@@ -1,8 +1,10 @@
 ﻿// SPDX-License-Identifier: BSD-2-Clause
 
+using System;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using ClassicUO.Assets;
 using ClassicUO.Configuration.Json;
 using ClassicUO.Game;
 using Microsoft.Xna.Framework;
@@ -24,6 +26,8 @@ namespace ClassicUO.Configuration
 
     public sealed class Settings
     {
+        [JsonIgnore] public CustomServers? CustomServer;
+
         public const string SETTINGS_FILENAME = "settings.json";
         public static Settings GlobalSettings = new Settings();
         public static string CustomSettingsFilepath = null;
@@ -33,7 +37,16 @@ namespace ClassicUO.Configuration
 
         [JsonPropertyName("password")] public string Password { get; set; } = string.Empty;
 
-        [JsonPropertyName("ip")] public string IP { get; set; } = "";
+        [JsonPropertyName("ip")]
+        public string IP
+        {
+            get;
+            set
+            {
+                field = value;
+                DetectCustomServers();
+            }
+        } = "";
 
         [JsonPropertyName("port"), JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)] public ushort Port { get; set; } = 2593;
 
@@ -103,7 +116,6 @@ namespace ClassicUO.Configuration
             return Path.Combine(CUOEnviroment.ExecutablePath, SETTINGS_FILENAME);
         }
 
-
         public void Save()
         {
             // Make a copy of the settings object that we will use in the saving process
@@ -123,6 +135,31 @@ namespace ClassicUO.Configuration
             // NOTE: We can do any other settings clean-ups here before we save them
 
             ConfigurationResolver.Save(settingsToSave, GetSettingsFilepath(), SettingsJsonContext.RealDefault.Settings);
+        }
+
+        private void DetectCustomServers()
+        {
+            string[] _eventineIPs = ["shard.uoeventine.net", "shard.uoeventine.com"];
+
+            if (_eventineIPs.Contains(IP))
+            {
+                CustomServer = CustomServers.Eventine;
+                CustomServerSettings.GetCustomAnimPath = () => Path.Combine(Path.GetFullPath(UltimaOnlineDirectory), "Anims" );
+                return;
+            }
+
+            #if DEBUG
+            if (IP == "127.0.0.1" || IP == "localhost")
+            {
+                CustomServer = CustomServers.LOCAL_SERVER;
+            }
+            #endif
+        }
+
+        public enum CustomServers
+        {
+            LOCAL_SERVER,
+            Eventine
         }
     }
 }

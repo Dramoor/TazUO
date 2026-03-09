@@ -12,6 +12,7 @@ using ClassicUO.Utility;
 using Microsoft.Xna.Framework;
 using SDL3;
 using System.Collections.Generic;
+using System.IO;
 
 namespace ClassicUO.Game.UI.Gumps.Login
 {
@@ -257,6 +258,17 @@ namespace ClassicUO.Game.UI.Gumps.Login
                     }
                 );
 
+                if (Settings.GlobalSettings.CustomServer == Settings.CustomServers.Eventine)
+                {
+                    Add
+                    (
+                        new Label("Eventine Shard Detected!", false, 0xFFFF, font: 9)
+                        {
+                            X = 242,
+                            Y = 5
+                        }
+                    );
+                }
 
                 Add
                 (

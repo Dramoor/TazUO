@@ -306,14 +306,6 @@ namespace ClassicUO.Network
             Log.TraceDebug($"[HandShake] Set login step to {step}.");
             CurrentLoginStep = step;
             LoginStepChanged?.Invoke(this, step);
-
-            switch (step)
-            {
-                case LoginSteps.EnteringBritania or LoginSteps.CharacterCreationDone:
-                    if (Settings.GlobalSettings.CustomServer == Settings.CustomServers.Eventine || Settings.GlobalSettings.CustomServer == Settings.CustomServers.LOCAL_SERVER)
-                        AsyncNetClient.Socket.Send_TazUO();
-                    break;
-            }
         }
 
         private void OnNetClientConnected(object sender, EventArgs e)
@@ -411,6 +403,9 @@ namespace ClassicUO.Network
 
                 AsyncNetClient.Socket.Send_SecondLogin(Account, Password, seed);
                 Log.TraceDebug($"[HandShake] Sent second login.");
+
+                if (Settings.GlobalSettings.CustomServer == Settings.CustomServers.Eventine || Settings.GlobalSettings.CustomServer == Settings.CustomServers.LOCAL_SERVER)
+                    AsyncNetClient.Socket.Send_TazUO();
             }
             else
             {

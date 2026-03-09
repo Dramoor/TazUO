@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using ClassicUO.IO;
-using ClassicUO.Utility.Logging;
 
 namespace ClassicUO.Network;
 
@@ -8,19 +7,45 @@ internal static class EnhancedOutgoingPackets
 {
     public static HashSet<EnhancedPacketType> EnabledPackets = new();
 
+    //Example server side packet handler:
+    // private static void TazUOEnhancedPacket(NetState state, SpanReader reader)
+    // {
+    //     //Register packet elsewhere
+    //     //IncomingPackets.Register(new PacketHandler(0xCE, &TazUOEnhancedPacket));
+    //
+    //     uint ID = reader.ReadUInt16();
+    //
+    //     Console.WriteLine($"------Got TUO Packet with ID: {ID}");
+    //
+    //
+    //     switch (ID)
+    //     {
+    //         case 2:
+    //             string v = reader.ReadAscii();
+    //             Console.WriteLine($"-------TazUO Connected! V{v}");
+    //             //state.IsTazUO = true; <-- Can use elsewhere to use different code if it's a TUO client
+    //             break;
+    //
+    //         default:
+    //             Console.WriteLine($"Got an unknown packet from TazUO: {ID}(0x{ID:X2})");
+    //             break;
+    //     }
+    // }
+
     public static void Send_TazUO(this AsyncNetClient socket)
     {
-        //Send 0xCE 2 VERSION STRING ASCII
+        //Send [0xCE] [2] [VERSION STRING ASCII]
         EnhancedPacketType id = EnhancedPacketType.TazUO_Identifier;
 
-        using StackDataWriter writer = Extensions.GetWriter(id);
+        StackDataWriter f = Extensions.GetWriter(id);
+        ref StackDataWriter writer = ref f;
 
         writer.WriteASCII(CUOEnviroment.Version);
 
         writer.FinalLength();
-        socket.Send(writer.BufferWritten, true);
 
-        Log.TraceDebug($"Sent TazUO packet.");
+        socket.Send(writer.BufferWritten, true);
+        writer.Dispose();
     }
 
     public static void SendEnhancedPacket(this AsyncNetClient socket)
@@ -30,8 +55,10 @@ internal static class EnhancedOutgoingPackets
         if (!EnabledPackets.Contains(id))
             return;
 
-        using StackDataWriter writer = Extensions.GetWriter(id);
+        StackDataWriter f = Extensions.GetWriter(id);
+        ref StackDataWriter writer = ref f;
         writer.FinalLength();
         socket.Send(writer.BufferWritten, true);
+        writer.Dispose();
     }
 }

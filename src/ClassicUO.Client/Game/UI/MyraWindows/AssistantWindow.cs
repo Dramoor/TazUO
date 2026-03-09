@@ -12,6 +12,8 @@ namespace ClassicUO.Game.UI.MyraWindows;
 
 public class AssistantWindow : MyraControl
 {
+    public static void Show() => UIManager.Add(new AssistantWindow());
+
     public AssistantWindow() : base("Legion Assistant")
     {
         UIManager.ForEach<AssistantWindow>(w => { if(w != this) w.Dispose(); });

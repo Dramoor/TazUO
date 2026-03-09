@@ -13,7 +13,7 @@ using ClassicUO.Utility.Logging;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using ClassicUO.Game.UI.Gumps.SpellBar;
-using ClassicUO.Game.UI.ImGuiControls;
+using ClassicUO.Game.UI.MyraWindows;
 
 namespace ClassicUO.Game.UI.Gumps
 {
@@ -150,7 +150,6 @@ namespace ClassicUO.Game.UI.Gumps
             assistant.MouseUp += (s, e) =>
             {
                 AssistantWindow.Show();
-                UIManager.Add(new MyraWindows.AssistantWindow());
             };
             startX += largeWidth + 1;
 

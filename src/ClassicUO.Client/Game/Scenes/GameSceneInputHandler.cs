@@ -15,10 +15,7 @@ using Microsoft.Xna.Framework;
 using SDL3;
 using MathHelper = ClassicUO.Utility.MathHelper;
 using ClassicUO.Assets;
-using ClassicUO.Game.UI;
 using ClassicUO.Game.UI.Controls;
-using ClassicUO.Utility.Logging;
-using ImGuiNET;
 
 namespace ClassicUO.Game.Scenes
 {
@@ -462,7 +459,7 @@ namespace ClassicUO.Game.Scenes
             {
                 SelectedObject.LastLeftDownObject = SelectedObject.Object;
 
-                if (ProfileManager.CurrentProfile.EnableDragSelect && DragSelectModifierActive() && !(ImGuiManager.IsInitialized && ImGui.GetIO().WantCaptureMouse))
+                if (ProfileManager.CurrentProfile.EnableDragSelect && DragSelectModifierActive())
                 {
                     if (CanDragSelectOnObject(SelectedObject.Object as GameObject))
                     {

@@ -24,7 +24,6 @@ using ClassicUO.Game.Map;
 using ClassicUO.Game.UI.Gumps.GridHighLight;
 using ClassicUO.LegionScripting;
 using ClassicUO.Network.PacketHandlers.Helpers;
-using ImGuiNET;
 
 namespace ClassicUO.Game.Scenes
 {
@@ -178,8 +177,6 @@ namespace ClassicUO.Game.Scenes
         public override void Load()
         {
             base.Load();
-            ImGuiManager.Initialize(Client.Game);
-
             GridContainerSaveData.Instance.Load();
 
             Client.Game.UO.GameCursor.ItemHold.Clear();
@@ -438,7 +435,6 @@ namespace ClassicUO.Game.Scenes
             UIManager.GetGump<WorldMapGump>()?.SaveSettings();
 
             ProfileManager.CurrentProfile?.Save(_world, ProfileManager.ProfilePath);
-            ImGuiManager.Dispose();
             MapWebServerManager.Instance.Stop();
             TileMarkerManager.Instance.Save();
             SpellVisualRangeManager.Instance.Save();
@@ -1449,12 +1445,6 @@ namespace ClassicUO.Game.Scenes
         public void DrawSelection(UltimaBatcher2D batcher)
         {
             if (!_isSelectionActive) return;
-
-            if (ImGuiManager.IsInitialized && ImGui.GetIO().WantCaptureMouse)
-            {
-                _isSelectionActive = false;
-                return;
-            }
 
             var selectionHue = new Vector3 { Z = 0.7f };
 

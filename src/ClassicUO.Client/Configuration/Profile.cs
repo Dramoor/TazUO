@@ -21,7 +21,7 @@ using ClassicUO.Game.UI;
 using ClassicUO.Game.UI.Controls;
 using ClassicUO.Game.UI.Gumps.GridHighLight;
 using ClassicUO.Game.UI.Gumps.SpellBar;
-using ClassicUO.Game.UI.ImGuiControls;
+using ClassicUO.Game.UI.MyraWindows;
 
 namespace ClassicUO.Configuration
 {
@@ -1055,38 +1055,6 @@ namespace ClassicUO.Configuration
                     first = gumps.First;
                 }
 
-                #region ImGui
-                if (ImGuiManager.IsInitialized)
-                {
-                    try
-                    {
-                        ImGuiWindow[] windows = ImGuiManager.Windows;
-                        if (windows != null && windows.Length > 0)
-                        {
-                            foreach (ImGuiWindow window in windows)
-                            {
-                                if(window == null || !window.IsOpen) continue;
-
-                                try
-                                {
-                                    xml.WriteStartElement("window");
-                                    window.Save(xml);
-                                    xml.WriteEndElement();
-                                }
-                                catch (Exception ex)
-                                {
-                                    Log.Error($"Failed to save ImGui window '{window?.Title ?? "Unknown"}': {ex.Message}");
-                                }
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Error($"Failed to save ImGui windows: {ex.Message}");
-                    }
-                }
-                #endregion
-
                 #region Myra
 
                 foreach (MyraControl mc in myraWindows)
@@ -1582,17 +1550,17 @@ namespace ClassicUO.Configuration
                     Log.Error($"No type setup in [Profile.cs] for {type}");
                     break;
                 case "ClassicUO.Game.UI.MyraWindows.AssistantWindow":
-                    var assistant = new Game.UI.MyraWindows.AssistantWindow();
+                    var assistant = new AssistantWindow();
                     assistant.Load(xml);
                     UIManager.Add(assistant);
                     break;
                 case "ClassicUO.Game.UI.MyraWindows.RunningScriptsWindow":
-                    var rsw = new Game.UI.MyraWindows.RunningScriptsWindow();
+                    var rsw = new RunningScriptsWindow();
                     rsw.Load(xml);
                     UIManager.Add(rsw);
                     break;
                 case "ClassicUO.Game.UI.MyraWindows.ScriptManagerWindow":
-                    var smw = new Game.UI.MyraWindows.ScriptManagerWindow();
+                    var smw = new ScriptManagerWindow();
                     smw.Load(xml);
                     UIManager.Add(smw);
                     break;
@@ -1611,16 +1579,14 @@ namespace ClassicUO.Configuration
                     Log.Error($"No type setup in [Profile.cs] for {type}");
                     break;
                 case "ClassicUO.Game.UI.ImGuiControls.ScriptManagerWindow":
-                    var smwCompat = new Game.UI.MyraWindows.ScriptManagerWindow();
+                    var smwCompat = new ScriptManagerWindow();
                     UIManager.Add(smwCompat);
                     break;
                 case "ClassicUO.Game.UI.ImGuiControls.AssistantWindow":
-                    SingletonImGuiWindow<AssistantWindow> w2 = AssistantWindow.GetInstance();
-                    w2.Load(xml);
-                    ImGuiManager.AddWindow(w2);
+                    AssistantWindow.Show();
                     break;
                 case "ClassicUO.Game.UI.ImGuiControls.RunningScriptsWindow":
-                    var rsw = new Game.UI.MyraWindows.RunningScriptsWindow();
+                    var rsw = new RunningScriptsWindow();
                     UIManager.Add(rsw);
                     break;
             }

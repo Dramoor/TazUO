@@ -26,7 +26,6 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
 using ClassicUO.Network.PacketHandlers;
-using ImGuiNET;
 using Myra;
 using SDL3;
 using static SDL3.SDL;
@@ -600,10 +599,6 @@ namespace ClassicUO
             // Render ImGui and plugins to the render target (for consistent scaling)
             if (useRenderTarget)
             {
-                Profiler.EnterContext("ImGui");
-                ImGuiManager.Update(gameTime);
-                Profiler.ExitContext("ImGui");
-
                 if(_pluginsInitialized)
                 {
                     Profiler.EnterContext("Plugins");
@@ -631,11 +626,6 @@ namespace ClassicUO
             }
             else
             {
-                // Fallback: render ImGui and plugins directly if render target is not available
-                Profiler.EnterContext("ImGui");
-                ImGuiManager.Update(gameTime);
-                Profiler.ExitContext("ImGui");
-
                 if(_pluginsInitialized)
                     Plugin.ProcessDrawCmdList(GraphicsDevice);
             }
@@ -732,8 +722,6 @@ namespace ClassicUO
                     break;
 
                 case SDL_EventType.SDL_EVENT_KEY_DOWN:
-                    if (ImGuiManager.IsInitialized && ImGui.GetIO().WantCaptureKeyboard) break;
-
                     Keyboard.OnKeyDown(sdlEvent->key);
 
                     if (Plugin.ProcessHotkeys(
@@ -760,8 +748,6 @@ namespace ClassicUO
                     break;
 
                 case SDL_EventType.SDL_EVENT_KEY_UP:
-                    if (ImGuiManager.IsInitialized && ImGui.GetIO().WantCaptureKeyboard) break;
-
                     var key = (SDL_Keycode)sdlEvent->key.key;
 
                     Keyboard.OnKeyUp(sdlEvent->key);
@@ -806,8 +792,6 @@ namespace ClassicUO
                     break;
 
                 case SDL_EventType.SDL_EVENT_TEXT_INPUT:
-                    if (ImGuiManager.IsInitialized && ImGui.GetIO().WantCaptureKeyboard) break;
-
                     if (_ignoreNextTextInput)
                     {
                         break;
@@ -854,8 +838,6 @@ namespace ClassicUO
                     break;
 
                 case SDL_EventType.SDL_EVENT_MOUSE_WHEEL:
-                    if (ImGuiManager.IsInitialized && ImGui.GetIO().WantCaptureMouse) break;
-
                     Mouse.Update();
                     bool isScrolledUp = sdlEvent->wheel.y > 0;
 
@@ -871,8 +853,6 @@ namespace ClassicUO
 
                 case SDL_EventType.SDL_EVENT_MOUSE_BUTTON_DOWN:
                     {
-                        if (ImGuiManager.IsInitialized && ImGui.GetIO().WantCaptureMouse) break;
-
                         SDL_MouseButtonEvent mouse = sdlEvent->button;
 
                         // The values in MouseButtonType are chosen to exactly match the SDL values
@@ -974,8 +954,6 @@ namespace ClassicUO
 
                 case SDL_EventType.SDL_EVENT_MOUSE_BUTTON_UP:
                     {
-                        if (ImGuiManager.IsInitialized && ImGui.GetIO().WantCaptureMouse) break;
-
                         SDL_MouseButtonEvent mouse = sdlEvent->button;
 
                         // The values in MouseButtonType are chosen to exactly match the SDL values

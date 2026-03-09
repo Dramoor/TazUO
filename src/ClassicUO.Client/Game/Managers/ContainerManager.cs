@@ -553,6 +553,13 @@ namespace ClassicUO.Game.Managers
             _data[0x9CE5] = new ContainerData(0x9CE5, 0x0000, 0x0000, 44, 65, 186, 159);
 
             _data[0x9CE7] = new ContainerData(0x9CE7, 0x0000, 0x0000, 44, 65, 186, 159);
+
+            if(Settings.GlobalSettings.CustomServer == Settings.CustomServers.Eventine)
+            {
+                _data[0x9D6C] = new ContainerData(0x9D6C, 0x0000, 0x0000, 50, 60, 548, 308);
+                _data[0x9D6B] = new ContainerData(0x9D6B, 0x0000, 0x0000, 50, 60, 548, 308);
+                _data[0x9D6A] = new ContainerData(0x9D6A, 0x0000, 0x0000, 50, 60, 548, 308);
+            }
         }
     }
 }

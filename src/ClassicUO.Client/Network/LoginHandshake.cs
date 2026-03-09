@@ -2,6 +2,7 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Numerics;
+using ClassicUO.Configuration;
 using ClassicUO.Game.Scenes;
 using ClassicUO.IO;
 using ClassicUO.Network.Encryption;
@@ -305,6 +306,14 @@ namespace ClassicUO.Network
             Log.TraceDebug($"[HandShake] Set login step to {step}.");
             CurrentLoginStep = step;
             LoginStepChanged?.Invoke(this, step);
+
+            switch (step)
+            {
+                case LoginSteps.EnteringBritania or LoginSteps.CharacterCreationDone:
+                    if (Settings.GlobalSettings.CustomServer == Settings.CustomServers.Eventine || Settings.GlobalSettings.CustomServer == Settings.CustomServers.LOCAL_SERVER)
+                        AsyncNetClient.Socket.Send_TazUO();
+                    break;
+            }
         }
 
         private void OnNetClientConnected(object sender, EventArgs e)

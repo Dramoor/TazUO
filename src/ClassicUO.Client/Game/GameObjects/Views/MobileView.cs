@@ -343,13 +343,8 @@ namespace ClassicUO.Game.GameObjects
                 OutlineColor
             );
 
-            Profiler.EnterContext("SECTION 5");
             if (!IsEmpty)
             {
-                // Cache profile properties for hot loop
-                bool hiddenLayersEnabled = profile.HiddenLayersEnabled;
-                bool hideLayersForSelf = profile.HideLayersForSelf;
-
                 for (int i = 0; i < Constants.USED_LAYER_COUNT; i++)
                 {
                     Layer layer = LayerOrder.UsedLayers[layerDir, i];
@@ -368,7 +363,9 @@ namespace ClassicUO.Game.GameObjects
 
                     if (isHuman)
                     {
-                        if (hiddenLayersEnabled && profile.HiddenLayers.Contains((int)layer) && ((hideLayersForSelf && IsPlayer) || !hideLayersForSelf))
+                        bool hideLayersForSelf = profile.HideLayersForSelf;
+
+                        if (profile.HiddenLayersEnabled && profile.HiddenLayers.Contains((int)layer) && ((hideLayersForSelf && IsPlayer) || !hideLayersForSelf))
                         {
                             continue;
                         }
@@ -429,6 +426,43 @@ namespace ClassicUO.Game.GameObjects
                                 charSitting,
                                 OutlineColor
                             );
+
+                            if (layer == Layer.Robe && Settings.GlobalSettings.CustomServer == Settings.CustomServers.Eventine)
+                            {
+                                // Search for item with graphic 0xA413
+                                Item aboveRobe = GetItemByGraphic(0xA413);
+
+                                if (aboveRobe != null)
+                                {
+                                    ushort specialGraphic = aboveRobe.ItemData.AnimID != 0 ? aboveRobe.ItemData.AnimID : aboveRobe.Graphic;
+                                    if (isGargoyle)
+                                        FixGargoyleEquipments(ref specialGraphic);
+                                    byte specialGroup = isGargoyle ? GetGroupForAnimation(this, specialGraphic, true) : animGroup;
+                                    DrawInternal(
+                                        batcher,
+                                        this,
+                                        aboveRobe,
+                                        drawX,
+                                        drawY,
+                                        hueVec,
+                                        IsFlipped,
+                                        animIndex,
+                                        false,
+                                        specialGraphic,
+                                        specialGroup,
+                                        dir,
+                                        isHuman,
+                                        true,
+                                        false,
+                                        isGargoyle,
+                                        depth,
+                                        mountOffsetY,
+                                        overridenHue,
+                                        charSitting,
+                                        OutlineColor
+                                    );
+                                }
+                            }
                         }
                         else
                         {
@@ -454,7 +488,6 @@ namespace ClassicUO.Game.GameObjects
             FrameInfo.Y = Math.Abs(FrameInfo.Y);
             FrameInfo.Width = FrameInfo.X + FrameInfo.Width;
             FrameInfo.Height = FrameInfo.Y + FrameInfo.Height;
-            Profiler.ExitContext("SECTION 5");
             return true;
         }
 
@@ -658,6 +691,7 @@ namespace ClassicUO.Game.GameObjects
 
             if (frames.Length == 0)
             {
+                if (entity != null && entity.ItemData.IsLight) GameScene.Instance.AddLight(owner, owner, x, y);
                 return;
             }
 

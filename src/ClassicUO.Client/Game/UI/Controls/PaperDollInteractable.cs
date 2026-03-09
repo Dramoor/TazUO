@@ -245,6 +245,9 @@ namespace ClassicUO.Game.UI.Controls
                 else
                 {
                     layers = equipItem.ItemData.IsContainer ? _layerOrder_quiver_fix : _layerOrder;
+
+                    if(Settings.GlobalSettings.CustomServer == Settings.CustomServers.Eventine)
+                        layers = equipItem.ItemData.IsContainer ? _layerOrder_quiver_fix : equipItem.Graphic == 0xA413 ? _layerOrder_quiver_fix : _layerOrder;
                 }
             }
             else if (
